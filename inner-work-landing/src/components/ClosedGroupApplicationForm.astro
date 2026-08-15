@@ -1,0 +1,119 @@
+---
+interface Props {
+	startDateLabel: string;
+}
+
+const { startDateLabel } = Astro.props;
+
+const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 text-solarized-textBody";
+---
+
+<form data-apply-form class="flex flex-col gap-6">
+	<div class="flex flex-col gap-1">
+		<label class="font-semibold text-solarized-textHeading" for="apply-name">Name</label>
+		<input id="apply-name" name="name" type="text" required autocomplete="name" class={inputClass} />
+	</div>
+
+	<div class="flex flex-col gap-1">
+		<label class="font-semibold text-solarized-textHeading" for="apply-email">Email</label>
+		<input id="apply-email" name="email" type="email" required autocomplete="email" class={inputClass} />
+	</div>
+
+	<div class="flex flex-col gap-1">
+		<label class="font-semibold text-solarized-textHeading" for="apply-why-now">
+			Why does this feel like the right time for you?
+		</label>
+		<textarea id="apply-why-now" name="whyNow" required rows="4" class={inputClass}></textarea>
+	</div>
+
+	<div class="flex flex-col gap-1">
+		<label class="font-semibold text-solarized-textHeading" for="apply-commitment">
+			The cycle runs first and third Wednesday, 19:00 Berlin / 11:00 San Francisco, starting {startDateLabel}
+			— 6 sessions in total. Can you commit to that?
+		</label>
+		<p class="text-sm text-solarized-textSecondary">
+			Missing one or two is fine, life happens — I'm asking about your general commitment, not perfect
+			attendance.
+		</p>
+		<textarea id="apply-commitment" name="commitment" required rows="3" class={inputClass}></textarea>
+	</div>
+
+	<div class="flex flex-col gap-1">
+		<label class="font-semibold text-solarized-textHeading" for="apply-anything-else">
+			Anything else you'd like me to know? <span class="font-normal text-solarized-textSecondary">(optional)</span>
+		</label>
+		<textarea id="apply-anything-else" name="anythingElse" rows="3" class={inputClass}></textarea>
+	</div>
+
+	<div class="hidden" aria-hidden="true">
+		<label for="apply-company">Company</label>
+		<input id="apply-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+	</div>
+	<input type="hidden" name="formLoadedAt" value="" />
+
+	<p data-apply-status role="status" aria-live="polite" class="text-sm text-solarized-textSecondary"></p>
+
+	<button
+		type="submit"
+		class="self-start inline-block px-6 py-2 rounded-lg text-lg transition-all duration-200 bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+	>
+		Apply →
+	</button>
+</form>
+
+<script>
+	document.querySelectorAll<HTMLFormElement>("[data-apply-form]").forEach((form) => {
+		const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+		const status = form.querySelector<HTMLElement>("[data-apply-status]");
+		const formLoadedAtInput = form.querySelector<HTMLInputElement>('input[name="formLoadedAt"]');
+		const honeypotInput = form.querySelector<HTMLInputElement>("#apply-company");
+
+		if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
+
+		function lockAsSubmitted(message: string) {
+			form.querySelectorAll("input, textarea, button").forEach((el) => el.setAttribute("disabled", "true"));
+			if (status) status.textContent = message;
+		}
+
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
+			if (!submitButton) return;
+
+			const data = new FormData(form);
+			submitButton.setAttribute("disabled", "true");
+			if (status) status.textContent = "Sending your application…";
+
+			try {
+				const response = await fetch("/api/apply", {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({
+						name: data.get("name"),
+						email: data.get("email"),
+						whyNow: data.get("whyNow"),
+						commitment: data.get("commitment"),
+						anythingElse: data.get("anythingElse"),
+						honeypot: honeypotInput?.value ?? "",
+						formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
+					}),
+				});
+				const result = (await response.json()) as { error?: string; alreadyApplied?: boolean };
+
+				if (!response.ok) {
+					submitButton.removeAttribute("disabled");
+					if (status) status.textContent = result.error ?? "Something went wrong. Please try again.";
+					return;
+				}
+
+				lockAsSubmitted(
+					result.alreadyApplied
+						? "You've already applied for this cycle — I'll be in touch."
+						: "Thanks — I've got your application and will get back to you soon.",
+				);
+			} catch {
+				submitButton.removeAttribute("disabled");
+				if (status) status.textContent = "Something went wrong. Please try again.";
+			}
+		});
+	});
+</script>

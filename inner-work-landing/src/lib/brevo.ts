@@ -11,6 +11,13 @@ interface BrevoEnv {
 	FROM_NAME: string;
 }
 
+function escapeHtml(text: string): string {
+	return text
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;');
+}
+
 interface BrevoAttachment {
 	name: string;
 	content: string; // base64
@@ -90,5 +97,37 @@ export async function sendCalendarInviteEmail(
 				content: base64EncodeUtf8(options.icsContent),
 			},
 		],
+	});
+}
+
+export async function sendApplicationNotificationEmail(
+	env: BrevoEnv,
+	options: { to: string; name: string; email: string; whyNow: string; commitment: string; anythingElse: string },
+): Promise<void> {
+	await sendBrevoEmail(env, {
+		to: options.to,
+		subject: `New closed-group application — ${options.name}`,
+		htmlContent: `
+			<p><strong>Name:</strong> ${escapeHtml(options.name)}</p>
+			<p><strong>Email:</strong> ${escapeHtml(options.email)}</p>
+			<p><strong>Why now:</strong><br>${escapeHtml(options.whyNow)}</p>
+			<p><strong>Commitment:</strong><br>${escapeHtml(options.commitment)}</p>
+			${options.anythingElse ? `<p><strong>Anything else:</strong><br>${escapeHtml(options.anythingElse)}</p>` : ''}
+		`.trim(),
+	});
+}
+
+export async function sendApplicationReceivedEmail(
+	env: BrevoEnv,
+	options: { to: string; name: string },
+): Promise<void> {
+	await sendBrevoEmail(env, {
+		to: options.to,
+		subject: `Got your application — Learning group for inner work`,
+		htmlContent: `
+			<p>Hi ${escapeHtml(options.name)},</p>
+			<p>I've got your application for the closed group. I'll get back to you either way, once applications close.</p>
+			<p>Thanks for taking the time.</p>
+		`.trim(),
 	});
 }

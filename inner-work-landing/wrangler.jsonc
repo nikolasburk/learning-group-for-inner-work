@@ -10,7 +10,8 @@
   "vars": {
     "FROM_EMAIL": "hello@example.com", // TODO: replace with a verified Brevo sender address on your domain
     "FROM_NAME": "Nikolas — Learning group for inner work",
-    "ZOOM_LINK": "https://zoom.us/j/replace-me" // TODO: replace with the real recurring Zoom link
+    "ZOOM_LINK": "https://zoom.us/j/replace-me", // TODO: replace with the real recurring Zoom link
+    "NOTIFY_EMAIL": "nikolas.burk@gmail.com" // where closed-group application notifications are sent
   },
   "d1_databases": [
     {
