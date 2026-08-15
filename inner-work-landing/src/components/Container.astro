@@ -1,0 +1,20 @@
+---
+interface Props {
+	class?: string;
+	background?: "base" | "tint" | "hero";
+}
+
+const { class: className, background = "base" } = Astro.props;
+
+const bgMap = {
+	base: "",
+	tint: "bg-solarized-tintViolet",
+	hero: "bg-hero-wash",
+};
+---
+
+<section class:list={[bgMap[background]]}>
+	<div class:list={["max-w-5xl mx-auto px-4 py-12 md:py-16", className]}>
+		<slot />
+	</div>
+</section>

@@ -1,0 +1,14 @@
+---
+interface Props {
+	question: string;
+}
+
+const { question } = Astro.props;
+---
+
+<details class="prose border-b border-solarized-base2 py-4">
+	<summary>{question}</summary>
+	<div>
+		<slot />
+	</div>
+</details>

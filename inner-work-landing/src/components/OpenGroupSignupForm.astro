@@ -1,0 +1,114 @@
+---
+interface Props {
+	sessionDate: string;
+	sessionLabel: string;
+}
+
+const { sessionDate, sessionLabel } = Astro.props;
+---
+
+<form
+	data-signup-form
+	data-session-date={sessionDate}
+	data-session-label={sessionLabel}
+	class="flex flex-col gap-3"
+>
+	<div class="flex flex-wrap gap-2">
+		<label class="sr-only" for="open-group-email">Email address</label>
+		<input
+			id="open-group-email"
+			name="email"
+			type="email"
+			required
+			placeholder="you@example.com"
+			autocomplete="email"
+			class="flex-1 min-w-0 px-4 py-2 rounded-lg border border-solarized-base2 text-solarized-textBody"
+		/>
+		<button
+			type="submit"
+			class="inline-block px-6 py-2 rounded-lg text-lg transition-all duration-200 bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+		>
+			Sign up for {sessionLabel} →
+		</button>
+	</div>
+	<div class="hidden" aria-hidden="true">
+		<label for="open-group-company">Company</label>
+		<input id="open-group-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+	</div>
+	<input type="hidden" name="formLoadedAt" value="" />
+	<p data-signup-status role="status" aria-live="polite" class="text-sm text-solarized-textSecondary"></p>
+	<p class="text-sm text-solarized-textSecondary">
+		You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a
+		calendar invite. You can only sign up for the next session, not multiple in advance.
+	</p>
+</form>
+
+<script>
+	import { SIGNUP_COOKIE_NAME } from "../lib/signup-cookie";
+
+	function readSignupCookie(): { sessionDate?: string } | null {
+		const match = document.cookie
+			.split("; ")
+			.find((row) => row.startsWith(`${SIGNUP_COOKIE_NAME}=`));
+		if (!match) return null;
+		try {
+			return JSON.parse(decodeURIComponent(match.split("=").slice(1).join("=")));
+		} catch {
+			return null;
+		}
+	}
+
+	document.querySelectorAll<HTMLFormElement>("[data-signup-form]").forEach((form) => {
+		const sessionDate = form.dataset.sessionDate ?? "";
+		const sessionLabel = form.dataset.sessionLabel ?? "the next session";
+		const emailInput = form.querySelector<HTMLInputElement>("#open-group-email");
+		const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+		const status = form.querySelector<HTMLElement>("[data-signup-status]");
+		const formLoadedAtInput = form.querySelector<HTMLInputElement>('input[name="formLoadedAt"]');
+
+		if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
+
+		function lockAsSignedUp(label: string) {
+			emailInput?.setAttribute("disabled", "true");
+			submitButton?.setAttribute("disabled", "true");
+			if (status) status.textContent = `You're signed up for ${label} — check your email to confirm.`;
+		}
+
+		const cookie = readSignupCookie();
+		if (cookie?.sessionDate && cookie.sessionDate === sessionDate) {
+			lockAsSignedUp(sessionLabel);
+		}
+
+		form.addEventListener("submit", async (event) => {
+			event.preventDefault();
+			if (!emailInput || !submitButton) return;
+
+			submitButton.setAttribute("disabled", "true");
+			if (status) status.textContent = "Signing you up…";
+
+			try {
+				const response = await fetch("/api/signup", {
+					method: "POST",
+					headers: { "content-type": "application/json" },
+					body: JSON.stringify({
+						email: emailInput.value,
+						honeypot: (form.querySelector<HTMLInputElement>("#open-group-company")?.value ?? ""),
+						formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
+					}),
+				});
+				const data = (await response.json()) as { error?: string; sessionLabel?: string };
+
+				if (!response.ok) {
+					submitButton.removeAttribute("disabled");
+					if (status) status.textContent = data.error ?? "Something went wrong. Please try again.";
+					return;
+				}
+
+				lockAsSignedUp(data.sessionLabel ?? sessionLabel);
+			} catch {
+				submitButton.removeAttribute("disabled");
+				if (status) status.textContent = "Something went wrong. Please try again.";
+			}
+		});
+	});
+</script>

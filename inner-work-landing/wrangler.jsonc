@@ -1,0 +1,23 @@
+{
+  "name": "inner-work-landing",
+  "main": "./dist/_worker.js/index.js",
+  "compatibility_date": "2025-06-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  },
+  "vars": {
+    "FROM_EMAIL": "hello@example.com", // TODO: replace with a verified Brevo sender address on your domain
+    "FROM_NAME": "Nikolas — Learning group for inner work",
+    "ZOOM_LINK": "https://zoom.us/j/replace-me" // TODO: replace with the real recurring Zoom link
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "inner-work-signups",
+      "database_id": "3496eb88-e534-4219-a367-4d9bc15e4c08",
+      "migrations_dir": "migrations"
+    }
+  ]
+}

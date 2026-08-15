@@ -1,0 +1,34 @@
+---
+import Button from "./Button.astro";
+
+interface Props {
+	title: string;
+	note: string;
+	cadence: string;
+	time: string;
+	ctaLabel?: string;
+	ctaHref?: string;
+	footnote?: string;
+}
+
+const { title, note, cadence, time, ctaLabel, ctaHref, footnote } = Astro.props;
+---
+
+<div class="rounded-xl border border-solarized-base2 p-6 md:p-8 flex flex-col h-full hover:shadow-md transition-shadow">
+	<h3 class="text-2xl font-bold mb-2 text-solarized-textHeading">{title}</h3>
+	<p class="mb-4 text-solarized-textSecondary">{note}</p>
+	<p class="text-sm uppercase tracking-wide text-solarized-textSecondary">{cadence}</p>
+	<p class="text-2xl font-bold text-solarized-textHeading mb-4">{time}</p>
+	<div class="mb-4">
+		<slot name="calendar" />
+	</div>
+	<div class="prose flex-1">
+		<slot />
+	</div>
+	<div class="mt-auto">
+		<slot name="cta">
+			{ctaHref && ctaLabel && <Button href={ctaHref}>{ctaLabel}</Button>}
+		</slot>
+		{footnote && <p class="text-sm text-solarized-textSecondary -mt-4">{footnote}</p>}
+	</div>
+</div>

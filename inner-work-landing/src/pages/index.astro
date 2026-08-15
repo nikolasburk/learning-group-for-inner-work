@@ -1,0 +1,39 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import Hero from "../components/sections/Hero.astro";
+import Why from "../components/sections/Why.astro";
+import WhatWeDo from "../components/sections/WhatWeDo.astro";
+import Join from "../components/sections/Join.astro";
+import WhoItsFor from "../components/sections/WhoItsFor.astro";
+import Rules from "../components/sections/Rules.astro";
+import WhatThisIsnt from "../components/sections/WhatThisIsnt.astro";
+import WhoIAm from "../components/sections/WhoIAm.astro";
+import CoHost from "../components/sections/CoHost.astro";
+import FAQ from "../components/sections/FAQ.astro";
+import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+	<head>
+		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+	</head>
+	<body>
+		<Nav />
+		<main>
+			<Hero />
+			<Why />
+			<WhatWeDo />
+			<Join />
+			<WhoItsFor />
+			<Rules />
+			<WhatThisIsnt />
+			<WhoIAm />
+			<CoHost />
+			<FAQ />
+		</main>
+		<Footer />
+	</body>
+</html>

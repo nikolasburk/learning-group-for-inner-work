@@ -1,0 +1,110 @@
+---
+interface MonthSpec {
+	label: string;
+	year: number;
+	daysInMonth: number;
+	startWeekday: number; // 0 = Monday .. 6 = Sunday
+	highlighted: number[];
+}
+
+interface Props {
+	months: MonthSpec[];
+	startIndex?: number;
+}
+
+const { months, startIndex = 0 } = Astro.props;
+const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+---
+
+<div class="mini-calendar w-[176px]" data-start-index={startIndex}>
+	<div class="flex items-center justify-between mb-2">
+		<button
+			type="button"
+			class="cal-prev w-6 h-6 rounded-full border border-solarized-base2 text-solarized-textSecondary flex items-center justify-center hover:bg-solarized-base2 disabled:opacity-30 disabled:cursor-not-allowed"
+			aria-label="Previous month"
+		>
+			‹
+		</button>
+		<p class="cal-label text-xs font-semibold text-solarized-textHeading"></p>
+		<button
+			type="button"
+			class="cal-next w-6 h-6 rounded-full border border-solarized-base2 text-solarized-textSecondary flex items-center justify-center hover:bg-solarized-base2 disabled:opacity-30 disabled:cursor-not-allowed"
+			aria-label="Next month"
+		>
+			›
+		</button>
+	</div>
+	<div class="cal-panels">
+		{
+			months.map((month, i) => {
+				const cells = [
+					...Array.from({ length: month.startWeekday }, () => null),
+					...Array.from({ length: month.daysInMonth }, (_, d) => d + 1),
+				];
+				return (
+					<div class="cal-panel" data-index={i} data-label={`${month.label} ${month.year}`} hidden={i !== startIndex}>
+						<div class="grid grid-cols-7 gap-y-1 text-center">
+							{weekdayLabels.map((w) => (
+								<span class="text-[10px] text-solarized-base1">{w}</span>
+							))}
+							{cells.map((day) => (
+								<span
+									class:list={[
+										"text-xs w-6 h-6 mx-auto flex items-center justify-center rounded-full",
+										day && month.highlighted.includes(day)
+											? "bg-solarized-violet text-white font-semibold"
+											: "text-solarized-textSecondary",
+									]}
+								>
+									{day ?? ""}
+								</span>
+							))}
+						</div>
+					</div>
+				);
+			})
+		}
+	</div>
+</div>
+
+<script>
+	function initCalendars() {
+		document.querySelectorAll(".mini-calendar").forEach((cal) => {
+			if (cal.dataset.wired) return;
+			cal.dataset.wired = "true";
+
+			const panels = Array.from(cal.querySelectorAll(".cal-panel"));
+			const label = cal.querySelector(".cal-label");
+			const prev = cal.querySelector(".cal-prev");
+			const next = cal.querySelector(".cal-next");
+			let index = Number(cal.dataset.startIndex || 0);
+
+			function render() {
+				panels.forEach((panel, i) => {
+					panel.hidden = i !== index;
+				});
+				if (label) label.textContent = panels[index]?.dataset.label ?? "";
+				if (prev) prev.disabled = index === 0;
+				if (next) next.disabled = index === panels.length - 1;
+			}
+
+			prev?.addEventListener("click", () => {
+				if (index > 0) {
+					index--;
+					render();
+				}
+			});
+			next?.addEventListener("click", () => {
+				if (index < panels.length - 1) {
+					index++;
+					render();
+				}
+			});
+
+			render();
+		});
+	}
+
+	initCalendars();
+	document.addEventListener("astro:page-load", initCalendars);
+</script>

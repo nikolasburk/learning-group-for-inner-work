@@ -1,0 +1,21 @@
+---
+import NavLink from "./NavLink.astro";
+---
+
+<header class="sticky top-0 z-50 bg-solarized-base3/90 backdrop-blur-sm border-b border-solarized-base2">
+  <nav class="max-w-5xl mx-auto px-4 flex items-center justify-between gap-2">
+    <a href="#top" class="no-underline font-bold text-solarized-textHeading py-3 hidden sm:inline-block">
+      Inner Work
+    </a>
+    <a href="#top" class="no-underline font-bold text-solarized-textHeading py-3 sm:hidden">
+      IW
+    </a>
+    <div class="flex gap-1 overflow-x-auto whitespace-nowrap -mx-2 px-2 sm:overflow-visible sm:whitespace-normal sm:flex-wrap sm:mx-0 sm:px-0">
+      <NavLink href="#why">Why</NavLink>
+      <NavLink href="#what-we-do">What we do</NavLink>
+      <NavLink href="#join">Join</NavLink>
+      <NavLink href="#who-i-am">Who I am</NavLink>
+      <NavLink href="#faq">FAQ</NavLink>
+    </div>
+  </nav>
+</header>
