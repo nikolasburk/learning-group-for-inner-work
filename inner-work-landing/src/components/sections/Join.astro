@@ -5,108 +5,195 @@ import JoinCard from "../JoinCard.astro";
 import MiniCalendar from "../MiniCalendar.astro";
 import OpenGroupSignupForm from "../OpenGroupSignupForm.astro";
 import {
-	OPEN_GROUP_SESSIONS,
-	HOST_NAME,
-	CO_HOST_NAME,
-	HOST_IMAGE,
-	CO_HOST_IMAGE,
-	getNextOpenSession,
+  OPEN_GROUP_SESSIONS,
+  HOST_NAME,
+  CO_HOST_NAME,
+  HOST_IMAGE,
+  CO_HOST_IMAGE,
+  getNextOpenSession,
 } from "../../data/sessions";
 import { formatSessionLabel } from "../../lib/berlin-time";
 
 const nextSession = getNextOpenSession();
-const nextSessionLabel = nextSession ? formatSessionLabel(nextSession.date) : null;
+const nextSessionLabel = nextSession
+  ? formatSessionLabel(nextSession.date)
+  : null;
 
 // Matches OPEN_GROUP_SESSIONS entries into the given month's hover-card data.
 // Days with no match (e.g. already-past sessions) stay non-interactive.
 function sessionsForMonth(year: number, month: number) {
-	const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
-	return OPEN_GROUP_SESSIONS.filter((session) => session.date.startsWith(monthPrefix)).map((session) => ({
-		day: Number(session.date.slice(8, 10)),
-		date: session.date,
-		time: session.time,
-		durationMinutes: session.durationMinutes,
-		coHost: session.coHost,
-		isNext: nextSession !== null && session.date === nextSession.date,
-	}));
+  const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
+  return OPEN_GROUP_SESSIONS.filter((session) =>
+    session.date.startsWith(monthPrefix),
+  ).map((session) => ({
+    day: Number(session.date.slice(8, 10)),
+    date: session.date,
+    time: session.time,
+    durationMinutes: session.durationMinutes,
+    coHost: session.coHost,
+    isNext: nextSession !== null && session.date === nextSession.date,
+  }));
 }
 ---
 
 <Container>
-	<SectionHeading title="Two ways to join" id="join" />
-	<p class="text-lg text-solarized-textSecondary mt-6 mb-8">
-		Both groups do the same thing. The difference is who's in the room.
-	</p>
-	<div class="grid md:grid-cols-2 gap-6 md:gap-8">
-		<JoinCard
-			title="The open group"
-			note="Free, no application, no commitment."
-			cadence="Second and fourth Wednesday of the month"
-			time="19:00 Berlin · 11:00 San Francisco"
-		>
-			{
-				nextSession && nextSessionLabel && (
-					<Fragment slot="cta">
-						<OpenGroupSignupForm sessionDate={nextSession.date} sessionLabel={nextSessionLabel} />
-					</Fragment>
-				)
-			}
-			<MiniCalendar
-				slot="calendar"
-				startIndex={0}
-				host={HOST_NAME}
-				coHostName={CO_HOST_NAME}
-				hostImage={HOST_IMAGE}
-				coHostImage={CO_HOST_IMAGE}
-				months={[
-					{ label: "August", year: 2026, daysInMonth: 31, startWeekday: 5, highlighted: [12, 26], sessions: sessionsForMonth(2026, 8) },
-					{ label: "September", year: 2026, daysInMonth: 30, startWeekday: 1, highlighted: [9, 23], sessions: sessionsForMonth(2026, 9) },
-					{ label: "October", year: 2026, daysInMonth: 31, startWeekday: 3, highlighted: [14, 28], sessions: sessionsForMonth(2026, 10) },
-					{ label: "November", year: 2026, daysInMonth: 30, startWeekday: 6, highlighted: [11, 25], sessions: sessionsForMonth(2026, 11) },
-					{ label: "December", year: 2026, daysInMonth: 31, startWeekday: 1, highlighted: [9, 23], sessions: sessionsForMonth(2026, 12) },
-					{ label: "January", year: 2027, daysInMonth: 31, startWeekday: 4, highlighted: [13, 27], sessions: sessionsForMonth(2027, 1) },
-				]}
-			/>
-			<p>
-				Come once to see what it's like, come every time, or come back after a few months away. The
-				group is different every session, which keeps it easy to walk into.
-			</p>
-		</JoinCard>
-		<JoinCard
-			title="The closed group"
-			note="Starting Wednesday, September 16, running for 3 months — 6 sessions in total."
-			cadence="First and third Wednesday of the month"
-			time="19:00 Berlin · 11:00 San Francisco"
-			ctaLabel="Apply for the next cycle →"
-			ctaHref="/apply"
-			footnote="Applications close September 9. I'll get back to everyone either way."
-		>
-			<MiniCalendar
-				slot="calendar"
-				startIndex={0}
-				months={[
-					{ label: "September", year: 2026, daysInMonth: 30, startWeekday: 1, highlighted: [16] },
-					{ label: "October", year: 2026, daysInMonth: 31, startWeekday: 3, highlighted: [7, 21] },
-					{ label: "November", year: 2026, daysInMonth: 30, startWeekday: 6, highlighted: [4, 18] },
-					{ label: "December", year: 2026, daysInMonth: 31, startWeekday: 1, highlighted: [2] },
-					{ label: "January", year: 2027, daysInMonth: 31, startWeekday: 4, highlighted: [] },
-					{ label: "February", year: 2027, daysInMonth: 28, startWeekday: 0, highlighted: [] },
-				]}
-			/>
-			<p>
-				Same group of people the whole way through. That's the whole point: when you sit with the
-				same faces every two weeks, you stop introducing yourself and start going somewhere. Things
-				come up in session five that wouldn't have come up in session one.
-			</p>
-		</JoinCard>
-	</div>
-	<p class="text-center text-solarized-textSecondary mt-8">
-		<strong class="text-solarized-textHeading">Not sure?</strong> Come to an open session first. Most
-		people find it easier to decide once they've done it once.
-	</p>
-	<p class="text-center text-solarized-textSecondary mt-4">
-		Both groups are free to join. The open group has no cost at all; the closed group carries a
-		voluntary contribution of €25–100 for the cycle, entirely separate from applying — see
-		<a href="/support">Support</a> for details.
-	</p>
+  <SectionHeading title="Two ways to join" id="join" />
+  <p class="text-lg text-solarized-textSecondary mt-6 mb-8">
+    Both groups do the same thing. The difference is who's in the room.
+  </p>
+  <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+    <JoinCard
+      title="The open group"
+      note="Free, no application, no commitment."
+      cadence="Second and fourth Wednesday of the month"
+      time="19:00 Berlin · 11:00 San Francisco"
+    >
+      {
+        nextSession && nextSessionLabel && (
+          <Fragment slot="cta">
+            <OpenGroupSignupForm
+              sessionDate={nextSession.date}
+              sessionLabel={nextSessionLabel}
+            />
+          </Fragment>
+        )
+      }
+      <MiniCalendar
+        slot="calendar"
+        startIndex={0}
+        host={HOST_NAME}
+        coHostName={CO_HOST_NAME}
+        hostImage={HOST_IMAGE}
+        coHostImage={CO_HOST_IMAGE}
+        months={[
+          {
+            label: "August",
+            year: 2026,
+            daysInMonth: 31,
+            startWeekday: 5,
+            highlighted: [12, 26],
+            sessions: sessionsForMonth(2026, 8),
+          },
+          {
+            label: "September",
+            year: 2026,
+            daysInMonth: 30,
+            startWeekday: 1,
+            highlighted: [9, 23],
+            sessions: sessionsForMonth(2026, 9),
+          },
+          {
+            label: "October",
+            year: 2026,
+            daysInMonth: 31,
+            startWeekday: 3,
+            highlighted: [14, 28],
+            sessions: sessionsForMonth(2026, 10),
+          },
+          {
+            label: "November",
+            year: 2026,
+            daysInMonth: 30,
+            startWeekday: 6,
+            highlighted: [11, 25],
+            sessions: sessionsForMonth(2026, 11),
+          },
+          {
+            label: "December",
+            year: 2026,
+            daysInMonth: 31,
+            startWeekday: 1,
+            highlighted: [9, 23],
+            sessions: sessionsForMonth(2026, 12),
+          },
+          {
+            label: "January",
+            year: 2027,
+            daysInMonth: 31,
+            startWeekday: 4,
+            highlighted: [13, 27],
+            sessions: sessionsForMonth(2027, 1),
+          },
+        ]}
+      />
+      <p>
+        Come once to see what it's like, come every time, or come back after a
+        few months away. The group is different every session, which keeps it
+        easy to walk into.
+      </p>
+    </JoinCard>
+    <JoinCard
+      title="The closed group"
+      note="3 months starting in September (6 sessions in total)"
+      cadence="First and third Wednesday of the month"
+      time="19:00 Berlin · 11:00 San Francisco"
+      ctaLabel="Apply for the next cycle →"
+      ctaHref="/apply"
+      footnote="Applications close September 9. I'll get back to everyone either way."
+    >
+      <MiniCalendar
+        slot="calendar"
+        startIndex={0}
+        months={[
+          {
+            label: "September",
+            year: 2026,
+            daysInMonth: 30,
+            startWeekday: 1,
+            highlighted: [16],
+          },
+          {
+            label: "October",
+            year: 2026,
+            daysInMonth: 31,
+            startWeekday: 3,
+            highlighted: [7, 21],
+          },
+          {
+            label: "November",
+            year: 2026,
+            daysInMonth: 30,
+            startWeekday: 6,
+            highlighted: [4, 18],
+          },
+          {
+            label: "December",
+            year: 2026,
+            daysInMonth: 31,
+            startWeekday: 1,
+            highlighted: [2],
+          },
+          {
+            label: "January",
+            year: 2027,
+            daysInMonth: 31,
+            startWeekday: 4,
+            highlighted: [],
+          },
+          {
+            label: "February",
+            year: 2027,
+            daysInMonth: 28,
+            startWeekday: 0,
+            highlighted: [],
+          },
+        ]}
+      />
+      <p>
+        Same group of people every time. That's the point: when you sit with the
+        same faces every two weeks, you stop introducing yourself and start
+        going deeper.
+      </p>
+    </JoinCard>
+  </div>
+  <p class="text-center text-solarized-textSecondary mt-8">
+    <strong class="text-solarized-textHeading">Not sure?</strong> Come to an open
+    session first. Most people find it easier to decide once they've done it once.
+  </p>
+  <p class="text-center text-solarized-textSecondary mt-4">
+    Both groups are free to join. The open group has no cost at all; the closed
+    group carries a support contribution of €25–100 for the cycle, entirely
+    separate from applying — see
+    <a href="/support">Support</a> for details.
+  </p>
 </Container>

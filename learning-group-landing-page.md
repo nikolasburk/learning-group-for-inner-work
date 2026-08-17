@@ -52,16 +52,16 @@ You'll get an email to confirm you're coming. Confirm it, and you'll receive the
 
 [Single-month calendar, paged one month at a time, highlighting session dates — starts on September]
 
-Starting Wednesday, September 16, running for 3 months — 6 sessions in total.
+Starting in September, 3 months (6 sessions in total)
 
-Same group of people the whole way through. That's the whole point: when you sit with the same faces every two weeks, you stop introducing yourself and start going somewhere. Things come up in session five that wouldn't have come up in session one.
+Same group of people every time. That's the point: when you sit with the same faces every two weeks, you stop introducing yourself and start going deeper.
 
 **[Apply for the next cycle →]**
 Applications close [date]. I'll get back to everyone either way.
 
 **Not sure?** Come to an open session first. Most people find it easier to decide once they've done it once.
 
-Both groups are free to join. The open group has no cost at all; the closed group carries a voluntary contribution of €25–100 for the cycle, entirely separate from applying — see [Support](/support) for details.
+Both groups are free to join. The open group has no cost at all; the closed group carries a support contribution of €25–100 for the cycle, entirely separate from applying — see [Support](/support) for details.
 
 ## Who it's for
 
@@ -132,4 +132,4 @@ That's fine, it happens. Just let the group know. If it turns out you can't make
 A new one starts, and you can join again if you want. The open group keeps running throughout either way.
 
 **What does it cost?**
-The open group is free. The closed group carries a voluntary contribution of €25–100 for the cycle — entirely optional, and separate from applying. See [Support](/support) for how to chip in.
+The open group is free. The closed group carries a support contribution of €25–100 for the cycle — entirely optional, and separate from applying. See [Support](/support) for how to chip in.
