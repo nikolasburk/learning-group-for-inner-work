@@ -206,15 +206,15 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 		let openCell: HTMLElement | null = null;
 		let hideTimeout: ReturnType<typeof setTimeout> | undefined;
 
-		function setStatus(message: string, withSignupLink: boolean) {
+		function setStatus(message: string, linkLabel?: string) {
 			if (!statusEl) return;
 			statusEl.textContent = "";
 			statusEl.appendChild(document.createTextNode(message));
-			if (withSignupLink) {
+			if (linkLabel) {
 				statusEl.appendChild(document.createTextNode(" "));
 				const link = document.createElement("a");
 				link.href = "#open-group-email";
-				link.textContent = "Sign up below";
+				link.textContent = linkLabel;
 				link.className = "underline";
 				link.addEventListener("click", () => {
 					document.getElementById("open-group-email")?.focus();
@@ -250,23 +250,24 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 			}
 
 			if (cookie?.sessionDate === date) {
+				const manageLink = cookie.token ? "Manage below" : undefined;
 				if (cookie.status === "confirmed") {
 					setStatus(
 						cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
-						false,
+						manageLink,
 					);
 				} else {
 					setStatus(
 						cookie.email
 							? `You're signed up — check your email at ${cookie.email} to confirm.`
 							: "You're signed up — check your email to confirm.",
-						false,
+						manageLink,
 					);
 				}
 			} else if (isNext) {
-				setStatus("Not signed up yet.", true);
+				setStatus("Not signed up yet.", "Sign up below");
 			} else {
-				setStatus("Sign-up opens once this becomes the next session.", false);
+				setStatus("Sign-up opens once this becomes the next session.");
 			}
 
 			popover.classList.remove("hidden");

@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
 		return redirect('/confirmed?state=invalid');
 	}
 	if (row.status === 'confirmed') {
-		setSignupCookie(cookies, row.session_date, row.email, 'confirmed');
+		setSignupCookie(cookies, row.session_date, row.email, 'confirmed', token);
 		return redirect('/confirmed?state=ok');
 	}
 	if (row.status !== 'pending' || new Date(row.expires_at) < new Date()) {
@@ -41,7 +41,7 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
 		.bind(row.id)
 		.run();
 
-	setSignupCookie(cookies, row.session_date, row.email, 'confirmed');
+	setSignupCookie(cookies, row.session_date, row.email, 'confirmed', token);
 
 	const session = OPEN_GROUP_SESSIONS.find((s) => s.date === row.session_date);
 	if (session) {

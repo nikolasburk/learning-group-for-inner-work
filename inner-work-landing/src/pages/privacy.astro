@@ -55,11 +55,13 @@ import SectionHeading from "../components/SectionHeading.astro";
 		</p>
 		<p>
 			The site also sets one strictly necessary cookie (<code>iw_open_signup</code>) when you sign
-			up, so the site can show you that you're already signed up for the next session and avoid
-			showing the sign-up form again. It contains only the date of the session you signed up for,
-			expires after 60 days, and is not used for tracking or analytics. As a strictly necessary
-			cookie it does not require consent under the ePrivacy rules, but is disclosed here for
-			transparency (see also "No analytics or tracking" below).
+			up, so the site can show you that you're already signed up for the next session, avoid
+			showing the sign-up form again, and let you cancel your spot without needing the email. It
+			contains the session date, your email, your confirmation status, and the same random
+			cancellation token used in the confirmation email's cancel link. It expires after 60 days
+			and is not used for tracking or analytics. As a strictly necessary cookie it does not
+			require consent under the ePrivacy rules, but is disclosed here for transparency (see also
+			"No analytics or tracking" below).
 		</p>
 
 		<h3>Application form (closed group)</h3>

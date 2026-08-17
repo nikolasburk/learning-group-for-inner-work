@@ -61,7 +61,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
 	// Already confirmed — nothing to do, just make sure the UI reflects it.
 	if (existing?.status === 'confirmed') {
-		setSignupCookie(cookies, nextSession.date, email, 'confirmed');
+		setSignupCookie(cookies, nextSession.date, email, 'confirmed', existing.token);
 		return jsonResponse({ ok: true, alreadySignedUp: true, sessionLabel });
 	}
 
@@ -103,6 +103,6 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 		return jsonResponse({ error: 'Something went wrong sending your confirmation email. Please try again.' }, 502);
 	}
 
-	setSignupCookie(cookies, nextSession.date, email, 'pending');
+	setSignupCookie(cookies, nextSession.date, email, 'pending', token);
 	return jsonResponse({ ok: true, alreadySignedUp: Boolean(existing), sessionLabel });
 };

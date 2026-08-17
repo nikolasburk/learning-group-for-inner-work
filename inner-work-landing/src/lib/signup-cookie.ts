@@ -8,12 +8,19 @@ export interface SignupCookieValue {
 	email?: string;
 	// Absent on cookies set before this field existed — treat as 'pending'.
 	status?: SignupCookieStatus;
+	// Absent on cookies set before this field existed — hide any cancel UI when missing.
+	token?: string;
 }
 
 // Astro's `cookies.set()` already URL-encodes the value it's given
 // (via the underlying `cookie` package) — don't double-encode here.
-export function buildSignupCookieValue(sessionDate: string, email: string, status: SignupCookieStatus): string {
-	return JSON.stringify({ sessionDate, email, status });
+export function buildSignupCookieValue(
+	sessionDate: string,
+	email: string,
+	status: SignupCookieStatus,
+	token: string,
+): string {
+	return JSON.stringify({ sessionDate, email, status, token });
 }
 
 /** Client-side only — reads the signup cookie via `document.cookie`. */
@@ -44,8 +51,9 @@ export function setSignupCookie(
 	sessionDate: string,
 	email: string,
 	status: SignupCookieStatus,
+	token: string,
 ): void {
-	cookies.set(SIGNUP_COOKIE_NAME, buildSignupCookieValue(sessionDate, email, status), {
+	cookies.set(SIGNUP_COOKIE_NAME, buildSignupCookieValue(sessionDate, email, status, token), {
 		path: '/',
 		maxAge: SIGNUP_COOKIE_MAX_AGE_SECONDS,
 		sameSite: 'lax',
