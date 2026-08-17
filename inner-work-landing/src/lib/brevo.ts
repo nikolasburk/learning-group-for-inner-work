@@ -73,7 +73,7 @@ async function sendBrevoEmail(
 
 export async function sendConfirmationRequestEmail(
 	env: BrevoEnv,
-	options: { to: string; sessionLabel: string; confirmUrl: string },
+	options: { to: string; sessionLabel: string; confirmUrl: string; cancelUrl: string },
 ): Promise<void> {
 	await sendBrevoEmail(env, {
 		to: options.to,
@@ -84,6 +84,7 @@ export async function sendConfirmationRequestEmail(
 			<p>Please confirm you'd like to attend — you'll get the link and a calendar invite once you do.</p>
 			<p><a href="${options.confirmUrl}">Confirm my spot →</a></p>
 			<p>If you didn't request this, you can ignore this email.</p>
+			<p>Changed your mind? <a href="${options.cancelUrl}">Cancel your spot →</a></p>
 		`.trim(),
 	});
 }
@@ -96,6 +97,7 @@ export async function sendCalendarInviteEmail(
 		zoomLink: string;
 		icsContent: string;
 		googleCalendarLink: string;
+		cancelUrl: string;
 	},
 ): Promise<void> {
 	await sendBrevoEmail(env, {
@@ -107,6 +109,7 @@ export async function sendCalendarInviteEmail(
 			<p>Join link: <a href="${options.zoomLink}">${options.zoomLink}</a></p>
 			<p>A calendar invite is attached. Or <a href="${options.googleCalendarLink}">add it to Google Calendar →</a></p>
 			<p>See you there.</p>
+			<p>Can't make it anymore? <a href="${options.cancelUrl}">Cancel your spot →</a></p>
 		`.trim(),
 		attachment: [
 			{

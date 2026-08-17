@@ -39,6 +39,7 @@ export const GET: APIRoute = async ({ url, locals, redirect }) => {
 		const sessionLabel = formatSessionLabel(session.date);
 		const icsContent = buildSessionIcs(session, token, env.ZOOM_LINK);
 		const googleCalendarLink = buildGoogleCalendarLink(session, env.ZOOM_LINK);
+		const cancelUrl = new URL(`/api/cancel?token=${token}`, url).toString();
 
 		try {
 			await sendCalendarInviteEmail(env, {
@@ -47,6 +48,7 @@ export const GET: APIRoute = async ({ url, locals, redirect }) => {
 				zoomLink: env.ZOOM_LINK,
 				icsContent,
 				googleCalendarLink,
+				cancelUrl,
 			});
 		} catch (error) {
 			console.error('Failed to send calendar invite email', error);

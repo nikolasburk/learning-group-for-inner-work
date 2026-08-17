@@ -6,9 +6,11 @@ A space to slow down, be honest, and listen to each other.
 
 Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about _something_: work, plans, news, a problem that needs solving. It's rarer still to be listened to without being advised, reassured, or fixed.
 
-Inner work is the practice of paying attention to what's happening inside you, and doing it in the company of other people. It sounds simple, and it is. It also turns out to be one of the most useful things I've done with my time recently.
+When I look at what actually determines how good my life feels, it isn't my work or my circumstances. It's the state of a handful of relationships — my partner, my family, a few close friends. Most of us know this, while also spending far more of our attention on everything else.
 
-This group is an attempt to bring my experience to a broader set of people from various backgrounds.
+Inner work is the practice of paying attention to what's happening inside you, and doing it in the company of other people. It builds the capacity our relationships run on: staying present when a conversation gets uncomfortable, noticing what's going on in you before it comes out sideways, being able to listen to someone without immediately trying to solve them. That capacity doesn't stay in the group. It shows up in how you are with the people you go home to.
+
+It sounds simple, and it is. It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds.
 
 ## What we do
 
@@ -22,7 +24,7 @@ We meet online, and a session takes roughly 2 hours. It looks like this:
 6. **Check-out** — everyone shares where they are now
 7. **Meditation**
 
-The triads are the heart of it. Three people, one question, a set amount of time. One person speaks about whatever comes up for them; the other two listen. When the time's up, the next person speaks. No questions, no advice, no comments. Being listened to like that for a few minutes is a strange experience the first time, and it tends to open things up quickly.
+The triads are the heart of it. Three people, one question, a set amount of time. One person speaks about whatever comes up for them; the other two listen. When the time's up, the next person speaks. No questions, no advice, no comments. Being listened to like that for a few minutes is a strange experience the first time, and it tends to open things up quickly. Practising the other side of it matters just as much: most of us have never really been taught to listen without preparing a response, and it's a habit that travels straight into every conversation you have outside the group.
 
 ## Two ways to join
 
@@ -67,6 +69,8 @@ Both groups are free to join. The open group has no cost at all; the closed grou
 
 Anyone who's curious. You don't need experience with meditation, therapy, or anything similar, and you don't need to believe in anything in particular. Skepticism is fine — I had plenty of my own when I started.
 
+If there's a relationship in your life you'd like to feel closer than it currently does, that's as good a reason to come as any.
+
 Both groups are in English and open to everyone, wherever you are.
 
 ## The rules
@@ -110,6 +114,9 @@ No. Share what feels right in the moment, and nothing beyond that. Openness usua
 
 **What if I don't know what to say?**
 Then say that. "I don't know what to say" is a real answer, and often a more interesting one than something prepared. Simply remaining silent is also always an option.
+
+**Can I keep my camera turned off during a session?**
+During a session, we strongly encourage everyone to have their camera turned on. We are practicing connecting with other people and being able to see each other is fundamental to this. That being said, if you have technical difficulties or need to shortly step away, you can of course always turn off your camera temporarily.
 
 **Do I need to meditate, or be into any of this?**
 No. Sitting quietly for a few minutes is just a way of arriving, no prerequisites required.

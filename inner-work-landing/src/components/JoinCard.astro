@@ -19,7 +19,7 @@ const { title, note, cadence, time, ctaLabel, ctaHref, footnote } = Astro.props;
 	<p class="mb-4 text-solarized-textSecondary">{note}</p>
 	<p class="text-sm uppercase tracking-wide text-solarized-textSecondary">{cadence}</p>
 	<p class="text-2xl font-bold text-solarized-textHeading mb-4">{time}</p>
-	<div class="mb-4">
+	<div class="mb-4 flex justify-center">
 		<slot name="calendar" />
 	</div>
 	<div class="prose flex-1">

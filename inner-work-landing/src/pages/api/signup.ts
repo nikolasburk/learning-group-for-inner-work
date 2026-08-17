@@ -102,9 +102,10 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 	}
 
 	const confirmUrl = new URL(`/api/confirm?token=${token}`, request.url).toString();
+	const cancelUrl = new URL(`/api/cancel?token=${token}`, request.url).toString();
 
 	try {
-		await sendConfirmationRequestEmail(locals.runtime.env, { to: email, sessionLabel, confirmUrl });
+		await sendConfirmationRequestEmail(locals.runtime.env, { to: email, sessionLabel, confirmUrl, cancelUrl });
 	} catch (error) {
 		console.error('Failed to send confirmation email', error);
 		return jsonResponse({ error: 'Something went wrong sending your confirmation email. Please try again.' }, 502);

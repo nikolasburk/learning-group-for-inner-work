@@ -24,11 +24,19 @@ import SectionHeading from "../components/SectionHeading.astro";
 				from the <a href="/#join">Join</a> section.
 			</p>
 		</div>
+		<div data-state="cancelled" hidden>
+			<p>You're no longer signed up.</p>
+			<p>
+				If you change your mind, you can sign up again from the <a href="/#join">Join</a>
+				section.
+			</p>
+		</div>
 	</Container>
 </Layout>
 
 <script>
 	const requested = new URLSearchParams(location.search).get("state");
-	const state = requested === "ok" || requested === "expired" ? requested : "invalid";
+	const state =
+		requested === "ok" || requested === "expired" || requested === "cancelled" ? requested : "invalid";
 	document.querySelector(`[data-state="${state}"]`)?.removeAttribute("hidden");
 </script>
