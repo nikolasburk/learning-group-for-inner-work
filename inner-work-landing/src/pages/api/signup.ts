@@ -22,8 +22,8 @@ function randomToken(): string {
 	return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
 }
 
-function setSignupCookie(cookies: import('astro').AstroCookies, sessionDate: string): void {
-	cookies.set(SIGNUP_COOKIE_NAME, buildSignupCookieValue(sessionDate), {
+function setSignupCookie(cookies: import('astro').AstroCookies, sessionDate: string, email: string): void {
+	cookies.set(SIGNUP_COOKIE_NAME, buildSignupCookieValue(sessionDate, email), {
 		path: '/',
 		maxAge: SIGNUP_COOKIE_MAX_AGE_SECONDS,
 		sameSite: 'lax',
@@ -69,7 +69,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
 	// Already confirmed — nothing to do, just make sure the UI reflects it.
 	if (existing?.status === 'confirmed') {
-		setSignupCookie(cookies, nextSession.date);
+		setSignupCookie(cookies, nextSession.date, email);
 		return jsonResponse({ ok: true, alreadySignedUp: true, sessionLabel });
 	}
 
@@ -110,6 +110,6 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 		return jsonResponse({ error: 'Something went wrong sending your confirmation email. Please try again.' }, 502);
 	}
 
-	setSignupCookie(cookies, nextSession.date);
+	setSignupCookie(cookies, nextSession.date, email);
 	return jsonResponse({ ok: true, alreadySignedUp: Boolean(existing), sessionLabel });
 };

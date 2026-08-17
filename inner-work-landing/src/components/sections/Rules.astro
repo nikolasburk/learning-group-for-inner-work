@@ -1,16 +1,37 @@
 ---
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
+
+const rules = [
+	{
+		title: "Everything is an invitation.",
+		text: "You can step back from any part of a session at any time, without explaining yourself.",
+	},
+	{
+		title: "What's said here stays here.",
+		text: "We don't share names or personal details from a session. Your own experience is yours to share.",
+	},
+	{
+		title: "No unsolicited advice, no judgment.",
+		text: "When someone speaks, we listen. That's the whole job.",
+	},
+	{
+		title: "We're learners.",
+		text: "Mistakes happen, including mine.",
+	},
+];
 ---
 
 <Container>
 	<SectionHeading title="The rules" id="the-rules" />
-	<div class="prose max-w-none mt-6">
-		<ul>
-			<li><strong>Everything is an invitation.</strong> You can step back from any part of a session at any time, without explaining yourself.</li>
-			<li><strong>What's said here stays here.</strong> We don't share names or personal details from a session. Your own experience is yours to share.</li>
-			<li><strong>No unsolicited advice, no judgment.</strong> When someone speaks, we listen. That's the whole job.</li>
-			<li><strong>We're learners.</strong> Mistakes happen, including mine.</li>
-		</ul>
+	<div class="grid sm:grid-cols-2 gap-6 mt-6">
+		{
+			rules.map((rule) => (
+				<div class="rounded-xl border border-solarized-base2 p-6 flex flex-col h-full">
+					<h3 class="text-lg font-bold mb-2 text-solarized-textHeading">{rule.title}</h3>
+					<p class="text-solarized-textSecondary">{rule.text}</p>
+				</div>
+			))
+		}
 	</div>
 </Container>

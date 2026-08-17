@@ -44,19 +44,7 @@ const { sessionDate, sessionLabel } = Astro.props;
 </form>
 
 <script>
-	import { SIGNUP_COOKIE_NAME } from "../lib/signup-cookie";
-
-	function readSignupCookie(): { sessionDate?: string } | null {
-		const match = document.cookie
-			.split("; ")
-			.find((row) => row.startsWith(`${SIGNUP_COOKIE_NAME}=`));
-		if (!match) return null;
-		try {
-			return JSON.parse(decodeURIComponent(match.split("=").slice(1).join("=")));
-		} catch {
-			return null;
-		}
-	}
+	import { readSignupCookie } from "../lib/signup-cookie";
 
 	document.querySelectorAll<HTMLFormElement>("[data-signup-form]").forEach((form) => {
 		const sessionDate = form.dataset.sessionDate ?? "";

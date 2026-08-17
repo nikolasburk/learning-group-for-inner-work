@@ -1,6 +1,6 @@
 # Learning Group for Inner Work
 
-A regular space to slow down, be honest, and listen to each other.
+A space to slow down, be honest, and listen to each other.
 
 ## Why
 
@@ -36,7 +36,7 @@ Free, no application, no commitment.
 
 **19:00 Berlin · 11:00 San Francisco**
 
-[Single-month calendar, paged one month at a time, highlighting session dates — starts on the current month]
+[Single-month calendar, paged one month at a time, highlighting session dates — starts on the current month. Hovering (or tapping, on touch) a highlighted date opens a card with the exact date and time, who's hosting and whether co-host Rosa is joining that session, and whether you're already signed up — and with which email, if so. A signed-up date is also marked directly on the calendar.]
 
 Come once to see what it's like, come every time, or come back after a few months away. The group is different every session, which keeps it easy to walk into.
 

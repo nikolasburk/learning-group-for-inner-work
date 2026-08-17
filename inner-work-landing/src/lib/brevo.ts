@@ -32,6 +32,23 @@ async function sendBrevoEmail(
 		attachment?: BrevoAttachment[];
 	},
 ): Promise<void> {
+	// No API key configured (e.g. local dev without Brevo set up) — log the
+	// email instead of sending it, so the full flow (confirm links, ICS
+	// content, etc.) can still be exercised end-to-end without a real account.
+	if (!env.BREVO_API_KEY) {
+		console.log(
+			[
+				'[dev email — not sent, BREVO_API_KEY is not set]',
+				`To: ${options.to}`,
+				`Subject: ${options.subject}`,
+				'',
+				options.htmlContent,
+				options.attachment?.length ? `\n[attachments: ${options.attachment.map((a) => a.name).join(', ')}]` : '',
+			].join('\n'),
+		);
+		return;
+	}
+
 	const response = await fetch('https://api.brevo.com/v3/smtp/email', {
 		method: 'POST',
 		headers: {

@@ -4,11 +4,32 @@ import SectionHeading from "../SectionHeading.astro";
 import JoinCard from "../JoinCard.astro";
 import MiniCalendar from "../MiniCalendar.astro";
 import OpenGroupSignupForm from "../OpenGroupSignupForm.astro";
-import { getNextOpenSession } from "../../data/sessions";
+import {
+	OPEN_GROUP_SESSIONS,
+	HOST_NAME,
+	CO_HOST_NAME,
+	HOST_IMAGE,
+	CO_HOST_IMAGE,
+	getNextOpenSession,
+} from "../../data/sessions";
 import { formatSessionLabel } from "../../lib/berlin-time";
 
 const nextSession = getNextOpenSession();
 const nextSessionLabel = nextSession ? formatSessionLabel(nextSession.date) : null;
+
+// Matches OPEN_GROUP_SESSIONS entries into the given month's hover-card data.
+// Days with no match (e.g. already-past sessions) stay non-interactive.
+function sessionsForMonth(year: number, month: number) {
+	const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
+	return OPEN_GROUP_SESSIONS.filter((session) => session.date.startsWith(monthPrefix)).map((session) => ({
+		day: Number(session.date.slice(8, 10)),
+		date: session.date,
+		time: session.time,
+		durationMinutes: session.durationMinutes,
+		coHost: session.coHost,
+		isNext: nextSession !== null && session.date === nextSession.date,
+	}));
+}
 ---
 
 <Container>
@@ -33,13 +54,17 @@ const nextSessionLabel = nextSession ? formatSessionLabel(nextSession.date) : nu
 			<MiniCalendar
 				slot="calendar"
 				startIndex={0}
+				host={HOST_NAME}
+				coHostName={CO_HOST_NAME}
+				hostImage={HOST_IMAGE}
+				coHostImage={CO_HOST_IMAGE}
 				months={[
-					{ label: "August", year: 2026, daysInMonth: 31, startWeekday: 5, highlighted: [12, 26] },
-					{ label: "September", year: 2026, daysInMonth: 30, startWeekday: 1, highlighted: [9, 23] },
-					{ label: "October", year: 2026, daysInMonth: 31, startWeekday: 3, highlighted: [14, 28] },
-					{ label: "November", year: 2026, daysInMonth: 30, startWeekday: 6, highlighted: [11, 25] },
-					{ label: "December", year: 2026, daysInMonth: 31, startWeekday: 1, highlighted: [9, 23] },
-					{ label: "January", year: 2027, daysInMonth: 31, startWeekday: 4, highlighted: [13, 27] },
+					{ label: "August", year: 2026, daysInMonth: 31, startWeekday: 5, highlighted: [12, 26], sessions: sessionsForMonth(2026, 8) },
+					{ label: "September", year: 2026, daysInMonth: 30, startWeekday: 1, highlighted: [9, 23], sessions: sessionsForMonth(2026, 9) },
+					{ label: "October", year: 2026, daysInMonth: 31, startWeekday: 3, highlighted: [14, 28], sessions: sessionsForMonth(2026, 10) },
+					{ label: "November", year: 2026, daysInMonth: 30, startWeekday: 6, highlighted: [11, 25], sessions: sessionsForMonth(2026, 11) },
+					{ label: "December", year: 2026, daysInMonth: 31, startWeekday: 1, highlighted: [9, 23], sessions: sessionsForMonth(2026, 12) },
+					{ label: "January", year: 2027, daysInMonth: 31, startWeekday: 4, highlighted: [13, 27], sessions: sessionsForMonth(2027, 1) },
 				]}
 			/>
 			<p>

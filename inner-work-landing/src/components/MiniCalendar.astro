@@ -1,22 +1,50 @@
 ---
+interface SessionDetail {
+	/** Day-of-month, matches an entry in this month's `highlighted`. */
+	day: number;
+	/** 'YYYY-MM-DD', Berlin-local */
+	date: string;
+	/** '19:00', 24h Berlin-local */
+	time: string;
+	durationMinutes: number;
+	coHost: boolean;
+	/** True only for the single currently-signable session. */
+	isNext: boolean;
+}
+
 interface MonthSpec {
 	label: string;
 	year: number;
 	daysInMonth: number;
 	startWeekday: number; // 0 = Monday .. 6 = Sunday
 	highlighted: number[];
+	/** Optional per-day session data — days with a match become hoverable. */
+	sessions?: SessionDetail[];
 }
 
 interface Props {
 	months: MonthSpec[];
 	startIndex?: number;
+	/** Only needed when `months[].sessions` is set. */
+	host?: string;
+	coHostName?: string;
+	hostImage?: string;
+	coHostImage?: string;
 }
 
-const { months, startIndex = 0 } = Astro.props;
+const { months, startIndex = 0, host, coHostName, hostImage, coHostImage } = Astro.props;
 const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+const hasSessions = months.some((month) => month.sessions && month.sessions.length > 0);
 ---
 
-<div class="mini-calendar w-[176px]" data-start-index={startIndex}>
+<div
+	class="mini-calendar w-[176px]"
+	data-start-index={startIndex}
+	data-host={host}
+	data-cohost-name={coHostName}
+	data-host-image={hostImage}
+	data-cohost-image={coHostImage}
+>
 	<div class="flex items-center justify-between mb-2">
 		<button
 			type="button"
@@ -47,36 +75,69 @@ const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
 							{weekdayLabels.map((w) => (
 								<span class="text-[10px] text-solarized-base1">{w}</span>
 							))}
-							{cells.map((day) => (
-								<span
-									class:list={[
-										"text-xs w-6 h-6 mx-auto flex items-center justify-center rounded-full",
-										day && month.highlighted.includes(day)
-											? "bg-solarized-violet text-white font-semibold"
-											: "text-solarized-textSecondary",
-									]}
-								>
-									{day ?? ""}
-								</span>
-							))}
+							{cells.map((day) => {
+								const isHighlighted = day !== null && month.highlighted.includes(day);
+								const session = day !== null ? month.sessions?.find((s) => s.day === day) : undefined;
+								const dayClasses = [
+									"text-xs w-6 h-6 mx-auto flex items-center justify-center rounded-full",
+									isHighlighted
+										? "bg-solarized-violet text-white font-semibold"
+										: "text-solarized-textSecondary",
+								];
+								return session ? (
+									<button
+										type="button"
+										class:list={["cal-day relative", ...dayClasses]}
+										data-session-date={session.date}
+										data-session-time={session.time}
+										data-duration={session.durationMinutes}
+										data-cohost={session.coHost ? "true" : "false"}
+										data-is-next={session.isNext ? "true" : "false"}
+										aria-haspopup="true"
+									>
+										{day}
+										<span
+											class="cal-signed-up-dot hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-solarized-cyan ring-2 ring-solarized-base3"
+											aria-hidden="true"
+										/>
+									</button>
+								) : (
+									<span class:list={dayClasses}>{day ?? ""}</span>
+								);
+							})}
 						</div>
 					</div>
 				);
 			})
 		}
 	</div>
+	{
+		hasSessions && (
+			<div
+				class="cal-popover hidden fixed z-50 w-72 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden text-sm"
+				role="tooltip"
+			>
+				<p class="cal-popover-datetime font-semibold text-solarized-textHeading px-4 py-3" />
+				<div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
+				<p class="cal-popover-status text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
+			</div>
+		)
+	}
 </div>
 
 <script>
+	import { formatSessionLabel } from "../lib/berlin-time";
+	import { readSignupCookie } from "../lib/signup-cookie";
+
 	function initCalendars() {
-		document.querySelectorAll(".mini-calendar").forEach((cal) => {
+		document.querySelectorAll<HTMLElement>(".mini-calendar").forEach((cal) => {
 			if (cal.dataset.wired) return;
 			cal.dataset.wired = "true";
 
-			const panels = Array.from(cal.querySelectorAll(".cal-panel"));
+			const panels = Array.from(cal.querySelectorAll<HTMLElement>(".cal-panel"));
 			const label = cal.querySelector(".cal-label");
-			const prev = cal.querySelector(".cal-prev");
-			const next = cal.querySelector(".cal-next");
+			const prev = cal.querySelector<HTMLButtonElement>(".cal-prev");
+			const next = cal.querySelector<HTMLButtonElement>(".cal-next");
 			let index = Number(cal.dataset.startIndex || 0);
 
 			function render() {
@@ -102,6 +163,157 @@ const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
 			});
 
 			render();
+			initSessionCells(cal);
+		});
+	}
+
+	function initSessionCells(cal: HTMLElement) {
+		const dayCells = Array.from(cal.querySelectorAll<HTMLButtonElement>(".cal-day"));
+		if (dayCells.length === 0) return;
+
+		const host = cal.dataset.host ?? "";
+		const coHostName = cal.dataset.cohostName ?? "";
+		const hostImage = cal.dataset.hostImage ?? "";
+		const coHostImage = cal.dataset.cohostImage ?? "";
+		const cookie = readSignupCookie();
+
+		const popover = cal.querySelector<HTMLElement>(".cal-popover");
+		if (popover) document.body.appendChild(popover);
+		const datetimeEl = popover?.querySelector<HTMLElement>(".cal-popover-datetime");
+		const hostsEl = popover?.querySelector<HTMLElement>(".cal-popover-hosts");
+		const statusEl = popover?.querySelector<HTMLElement>(".cal-popover-status");
+
+		function buildHostRow(name: string, imageSrc: string, label: string) {
+			const row = document.createElement("div");
+			row.className = "flex items-center gap-2";
+			if (imageSrc) {
+				const img = document.createElement("img");
+				img.src = imageSrc;
+				img.alt = name;
+				img.className = "w-8 h-8 rounded-full object-cover flex-shrink-0";
+				row.appendChild(img);
+			}
+			const span = document.createElement("span");
+			span.textContent = label;
+			span.className = "text-solarized-textSecondary";
+			row.appendChild(span);
+			return row;
+		}
+
+		const hoverCapable = window.matchMedia("(hover: hover)").matches;
+		let openCell: HTMLElement | null = null;
+		let hideTimeout: ReturnType<typeof setTimeout> | undefined;
+
+		function setStatus(message: string, withSignupLink: boolean) {
+			if (!statusEl) return;
+			statusEl.textContent = "";
+			statusEl.appendChild(document.createTextNode(message));
+			if (withSignupLink) {
+				statusEl.appendChild(document.createTextNode(" "));
+				const link = document.createElement("a");
+				link.href = "#open-group-email";
+				link.textContent = "Sign up below";
+				link.className = "underline";
+				link.addEventListener("click", () => {
+					document.getElementById("open-group-email")?.focus();
+				});
+				statusEl.appendChild(link);
+			}
+		}
+
+		function position(cell: HTMLElement) {
+			if (!popover) return;
+			const rect = cell.getBoundingClientRect();
+			const left = Math.min(rect.left, window.innerWidth - popover.offsetWidth - 8);
+			popover.style.left = `${Math.max(8, left)}px`;
+			popover.style.top = `${rect.bottom + 8}px`;
+		}
+
+		function open(cell: HTMLElement) {
+			if (!popover || !datetimeEl || !hostsEl || !statusEl) return;
+			clearTimeout(hideTimeout);
+			openCell = cell;
+
+			const date = cell.dataset.sessionDate ?? "";
+			const time = cell.dataset.sessionTime ?? "";
+			const isCoHost = cell.dataset.cohost === "true";
+			const isNext = cell.dataset.isNext === "true";
+
+			datetimeEl.textContent = `${formatSessionLabel(date)}, ${time} Berlin`;
+
+			hostsEl.textContent = "";
+			hostsEl.appendChild(buildHostRow(host, hostImage, `Hosted by ${host}`));
+			if (isCoHost && coHostName) {
+				hostsEl.appendChild(buildHostRow(coHostName, coHostImage, `Joined by co-host ${coHostName}`));
+			}
+
+			if (cookie?.sessionDate === date) {
+				setStatus(
+					cookie.email
+						? `You're signed up — check your email at ${cookie.email} to confirm.`
+						: "You're signed up — check your email to confirm.",
+					false,
+				);
+			} else if (isNext) {
+				setStatus("Not signed up yet.", true);
+			} else {
+				setStatus("Sign-up opens once this becomes the next session.", false);
+			}
+
+			popover.classList.remove("hidden");
+			position(cell);
+		}
+
+		function close() {
+			hideTimeout = setTimeout(() => {
+				popover?.classList.add("hidden");
+				openCell = null;
+			}, 150);
+		}
+
+		dayCells.forEach((cell) => {
+			const date = cell.dataset.sessionDate;
+			if (date && cookie?.sessionDate === date) {
+				cell.querySelector(".cal-signed-up-dot")?.classList.remove("hidden");
+			}
+
+			if (hoverCapable) {
+				cell.addEventListener("mouseenter", () => open(cell));
+				cell.addEventListener("mouseleave", close);
+				cell.addEventListener("focus", () => open(cell));
+				cell.addEventListener("blur", close);
+			} else {
+				cell.addEventListener("click", (event) => {
+					event.stopPropagation();
+					if (openCell === cell) {
+						popover?.classList.add("hidden");
+						openCell = null;
+					} else {
+						open(cell);
+					}
+				});
+			}
+		});
+
+		popover?.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
+		popover?.addEventListener("mouseleave", close);
+
+		document.addEventListener("click", (event) => {
+			if (!openCell) return;
+			if (event.target instanceof Node && (popover?.contains(event.target) || openCell.contains(event.target))) return;
+			popover?.classList.add("hidden");
+			openCell = null;
+		});
+
+		window.addEventListener(
+			"scroll",
+			() => {
+				if (openCell) position(openCell);
+			},
+			true,
+		);
+		window.addEventListener("resize", () => {
+			if (openCell) position(openCell);
 		});
 	}
 
