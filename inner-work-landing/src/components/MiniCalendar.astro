@@ -71,10 +71,12 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 				];
 				return (
 					<div class="cal-panel" data-index={i} data-label={`${month.label} ${month.year}`} hidden={i !== startIndex}>
-						<div class="grid grid-cols-7 gap-y-1 text-center">
+						<div class="grid grid-cols-7 text-center mb-1">
 							{weekdayLabels.map((w) => (
 								<span class="text-[10px] text-solarized-base1">{w}</span>
 							))}
+						</div>
+						<div class="grid grid-cols-7 gap-y-1 text-center grid-rows-[repeat(6,1.5rem)]">
 							{cells.map((day) => {
 								const isHighlighted = day !== null && month.highlighted.includes(day);
 								const session = day !== null ? month.sessions?.find((s) => s.day === day) : undefined;
