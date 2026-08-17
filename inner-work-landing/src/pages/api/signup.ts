@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { getNextOpenSession } from '../../data/sessions';
 import { formatSessionLabel } from '../../lib/berlin-time';
 import { sendConfirmationRequestEmail } from '../../lib/brevo';
-import { SIGNUP_COOKIE_MAX_AGE_SECONDS, SIGNUP_COOKIE_NAME, buildSignupCookieValue } from '../../lib/signup-cookie';
+import { setSignupCookie } from '../../lib/signup-cookie';
 
 export const prerender = false;
 
@@ -20,14 +20,6 @@ function randomToken(): string {
 	const bytes = new Uint8Array(32);
 	crypto.getRandomValues(bytes);
 	return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
-}
-
-function setSignupCookie(cookies: import('astro').AstroCookies, sessionDate: string, email: string): void {
-	cookies.set(SIGNUP_COOKIE_NAME, buildSignupCookieValue(sessionDate, email), {
-		path: '/',
-		maxAge: SIGNUP_COOKIE_MAX_AGE_SECONDS,
-		sameSite: 'lax',
-	});
 }
 
 export const POST: APIRoute = async ({ request, locals, cookies }) => {
@@ -69,7 +61,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
 	// Already confirmed — nothing to do, just make sure the UI reflects it.
 	if (existing?.status === 'confirmed') {
-		setSignupCookie(cookies, nextSession.date, email);
+		setSignupCookie(cookies, nextSession.date, email, 'confirmed');
 		return jsonResponse({ ok: true, alreadySignedUp: true, sessionLabel });
 	}
 
@@ -111,6 +103,6 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 		return jsonResponse({ error: 'Something went wrong sending your confirmation email. Please try again.' }, 502);
 	}
 
-	setSignupCookie(cookies, nextSession.date, email);
+	setSignupCookie(cookies, nextSession.date, email, 'pending');
 	return jsonResponse({ ok: true, alreadySignedUp: Boolean(existing), sessionLabel });
 };

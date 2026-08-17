@@ -3,10 +3,11 @@ import { OPEN_GROUP_SESSIONS } from '../../data/sessions';
 import { formatSessionLabel } from '../../lib/berlin-time';
 import { sendCalendarInviteEmail } from '../../lib/brevo';
 import { buildGoogleCalendarLink, buildSessionIcs } from '../../lib/ics';
+import { SIGNUP_COOKIE_NAME, readSignupCookieValue, setSignupCookie } from '../../lib/signup-cookie';
 
 export const prerender = false;
 
-export const GET: APIRoute = async ({ url, locals, redirect }) => {
+export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
 	const token = url.searchParams.get('token');
 	if (!token) {
 		return redirect('/confirmed?state=invalid');
@@ -22,9 +23,16 @@ export const GET: APIRoute = async ({ url, locals, redirect }) => {
 		return redirect('/confirmed?state=invalid');
 	}
 	if (row.status === 'confirmed') {
+		setSignupCookie(cookies, row.session_date, row.email, 'confirmed');
 		return redirect('/confirmed?state=ok');
 	}
 	if (row.status !== 'pending' || new Date(row.expires_at) < new Date()) {
+		// This particular signup is dead — only clear the cookie if it's the one
+		// pointing at it, so we don't clobber an unrelated active signup.
+		const existingCookie = readSignupCookieValue(cookies);
+		if (existingCookie?.sessionDate === row.session_date && existingCookie.email === row.email) {
+			cookies.delete(SIGNUP_COOKIE_NAME, { path: '/' });
+		}
 		return redirect('/confirmed?state=expired');
 	}
 
@@ -32,6 +40,8 @@ export const GET: APIRoute = async ({ url, locals, redirect }) => {
 		.prepare(`UPDATE open_group_signups SET status = 'confirmed', confirmed_at = datetime('now') WHERE id = ?`)
 		.bind(row.id)
 		.run();
+
+	setSignupCookie(cookies, row.session_date, row.email, 'confirmed');
 
 	const session = OPEN_GROUP_SESSIONS.find((s) => s.date === row.session_date);
 	if (session) {

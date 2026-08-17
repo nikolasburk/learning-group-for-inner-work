@@ -248,12 +248,19 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 			}
 
 			if (cookie?.sessionDate === date) {
-				setStatus(
-					cookie.email
-						? `You're signed up — check your email at ${cookie.email} to confirm.`
-						: "You're signed up — check your email to confirm.",
-					false,
-				);
+				if (cookie.status === "confirmed") {
+					setStatus(
+						cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
+						false,
+					);
+				} else {
+					setStatus(
+						cookie.email
+							? `You're signed up — check your email at ${cookie.email} to confirm.`
+							: "You're signed up — check your email to confirm.",
+						false,
+					);
+				}
 			} else if (isNext) {
 				setStatus("Not signed up yet.", true);
 			} else {

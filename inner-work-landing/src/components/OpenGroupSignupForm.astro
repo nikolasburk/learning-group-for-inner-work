@@ -56,15 +56,19 @@ const { sessionDate, sessionLabel } = Astro.props;
 
 		if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
 
-		function lockAsSignedUp(label: string) {
+		function lockAsSignedUp(label: string, confirmed: boolean) {
 			emailInput?.setAttribute("disabled", "true");
 			submitButton?.setAttribute("disabled", "true");
-			if (status) status.textContent = `You're signed up for ${label} — check your email to confirm.`;
+			if (status) {
+				status.textContent = confirmed
+					? `You're confirmed for ${label}.`
+					: `You're signed up for ${label} — check your email to confirm.`;
+			}
 		}
 
 		const cookie = readSignupCookie();
 		if (cookie?.sessionDate && cookie.sessionDate === sessionDate) {
-			lockAsSignedUp(sessionLabel);
+			lockAsSignedUp(sessionLabel, cookie.status === "confirmed");
 		}
 
 		form.addEventListener("submit", async (event) => {
@@ -92,7 +96,8 @@ const { sessionDate, sessionLabel } = Astro.props;
 					return;
 				}
 
-				lockAsSignedUp(data.sessionLabel ?? sessionLabel);
+				const updatedCookie = readSignupCookie();
+				lockAsSignedUp(data.sessionLabel ?? sessionLabel, updatedCookie?.status === "confirmed");
 			} catch {
 				submitButton.removeAttribute("disabled");
 				if (status) status.textContent = "Something went wrong. Please try again.";
