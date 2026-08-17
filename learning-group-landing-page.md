@@ -4,13 +4,11 @@ A space to slow down, be honest, and listen to each other.
 
 ## Why
 
-Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about _something_: work, plans, news, a problem that needs solving. It's rarer still to be listened to without being advised, reassured, or fixed.
+Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about _something_: work, plans, news, a problem that needs solving. It's rarer to sit with someone and say what's actually going on. It's rarer still to be listened to without being advised, reassured, or fixed.
 
-When I look at what actually determines how good my life feels, it isn't my work or my circumstances. It's the state of a handful of relationships — my partner, my family, a few close friends. Most of us know this, while also spending far more of our attention on everything else.
+Inner work is the practice of paying attention to what's happening inside you, and doing it in the company of other people. It sounds simple, and it is. It also turns out to be one of the most useful things I've done with my time recently. 
 
-Inner work is the practice of paying attention to what's happening inside you, and doing it in the company of other people. It builds the capacity our relationships run on: staying present when a conversation gets uncomfortable, noticing what's going on in you before it comes out sideways, being able to listen to someone without immediately trying to solve them. That capacity doesn't stay in the group. It shows up in how you are with the people you go home to.
-
-It sounds simple, and it is. It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds.
+This group is an attempt to bring my experience to a broader set of people from various backgrounds.
 
 ## What we do
 
