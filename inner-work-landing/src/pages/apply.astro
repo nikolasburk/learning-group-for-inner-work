@@ -20,16 +20,14 @@ const { Content: NotOpen } = await render(notOpenEntry);
   title="Apply — Practice group for inner work"
   description="Apply for the next cycle of the closed group."
 >
-  <Container class="prose max-w-2xl">
-    <SectionHeading title="Apply for the closed group" />
+  <Container class="max-w-2xl">
+    <div class="prose">
+      <SectionHeading title="Apply for the closed group" />
+      {cycle && startDateLabel ? <Intro /> : <NotOpen />}
+    </div>
     {
-      cycle && startDateLabel ? (
-        <>
-          <Intro />
-          <ClosedGroupApplicationForm startDateLabel={startDateLabel} />
-        </>
-      ) : (
-        <NotOpen />
+      cycle && startDateLabel && (
+        <ClosedGroupApplicationForm startDateLabel={startDateLabel} />
       )
     }
   </Container>

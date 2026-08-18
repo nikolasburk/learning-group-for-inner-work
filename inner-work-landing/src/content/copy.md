@@ -58,9 +58,9 @@ It's also an experiment and will change as it goes. Feedback, ideas, and suggest
 
 My name is Nikolas Burk. I've been interested in personal development, meditation, and questions about how to live for a long time, mostly from a distance.
 
-That changed in 2024, at the [Summer Intensive](https://thomashuebl.com/summer-intensive-retreat-in-germany-2026/) retreat with Thomas Hübl. A week with 600 people turned out to be the most transformative experience of my life. I went again in 2025, joined a Practice Group for Transparent Communication in Berlin, went through the [Training](https://thomashuebl.com/de/kurse/praxisgruppenleiter-training-2026-2027/) to lead those groups myself, and built a daily meditation practice.
+That changed in 2024, at the [Summer Intensive](https://thomashuebl.com/summer-intensive-retreat-in-germany-2026/) retreat with Thomas Huebl. A week with 600 people turned out to be the most transformative experience of my life. I went again in 2025, joined a Practice Group for Transparent Communication in Berlin, went through the [Training](https://thomashuebl.com/de/kurse/praxisgruppenleiter-training-2026-2027/) to lead those groups myself, and built a daily meditation practice.
 
-My background is in software development — I spent the last nine years as a Developer Advocate at a startup. In the retreats and practice groups I met psychologists, coaches, and people from many other fields, but almost nobody from my own. That's part of why I'm starting this: I'd like to open the door for people who haven't had much contact with this kind of work, and learn alongside them.
+My background is in software development — I spent the last nine years as a Developer Advocate at a startup. In the retreats and practice groups I met psychologists, coaches, and people from many other fields, but almost nobody from my own. That's part of why I'm starting this: I'd like to open the door for people who haven't had any contact with this kind of work, and learn alongside them.
 
 # co-host
 
