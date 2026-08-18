@@ -5,38 +5,38 @@ import SectionHeading from "../components/SectionHeading.astro";
 ---
 
 <Layout title="Confirmed — Inner Work" description="Sign-up confirmation for the open group.">
-	<Container class="prose">
-		<SectionHeading title="Sign-up" />
+  <Container class="prose">
+    <SectionHeading title="Sign-up" />
 
-		<div data-state="ok" hidden>
-			<p>You're confirmed. A calendar invite is on its way to your inbox.</p>
-			<p>See you there.</p>
-		</div>
-		<div data-state="expired" hidden>
-			<p>
-				That confirmation link has expired or was already used. If you'd still like to come,
-				please sign up again from the <a href="/#join">Join</a> section.
-			</p>
-		</div>
-		<div data-state="invalid" hidden>
-			<p>
-				That confirmation link isn't valid. If you'd still like to come, please sign up again
-				from the <a href="/#join">Join</a> section.
-			</p>
-		</div>
-		<div data-state="cancelled" hidden>
-			<p>You're no longer signed up.</p>
-			<p>
-				If you change your mind, you can sign up again from the <a href="/#join">Join</a>
-				section.
-			</p>
-		</div>
-	</Container>
+    <div data-state="ok" hidden>
+      <p>You're confirmed. A calendar invite is on its way to your inbox.</p>
+      <p>See you there.</p>
+    </div>
+    <div data-state="expired" hidden>
+      <p>
+        That confirmation link has expired or was already used. If you'd still like to come,
+        please sign up again from the <a href="/#join">Join</a> section.
+      </p>
+    </div>
+    <div data-state="invalid" hidden>
+      <p>
+        That confirmation link isn't valid. If you'd still like to come, please sign up again
+        from the <a href="/#join">Join</a> section.
+      </p>
+    </div>
+    <div data-state="cancelled" hidden>
+      <p>You're no longer signed up.</p>
+      <p>
+        If you change your mind, you can sign up again from the <a href="/#join">Join</a>
+        section.
+      </p>
+    </div>
+  </Container>
 </Layout>
 
 <script>
-	const requested = new URLSearchParams(location.search).get("state");
-	const state =
-		requested === "ok" || requested === "expired" || requested === "cancelled" ? requested : "invalid";
-	document.querySelector(`[data-state="${state}"]`)?.removeAttribute("hidden");
+  const requested = new URLSearchParams(location.search).get("state");
+  const state =
+    requested === "ok" || requested === "expired" || requested === "cancelled" ? requested : "invalid";
+  document.querySelector(`[data-state="${state}"]`)?.removeAttribute("hidden");
 </script>

@@ -7,8 +7,8 @@ import { defineConfig } from 'astro/config';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://inner-work-landing.workers.dev', // TODO: update once a real/custom domain exists
-	output: 'static',
-	adapter: cloudflare(),
-	integrations: [sitemap(), tailwind()],
+  site: 'https://inner-work-landing.workers.dev', // TODO: update once a real/custom domain exists
+  output: 'static',
+  adapter: cloudflare(),
+  integrations: [sitemap(), tailwind()],
 });

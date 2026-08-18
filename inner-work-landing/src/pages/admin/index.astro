@@ -7,50 +7,50 @@ import { formatSessionLabel } from "../../lib/berlin-time";
 export const prerender = false;
 
 interface SignupRow {
-	email: string;
-	session_date: string;
-	status: string;
-	created_at: string;
-	confirmed_at: string | null;
-	cancelled_at: string | null;
+  email: string;
+  session_date: string;
+  status: string;
+  created_at: string;
+  confirmed_at: string | null;
+  cancelled_at: string | null;
 }
 
 interface ApplicationRow {
-	name: string;
-	email: string;
-	why_now: string;
-	commitment: string;
-	anything_else: string | null;
-	cycle_start_date: string;
-	status: string;
-	created_at: string;
+  name: string;
+  email: string;
+  why_now: string;
+  commitment: string;
+  anything_else: string | null;
+  cycle_start_date: string;
+  status: string;
+  created_at: string;
 }
 
 const db = Astro.locals.runtime.env.DB;
 
 const { results: signups } = await db
-	.prepare(
-		`SELECT email, session_date, status, created_at, confirmed_at, cancelled_at
-		 FROM open_group_signups ORDER BY session_date DESC, created_at DESC`,
-	)
-	.all<SignupRow>();
+  .prepare(
+    `SELECT email, session_date, status, created_at, confirmed_at, cancelled_at
+     FROM open_group_signups ORDER BY session_date DESC, created_at DESC`,
+  )
+  .all<SignupRow>();
 
 const { results: applications } = await db
-	.prepare(
-		`SELECT name, email, why_now, commitment, anything_else, cycle_start_date, status, created_at
-		 FROM closed_group_applications ORDER BY cycle_start_date DESC, created_at DESC`,
-	)
-	.all<ApplicationRow>();
+  .prepare(
+    `SELECT name, email, why_now, commitment, anything_else, cycle_start_date, status, created_at
+     FROM closed_group_applications ORDER BY cycle_start_date DESC, created_at DESC`,
+  )
+  .all<ApplicationRow>();
 
 function groupBy<T>(rows: T[], keyFn: (row: T) => string): Map<string, T[]> {
-	const map = new Map<string, T[]>();
-	for (const row of rows) {
-		const key = keyFn(row);
-		const group = map.get(key);
-		if (group) group.push(row);
-		else map.set(key, [row]);
-	}
-	return map;
+  const map = new Map<string, T[]>();
+  for (const row of rows) {
+    const key = keyFn(row);
+    const group = map.get(key);
+    if (group) group.push(row);
+    else map.set(key, [row]);
+  }
+  return map;
 }
 
 const signupsBySession = groupBy(signups, (s) => s.session_date);
@@ -58,91 +58,91 @@ const applicationsByCycle = groupBy(applications, (a) => a.cycle_start_date);
 ---
 
 <Layout title="Admin — Inner Work" description="Roster of open-group signups and closed-group applications.">
-	<Container>
-		<SectionHeading title="Open group signups" id="signups" />
-		<div class="mt-6 flex flex-col gap-8">
-			{
-				[...signupsBySession.entries()].map(([sessionDate, rows]) => (
-					<div>
-						<h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
-							{formatSessionLabel(sessionDate)}{" "}
-							<span class="text-solarized-textSecondary font-normal">({rows.length})</span>
-						</h3>
-						<div class="overflow-x-auto rounded-lg border border-solarized-base2">
-							<table class="w-full text-sm text-left">
-								<thead class="bg-solarized-tintViolet text-solarized-textSecondary">
-									<tr>
-										<th class="px-4 py-2 font-medium">Email</th>
-										<th class="px-4 py-2 font-medium">Status</th>
-										<th class="px-4 py-2 font-medium">Signed up</th>
-										<th class="px-4 py-2 font-medium">Confirmed</th>
-										<th class="px-4 py-2 font-medium">Cancelled</th>
-									</tr>
-								</thead>
-								<tbody>
-									{rows.map((row) => (
-										<tr class="border-t border-solarized-base2">
-											<td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
-											<td class="px-4 py-2">
-												<span class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary">
-													{row.status}
-												</span>
-											</td>
-											<td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
-											<td class="px-4 py-2 text-solarized-textSecondary">{row.confirmed_at ?? "—"}</td>
-											<td class="px-4 py-2 text-solarized-textSecondary">{row.cancelled_at ?? "—"}</td>
-										</tr>
-									))}
-								</tbody>
-							</table>
-						</div>
-					</div>
-				))
-			}
-			{signupsBySession.size === 0 && <p class="text-solarized-textSecondary">No signups yet.</p>}
-		</div>
-	</Container>
+  <Container>
+    <SectionHeading title="Open group signups" id="signups" />
+    <div class="mt-6 flex flex-col gap-8">
+      {
+        [...signupsBySession.entries()].map(([sessionDate, rows]) => (
+          <div>
+            <h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
+              {formatSessionLabel(sessionDate)}{" "}
+              <span class="text-solarized-textSecondary font-normal">({rows.length})</span>
+            </h3>
+            <div class="overflow-x-auto rounded-lg border border-solarized-base2">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
+                  <tr>
+                    <th class="px-4 py-2 font-medium">Email</th>
+                    <th class="px-4 py-2 font-medium">Status</th>
+                    <th class="px-4 py-2 font-medium">Signed up</th>
+                    <th class="px-4 py-2 font-medium">Confirmed</th>
+                    <th class="px-4 py-2 font-medium">Cancelled</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row) => (
+                    <tr class="border-t border-solarized-base2">
+                      <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
+                      <td class="px-4 py-2">
+                        <span class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary">
+                          {row.status}
+                        </span>
+                      </td>
+                      <td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
+                      <td class="px-4 py-2 text-solarized-textSecondary">{row.confirmed_at ?? "—"}</td>
+                      <td class="px-4 py-2 text-solarized-textSecondary">{row.cancelled_at ?? "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ))
+      }
+      {signupsBySession.size === 0 && <p class="text-solarized-textSecondary">No signups yet.</p>}
+    </div>
+  </Container>
 
-	<Container background="tint">
-		<SectionHeading title="Closed group applications" id="applications" />
-		<div class="mt-6 flex flex-col gap-8">
-			{
-				[...applicationsByCycle.entries()].map(([cycleStart, rows]) => (
-					<div>
-						<h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
-							Cycle starting {formatSessionLabel(cycleStart)}{" "}
-							<span class="text-solarized-textSecondary font-normal">({rows.length})</span>
-						</h3>
-						<div class="flex flex-col gap-4">
-							{rows.map((row) => (
-								<div class="rounded-lg border border-solarized-base2 bg-solarized-base3 p-4">
-									<div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-										<p class="font-semibold text-solarized-textHeading">
-											{row.name} <span class="font-normal text-solarized-textSecondary">— {row.email}</span>
-										</p>
-										<span class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary">
-											{row.status}
-										</span>
-									</div>
-									<p class="text-sm text-solarized-textSecondary mb-1">
-										<strong class="text-solarized-textBody">Why now:</strong> {row.why_now}
-									</p>
-									<p class="text-sm text-solarized-textSecondary mb-1">
-										<strong class="text-solarized-textBody">Commitment:</strong> {row.commitment}
-									</p>
-									{row.anything_else && (
-										<p class="text-sm text-solarized-textSecondary">
-											<strong class="text-solarized-textBody">Anything else:</strong> {row.anything_else}
-										</p>
-									)}
-									<p class="text-xs text-solarized-textSecondary mt-2">Applied {row.created_at}</p>
-								</div>
-							))}
-						</div>
-					</div>
-				))
-			}
-			{applicationsByCycle.size === 0 && <p class="text-solarized-textSecondary">No applications yet.</p>}
-		</div>
-	</Container>
+  <Container background="tint">
+    <SectionHeading title="Closed group applications" id="applications" />
+    <div class="mt-6 flex flex-col gap-8">
+      {
+        [...applicationsByCycle.entries()].map(([cycleStart, rows]) => (
+          <div>
+            <h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
+              Cycle starting {formatSessionLabel(cycleStart)}{" "}
+              <span class="text-solarized-textSecondary font-normal">({rows.length})</span>
+            </h3>
+            <div class="flex flex-col gap-4">
+              {rows.map((row) => (
+                <div class="rounded-lg border border-solarized-base2 bg-solarized-base3 p-4">
+                  <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                    <p class="font-semibold text-solarized-textHeading">
+                      {row.name} <span class="font-normal text-solarized-textSecondary">— {row.email}</span>
+                    </p>
+                    <span class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary">
+                      {row.status}
+                    </span>
+                  </div>
+                  <p class="text-sm text-solarized-textSecondary mb-1">
+                    <strong class="text-solarized-textBody">Why now:</strong> {row.why_now}
+                  </p>
+                  <p class="text-sm text-solarized-textSecondary mb-1">
+                    <strong class="text-solarized-textBody">Commitment:</strong> {row.commitment}
+                  </p>
+                  {row.anything_else && (
+                    <p class="text-sm text-solarized-textSecondary">
+                      <strong class="text-solarized-textBody">Anything else:</strong> {row.anything_else}
+                    </p>
+                  )}
+                  <p class="text-xs text-solarized-textSecondary mt-2">Applied {row.created_at}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      }
+      {applicationsByCycle.size === 0 && <p class="text-solarized-textSecondary">No applications yet.</p>}
+    </div>
+  </Container>
 </Layout>

@@ -3,203 +3,203 @@
 @tailwind utilities;
 
 @layer base {
-	body {
-		@apply font-sans;
-		background-color: theme('colors.solarized.base3');
-		color: theme('colors.solarized.textBody');
-	}
+  body {
+    @apply font-sans;
+    background-color: theme('colors.solarized.base3');
+    color: theme('colors.solarized.textBody');
+  }
 
-	/* Global link styles */
-	a {
+  /* Global link styles */
+  a {
       @apply underline decoration-solarized-violet/50;
-	}
+  }
 
-	a:hover {
+  a:hover {
     @apply underline decoration-solarized-violet/100;
-	}
+  }
 
-	h1, h2, h3, h4 {
-		font-family: theme('fontFamily.heading');
-	}
+  h1, h2, h3, h4 {
+    font-family: theme('fontFamily.heading');
+  }
 }
 
 @layer components {
-	.prose h2 {
-		@apply text-3xl font-bold mt-8 mb-4;
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose h2 {
+    @apply text-3xl font-bold mt-8 mb-4;
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose h3 {
-		@apply text-2xl font-bold mt-6 mb-3;
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose h3 {
+    @apply text-2xl font-bold mt-6 mb-3;
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose h4 {
-		@apply text-xl font-bold mt-4 mb-2;
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose h4 {
+    @apply text-xl font-bold mt-4 mb-2;
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose p {
-		@apply mb-6 text-lg leading-relaxed;
-		color: theme('colors.solarized.textBody');
-	}
+  .prose p {
+    @apply mb-6 text-lg leading-relaxed;
+    color: theme('colors.solarized.textBody');
+  }
 
-	.prose ul {
-		@apply mb-6 pl-8 text-lg list-disc;
-		color: theme('colors.solarized.textBody');
-	}
+  .prose ul {
+    @apply mb-6 pl-8 text-lg list-disc;
+    color: theme('colors.solarized.textBody');
+  }
 
-	.prose ol {
-		@apply mb-6 pl-8 text-lg list-decimal;
-		color: theme('colors.solarized.textBody');
-	}
+  .prose ol {
+    @apply mb-6 pl-8 text-lg list-decimal;
+    color: theme('colors.solarized.textBody');
+  }
 
-	.prose li {
-		@apply mb-2;
-	}
+  .prose li {
+    @apply mb-2;
+  }
 
-	.prose ul ul {
-		@apply mt-2 mb-0;
-	}
+  .prose ul ul {
+    @apply mt-2 mb-0;
+  }
 
-	.prose code {
-		@apply px-2 py-1 rounded text-sm font-mono;
-		background-color: theme('colors.solarized.base2');
-		color: theme('colors.solarized.violet');
-	}
+  .prose code {
+    @apply px-2 py-1 rounded text-sm font-mono;
+    background-color: theme('colors.solarized.base2');
+    color: theme('colors.solarized.violet');
+  }
 
-	.prose pre {
-		@apply p-6 rounded-lg mb-6 overflow-x-auto;
-		background-color: theme('colors.solarized.base2');
-	}
+  .prose pre {
+    @apply p-6 rounded-lg mb-6 overflow-x-auto;
+    background-color: theme('colors.solarized.base2');
+  }
 
-	.prose pre code {
-		@apply p-0 bg-transparent;
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose pre code {
+    @apply p-0 bg-transparent;
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose blockquote {
-		@apply pl-5 my-6 text-xl italic;
-		border-left: 4px solid theme('colors.solarized.violet');
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose blockquote {
+    @apply pl-5 my-6 text-xl italic;
+    border-left: 4px solid theme('colors.solarized.violet');
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose img {
-		@apply max-w-full h-auto rounded-lg my-6;
-	}
+  .prose img {
+    @apply max-w-full h-auto rounded-lg my-6;
+  }
 
-	.prose hr {
-		@apply border-0 border-t my-8;
-		border-color: theme('colors.solarized.base2');
-	}
+  .prose hr {
+    @apply border-0 border-t my-8;
+    border-color: theme('colors.solarized.base2');
+  }
 
-	.prose table {
-		@apply w-full mb-6;
-	}
+  .prose table {
+    @apply w-full mb-6;
+  }
 
-	.prose strong {
-		@apply font-extrabold;
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose strong {
+    @apply font-extrabold;
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose em {
-		@apply italic;
-		color: theme('colors.solarized.textHeading');
-	}
+  .prose em {
+    @apply italic;
+    color: theme('colors.solarized.textHeading');
+  }
 
-	.prose details {
-		@apply mb-4 py-2 rounded-lg;
-	}
+  .prose details {
+    @apply mb-4 py-2 rounded-lg;
+  }
 
-	.prose summary {
-		@apply cursor-pointer font-semibold text-lg mb-2;
-		color: theme('colors.solarized.textHeading');
-		list-style: none;
-		user-select: none;
-	}
+  .prose summary {
+    @apply cursor-pointer font-semibold text-lg mb-2;
+    color: theme('colors.solarized.textHeading');
+    list-style: none;
+    user-select: none;
+  }
 
-	.prose summary::-webkit-details-marker {
-		display: none;
-	}
+  .prose summary::-webkit-details-marker {
+    display: none;
+  }
 
-	.prose summary::before {
-		content: '▶';
-		@apply inline-block mr-2 text-sm;
-		color: theme('colors.solarized.violet');
-		transition: transform 0.2s ease;
-	}
+  .prose summary::before {
+    content: '▶';
+    @apply inline-block mr-2 text-sm;
+    color: theme('colors.solarized.violet');
+    transition: transform 0.2s ease;
+  }
 
-	.prose details[open] summary::before {
-		transform: rotate(90deg);
-	}
+  .prose details[open] summary::before {
+    transform: rotate(90deg);
+  }
 
-	.prose details[open] summary {
-		@apply mb-2;
-	}
+  .prose details[open] summary {
+    @apply mb-2;
+  }
 }
 
 /* Hero gradient wash */
 .bg-hero-wash {
-	background-color: theme('colors.solarized.base3');
-	background-image:
-		radial-gradient(ellipse 60% 55% at 25% 20%, rgba(108, 113, 196, 0.14), transparent 60%),
-		radial-gradient(ellipse 55% 50% at 80% 10%, rgba(42, 161, 152, 0.10), transparent 65%),
-		radial-gradient(ellipse 70% 55% at 50% 100%, rgba(198, 190, 226, 0.12), transparent 70%);
+  background-color: theme('colors.solarized.base3');
+  background-image:
+    radial-gradient(ellipse 60% 55% at 25% 20%, rgba(108, 113, 196, 0.14), transparent 60%),
+    radial-gradient(ellipse 55% 50% at 80% 10%, rgba(42, 161, 152, 0.10), transparent 65%),
+    radial-gradient(ellipse 70% 55% at 50% 100%, rgba(198, 190, 226, 0.12), transparent 70%);
 }
 
 /* Sharpie highlight effect */
 .sharpie-highlight {
-	position: relative;
-	display: inline;
-	background: rgba(198, 190, 226, 0.5);
-	padding: 0.15em 0.2em 0.1em;
-	margin: 0 0.05em;
-	box-decoration-break: clone;
-	-webkit-box-decoration-break: clone;
-	transform: rotate(-0.3deg);
-	box-shadow:
-		0 0 0 1px rgba(198, 190, 226, 0.08),
-		inset 0 1px 2px rgba(198, 190, 226, 0.08);
-	border-radius: 2px 3px 2px 3px;
+  position: relative;
+  display: inline;
+  background: rgba(198, 190, 226, 0.5);
+  padding: 0.15em 0.2em 0.1em;
+  margin: 0 0.05em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transform: rotate(-0.3deg);
+  box-shadow:
+    0 0 0 1px rgba(198, 190, 226, 0.08),
+    inset 0 1px 2px rgba(198, 190, 226, 0.08);
+  border-radius: 2px 3px 2px 3px;
 }
 
 .sharpie-highlight::before {
-	content: '';
-	position: absolute;
-	top: -1px;
-	left: -2px;
-	right: -2px;
-	bottom: -1px;
-	background: rgba(198, 190, 226, 0.12);
-	border-radius: 3px 4px 3px 4px;
-	z-index: -1;
-	transform: rotate(0.2deg);
-	filter: blur(0.5px);
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: -2px;
+  right: -2px;
+  bottom: -1px;
+  background: rgba(198, 190, 226, 0.12);
+  border-radius: 3px 4px 3px 4px;
+  z-index: -1;
+  transform: rotate(0.2deg);
+  filter: blur(0.5px);
 }
 
 .sharpie-highlight::after {
-	content: '';
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background:
-		radial-gradient(circle at 20% 50%, transparent 0%, rgba(198, 190, 226, 0.08) 50%, transparent 100%),
-		radial-gradient(circle at 80% 50%, transparent 0%, rgba(198, 190, 226, 0.08) 50%, transparent 100%);
-	z-index: -1;
-	opacity: 0.6;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, transparent 0%, rgba(198, 190, 226, 0.08) 50%, transparent 100%),
+    radial-gradient(circle at 80% 50%, transparent 0%, rgba(198, 190, 226, 0.08) 50%, transparent 100%);
+  z-index: -1;
+  opacity: 0.6;
 }
 
 /* Rotation variants - add these classes manually for different angles */
 .sharpie-highlight.sharpie-rotate-1 {
-	transform: rotate(0.2deg);
+  transform: rotate(0.2deg);
 }
 
 .sharpie-highlight.sharpie-rotate-2 {
-	transform: rotate(-0.4deg);
+  transform: rotate(-0.4deg);
 }
 
 .sharpie-highlight.sharpie-rotate-3 {
-	transform: rotate(0.3deg);
+  transform: rotate(0.3deg);
 }

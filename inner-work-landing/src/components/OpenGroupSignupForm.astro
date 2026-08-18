@@ -1,177 +1,177 @@
 ---
 interface Props {
-	sessionDate: string;
-	sessionLabel: string;
+  sessionDate: string;
+  sessionLabel: string;
 }
 
 const { sessionDate, sessionLabel } = Astro.props;
 ---
 
 <form
-	data-signup-form
-	data-session-date={sessionDate}
-	data-session-label={sessionLabel}
-	class="flex flex-col gap-3"
+  data-signup-form
+  data-session-date={sessionDate}
+  data-session-label={sessionLabel}
+  class="flex flex-col gap-3"
 >
-	<div class="flex flex-wrap gap-2">
-		<label class="sr-only" for="open-group-email">Email address</label>
-		<input
-			id="open-group-email"
-			name="email"
-			type="email"
-			required
-			placeholder="you@example.com"
-			autocomplete="email"
-			class="flex-1 min-w-0 px-4 py-2 rounded-lg border border-solarized-base2 text-solarized-textBody"
-		/>
-		<button
-			type="submit"
-			class="inline-block px-6 py-2 rounded-lg text-lg transition-all duration-200 bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
-		>
-			Sign up for {sessionLabel} →
-		</button>
-	</div>
-	<div class="hidden" aria-hidden="true">
-		<label for="open-group-company">Company</label>
-		<input id="open-group-company" name="company" type="text" tabindex="-1" autocomplete="off" />
-	</div>
-	<input type="hidden" name="formLoadedAt" value="" />
-	<p data-signup-status role="status" aria-live="polite" class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary"></p>
-	<button
-		type="button"
-		data-cancel-signup
-		class="hidden self-start text-sm text-solarized-textSecondary underline disabled:opacity-50 disabled:cursor-not-allowed"
-	>
-		Cancel my spot
-	</button>
-	<p class="-mt-1 text-sm text-solarized-textSecondary">
-		You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a
-		calendar invite.
-	</p>
+  <div class="flex flex-wrap gap-2">
+    <label class="sr-only" for="open-group-email">Email address</label>
+    <input
+      id="open-group-email"
+      name="email"
+      type="email"
+      required
+      placeholder="you@example.com"
+      autocomplete="email"
+      class="flex-1 min-w-0 px-4 py-2 rounded-lg border border-solarized-base2 text-solarized-textBody"
+    />
+    <button
+      type="submit"
+      class="inline-block px-6 py-2 rounded-lg text-lg transition-all duration-200 bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+    >
+      Sign up for {sessionLabel} →
+    </button>
+  </div>
+  <div class="hidden" aria-hidden="true">
+    <label for="open-group-company">Company</label>
+    <input id="open-group-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <input type="hidden" name="formLoadedAt" value="" />
+  <p data-signup-status role="status" aria-live="polite" class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary"></p>
+  <button
+    type="button"
+    data-cancel-signup
+    class="hidden self-start text-sm text-solarized-textSecondary underline disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    Cancel my spot
+  </button>
+  <p class="-mt-1 text-sm text-solarized-textSecondary">
+    You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a
+    calendar invite.
+  </p>
 </form>
 
 <script>
-	import { readSignupCookie } from "../lib/signup-cookie";
+  import { readSignupCookie } from "../lib/signup-cookie";
 
-	const CHECK_ICON =
-		'<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
-		'<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
-		'<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
-		"</svg>";
+  const CHECK_ICON =
+    '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+    '<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+    '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+    "</svg>";
 
-	document.querySelectorAll<HTMLFormElement>("[data-signup-form]").forEach((form) => {
-		const sessionDate = form.dataset.sessionDate ?? "";
-		const sessionLabel = form.dataset.sessionLabel ?? "the next session";
-		const emailInput = form.querySelector<HTMLInputElement>("#open-group-email");
-		const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
-		const status = form.querySelector<HTMLElement>("[data-signup-status]");
-		const cancelButton = form.querySelector<HTMLButtonElement>("[data-cancel-signup]");
-		const formLoadedAtInput = form.querySelector<HTMLInputElement>('input[name="formLoadedAt"]');
+  document.querySelectorAll<HTMLFormElement>("[data-signup-form]").forEach((form) => {
+    const sessionDate = form.dataset.sessionDate ?? "";
+    const sessionLabel = form.dataset.sessionLabel ?? "the next session";
+    const emailInput = form.querySelector<HTMLInputElement>("#open-group-email");
+    const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const status = form.querySelector<HTMLElement>("[data-signup-status]");
+    const cancelButton = form.querySelector<HTMLButtonElement>("[data-cancel-signup]");
+    const formLoadedAtInput = form.querySelector<HTMLInputElement>('input[name="formLoadedAt"]');
 
-		if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
+    if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
 
-		let currentLabel = sessionLabel;
-		let currentToken: string | undefined;
-		let currentConfirmed = false;
+    let currentLabel = sessionLabel;
+    let currentToken: string | undefined;
+    let currentConfirmed = false;
 
-		function renderStatus(message: string, confirmed: boolean) {
-			if (!status) return;
-			status.innerHTML = "";
-			if (confirmed) status.insertAdjacentHTML("beforeend", CHECK_ICON);
-			status.appendChild(document.createTextNode(message));
-		}
+    function renderStatus(message: string, confirmed: boolean) {
+      if (!status) return;
+      status.innerHTML = "";
+      if (confirmed) status.insertAdjacentHTML("beforeend", CHECK_ICON);
+      status.appendChild(document.createTextNode(message));
+    }
 
-		function lockAsSignedUp(label: string, confirmed: boolean, token: string | undefined) {
-			currentLabel = label;
-			currentToken = token;
-			currentConfirmed = confirmed;
-			emailInput?.setAttribute("disabled", "true");
-			submitButton?.setAttribute("disabled", "true");
-			renderStatus(
-				confirmed
-					? `You're confirmed for ${label}.`
-					: `You're signed up for ${label} — check your email to confirm.`,
-				confirmed,
-			);
-			// Cookies set before cancellation shipped won't have a token —
-			// fall back to the emailed cancel link in that case.
-			cancelButton?.classList.toggle("hidden", !token);
-		}
+    function lockAsSignedUp(label: string, confirmed: boolean, token: string | undefined) {
+      currentLabel = label;
+      currentToken = token;
+      currentConfirmed = confirmed;
+      emailInput?.setAttribute("disabled", "true");
+      submitButton?.setAttribute("disabled", "true");
+      renderStatus(
+        confirmed
+          ? `You're confirmed for ${label}.`
+          : `You're signed up for ${label} — check your email to confirm.`,
+        confirmed,
+      );
+      // Cookies set before cancellation shipped won't have a token —
+      // fall back to the emailed cancel link in that case.
+      cancelButton?.classList.toggle("hidden", !token);
+    }
 
-		function unlockForm() {
-			currentToken = undefined;
-			currentConfirmed = false;
-			emailInput?.removeAttribute("disabled");
-			submitButton?.removeAttribute("disabled");
-			cancelButton?.classList.add("hidden");
-			renderStatus("You're no longer signed up.", false);
-		}
+    function unlockForm() {
+      currentToken = undefined;
+      currentConfirmed = false;
+      emailInput?.removeAttribute("disabled");
+      submitButton?.removeAttribute("disabled");
+      cancelButton?.classList.add("hidden");
+      renderStatus("You're no longer signed up.", false);
+    }
 
-		const cookie = readSignupCookie();
-		if (cookie?.sessionDate && cookie.sessionDate === sessionDate) {
-			lockAsSignedUp(sessionLabel, cookie.status === "confirmed", cookie.token);
-		}
+    const cookie = readSignupCookie();
+    if (cookie?.sessionDate && cookie.sessionDate === sessionDate) {
+      lockAsSignedUp(sessionLabel, cookie.status === "confirmed", cookie.token);
+    }
 
-		cancelButton?.addEventListener("click", async () => {
-			if (!currentToken) return;
-			if (!window.confirm(`Cancel your spot for ${currentLabel}?`)) return;
+    cancelButton?.addEventListener("click", async () => {
+      if (!currentToken) return;
+      if (!window.confirm(`Cancel your spot for ${currentLabel}?`)) return;
 
-			const previousStatusText = status?.textContent ?? "";
-			const previousConfirmed = currentConfirmed;
-			cancelButton.setAttribute("disabled", "true");
-			renderStatus("Cancelling…", false);
+      const previousStatusText = status?.textContent ?? "";
+      const previousConfirmed = currentConfirmed;
+      cancelButton.setAttribute("disabled", "true");
+      renderStatus("Cancelling…", false);
 
-			try {
-				const response = await fetch("/api/cancel", {
-					method: "POST",
-					headers: { "content-type": "application/json" },
-					body: JSON.stringify({ token: currentToken }),
-				});
+      try {
+        const response = await fetch("/api/cancel", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token: currentToken }),
+        });
 
-				if (!response.ok) {
-					cancelButton.removeAttribute("disabled");
-					renderStatus(previousStatusText, previousConfirmed);
-					return;
-				}
+        if (!response.ok) {
+          cancelButton.removeAttribute("disabled");
+          renderStatus(previousStatusText, previousConfirmed);
+          return;
+        }
 
-				unlockForm();
-			} catch {
-				cancelButton.removeAttribute("disabled");
-				renderStatus(previousStatusText, previousConfirmed);
-			}
-		});
+        unlockForm();
+      } catch {
+        cancelButton.removeAttribute("disabled");
+        renderStatus(previousStatusText, previousConfirmed);
+      }
+    });
 
-		form.addEventListener("submit", async (event) => {
-			event.preventDefault();
-			if (!emailInput || !submitButton) return;
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!emailInput || !submitButton) return;
 
-			submitButton.setAttribute("disabled", "true");
-			renderStatus("Signing you up…", false);
+      submitButton.setAttribute("disabled", "true");
+      renderStatus("Signing you up…", false);
 
-			try {
-				const response = await fetch("/api/signup", {
-					method: "POST",
-					headers: { "content-type": "application/json" },
-					body: JSON.stringify({
-						email: emailInput.value,
-						honeypot: (form.querySelector<HTMLInputElement>("#open-group-company")?.value ?? ""),
-						formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
-					}),
-				});
-				const data = (await response.json()) as { error?: string; sessionLabel?: string };
+      try {
+        const response = await fetch("/api/signup", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: emailInput.value,
+            honeypot: (form.querySelector<HTMLInputElement>("#open-group-company")?.value ?? ""),
+            formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
+          }),
+        });
+        const data = (await response.json()) as { error?: string; sessionLabel?: string };
 
-				if (!response.ok) {
-					submitButton.removeAttribute("disabled");
-					renderStatus(data.error ?? "Something went wrong. Please try again.", false);
-					return;
-				}
+        if (!response.ok) {
+          submitButton.removeAttribute("disabled");
+          renderStatus(data.error ?? "Something went wrong. Please try again.", false);
+          return;
+        }
 
-				const updatedCookie = readSignupCookie();
-				lockAsSignedUp(data.sessionLabel ?? sessionLabel, updatedCookie?.status === "confirmed", updatedCookie?.token);
-			} catch {
-				submitButton.removeAttribute("disabled");
-				renderStatus("Something went wrong. Please try again.", false);
-			}
-		});
-	});
+        const updatedCookie = readSignupCookie();
+        lockAsSignedUp(data.sessionLabel ?? sessionLabel, updatedCookie?.status === "confirmed", updatedCookie?.token);
+      } catch {
+        submitButton.removeAttribute("disabled");
+        renderStatus("Something went wrong. Please try again.", false);
+      }
+    });
+  });
 </script>

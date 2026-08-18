@@ -11,27 +11,27 @@ const startDateLabel = cycle ? formatSessionLabel(cycle.startDate) : null;
 ---
 
 <Layout
-	title="Apply — Learning group for inner work"
-	description="Apply for the next cycle of the closed group."
+  title="Apply — Learning group for inner work"
+  description="Apply for the next cycle of the closed group."
 >
-	<Container class="prose max-w-2xl">
-		<SectionHeading title="Apply for the closed group" />
-		{
-			cycle && startDateLabel ? (
-				<>
-					<p>
-						A few short questions about you and what brings you here. It's not a test, and I'm not
-						looking for experience — it mostly helps me see whether the group will work for you and
-						whether the timing fits.
-					</p>
-					<ClosedGroupApplicationForm startDateLabel={startDateLabel} />
-				</>
-			) : (
-				<p>
-					Applications for the next cycle aren't open yet — check back soon, or come to an
-					<a href="/#join">open session</a> in the meantime.
-				</p>
-			)
-		}
-	</Container>
+  <Container class="prose max-w-2xl">
+    <SectionHeading title="Apply for the closed group" />
+    {
+      cycle && startDateLabel ? (
+        <>
+          <p>
+            A few short questions about you and what brings you here. It's not a test, and I'm not
+            looking for experience — it mostly helps me see whether the group will work for you and
+            whether the timing fits.
+          </p>
+          <ClosedGroupApplicationForm startDateLabel={startDateLabel} />
+        </>
+      ) : (
+        <p>
+          Applications for the next cycle aren't open yet — check back soon, or come to an
+          <a href="/#join">open session</a> in the meantime.
+        </p>
+      )
+    }
+  </Container>
 </Layout>

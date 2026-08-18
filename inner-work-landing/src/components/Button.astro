@@ -1,16 +1,16 @@
 ---
 interface Props {
-	href: string;
+  href: string;
 }
 
 const { href } = Astro.props;
 ---
 
 <a
-	href={href}
-	class="inline-block mb-6 px-6 py-2 rounded-lg text-lg transition-all duration-200 no-underline bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5"
-	target={href.startsWith('http') ? '_blank' : undefined}
-	rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
+  href={href}
+  class="inline-block mb-6 px-6 py-2 rounded-lg text-lg transition-all duration-200 no-underline bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5"
+  target={href.startsWith('http') ? '_blank' : undefined}
+  rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
 >
-	<slot />
+  <slot />
 </a>
