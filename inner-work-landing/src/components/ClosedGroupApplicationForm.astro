@@ -28,7 +28,7 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
 
   <div class="flex flex-col gap-1">
     <label class="font-semibold text-solarized-textHeading" for="apply-commitment">
-      The cycle runs first and third Wednesday, 19:00 Berlin / 11:00 San Francisco, starting {startDateLabel}
+      The cycle runs first and third Wednesday, 19:00 Berlin / 10:00 San Francisco, starting {startDateLabel}
       — 6 sessions in total. Can you commit to that?
     </label>
     <p class="text-sm text-solarized-textSecondary">
@@ -51,7 +51,12 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
   </div>
   <input type="hidden" name="formLoadedAt" value="" />
 
-  <p data-apply-status role="status" aria-live="polite" class="text-sm text-solarized-textSecondary"></p>
+  <p
+    data-apply-status
+    role="status"
+    aria-live="polite"
+    class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary"
+  ></p>
 
   <button
     type="submit"
@@ -62,6 +67,12 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
 </form>
 
 <script>
+  const CHECK_ICON =
+    '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+    '<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+    '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+    "</svg>";
+
   document.querySelectorAll<HTMLFormElement>("[data-apply-form]").forEach((form) => {
     const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const status = form.querySelector<HTMLElement>("[data-apply-status]");
@@ -70,9 +81,22 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
 
     if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
 
+    function renderStatus(message: string, success: boolean) {
+      if (!status) return;
+      status.classList.toggle("text-sm", !success);
+      status.classList.toggle("text-solarized-textSecondary", !success);
+      status.classList.toggle("text-base", success);
+      status.classList.toggle("font-semibold", success);
+      status.classList.toggle("text-solarized-green", success);
+
+      status.innerHTML = "";
+      if (success) status.insertAdjacentHTML("beforeend", CHECK_ICON);
+      status.appendChild(document.createTextNode(message));
+    }
+
     function lockAsSubmitted(message: string) {
       form.querySelectorAll("input, textarea, button").forEach((el) => el.setAttribute("disabled", "true"));
-      if (status) status.textContent = message;
+      renderStatus(message, true);
     }
 
     form.addEventListener("submit", async (event) => {

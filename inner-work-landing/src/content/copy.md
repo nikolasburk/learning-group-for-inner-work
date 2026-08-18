@@ -1,13 +1,12 @@
 # why
 
-When I look at <span class="sharpie-highlight sharpie-rotate-1">what actually determines the quality of my life, it comes down to my relationships</span> — whether with my partner, family, friends or colleagues.
+When I look at <span class="sharpie-highlight sharpie-rotate-1">what actually determines the quality of my life, it comes down to my _relationships_</span>—whether that's with my partner, family, friends or colleagues.
 
-I think most people would say something similar. Yet, most of us still spend the bulk of our attention elsewhere. We move through our lives quickly, project by project, deadline by deadline, appointment by appointment. Our minds are always busy. We lose the connection to ourselves, and the people around us.
+I think most people intuitively know this. Yet, <span class="sharpie-highlight sharpie-rotate-1">most of us still spend the bulk of our attention elsewhere</span>. We move through our lives quickly, project by project, deadline by deadline, appointment by appointment. Our minds are always busy. We lose the connection to ourselves, and the people around us.
 
-Inner work is the practice of paying attention to what's happening inside you. It's how that connection gets rebuilt — first with yourself, then with everyone else. It sounds simple, and it is.
+Inner work is the practice of paying attention to what's happening inside you. It's how that connection gets rebuilt—first with yourself, then with everyone else. It sounds simple, and it is.
 
 It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds.
-
 
 <!-- Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about <span class="italic">something</span>: work, plans, news, a problem that needs solving. It's rarer to sit with someone and say what's actually going on. <span class="sharpie-highlight sharpie-rotate-1">It's rarer still to be listened to without being advised, reassured, or fixed.</span>
 
