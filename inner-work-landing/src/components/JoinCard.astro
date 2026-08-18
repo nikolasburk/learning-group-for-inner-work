@@ -22,13 +22,13 @@ const { title, note, cadence, time, ctaLabel, ctaHref, footnote } = Astro.props;
 	<div class="mb-4 flex justify-center">
 		<slot name="calendar" />
 	</div>
-	<div class="prose flex-1">
+	<div class="prose">
 		<slot />
 	</div>
-	<div class="mt-auto">
+	<div>
 		<slot name="cta">
 			{ctaHref && ctaLabel && <Button href={ctaHref}>{ctaLabel}</Button>}
 		</slot>
-		{footnote && <p class="text-sm text-solarized-textSecondary -mt-4">{footnote}</p>}
 	</div>
+	{footnote && <p class="text-sm text-solarized-textSecondary -mt-4">{footnote}</p>}
 </div>

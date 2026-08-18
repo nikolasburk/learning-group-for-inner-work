@@ -21,6 +21,7 @@ export default {
           violet: '#6c71c4',
           blue: '#268bd2',
           cyan: '#2aa198',
+          green: '#1a7f52',
           sharpieViolet: 'rgb(198, 190, 226)',
           tintViolet: '#f3f1f7',
         },

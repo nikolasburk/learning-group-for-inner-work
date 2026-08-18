@@ -98,10 +98,21 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 										aria-haspopup="true"
 									>
 										{day}
-										<span
-											class="cal-signed-up-dot hidden absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-solarized-cyan ring-2 ring-solarized-base3"
+										<svg
+											class="cal-signed-up-dot hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full ring-2 ring-solarized-base3"
+											viewBox="0 0 20 20"
 											aria-hidden="true"
-										/>
+										>
+											<circle cx="10" cy="10" r="10" class="fill-solarized-green" />
+											<path
+												d="M6 10.3l2.6 2.6L14.5 7"
+												fill="none"
+												class="stroke-white"
+												stroke-width="1.75"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+											/>
+										</svg>
 									</button>
 								) : (
 									<span class:list={dayClasses}>{day ?? ""}</span>
@@ -121,7 +132,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 			>
 				<p class="cal-popover-datetime font-semibold text-solarized-textHeading px-4 py-3" />
 				<div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
-				<p class="cal-popover-status text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
+				<p class="cal-popover-status flex items-center gap-1.5 text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
 			</div>
 		)
 	}
@@ -130,6 +141,12 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 <script>
 	import { formatSessionLabel } from "../lib/berlin-time";
 	import { readSignupCookie } from "../lib/signup-cookie";
+
+	const CHECK_ICON =
+		'<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+		'<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+		'<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+		"</svg>";
 
 	function initCalendars() {
 		document.querySelectorAll<HTMLElement>(".mini-calendar").forEach((cal) => {
@@ -206,9 +223,10 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 		let openCell: HTMLElement | null = null;
 		let hideTimeout: ReturnType<typeof setTimeout> | undefined;
 
-		function setStatus(message: string, linkLabel?: string) {
+		function setStatus(message: string, linkLabel?: string, showCheck = false) {
 			if (!statusEl) return;
-			statusEl.textContent = "";
+			statusEl.innerHTML = "";
+			if (showCheck) statusEl.insertAdjacentHTML("beforeend", CHECK_ICON);
 			statusEl.appendChild(document.createTextNode(message));
 			if (linkLabel) {
 				statusEl.appendChild(document.createTextNode(" "));
@@ -255,6 +273,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 					setStatus(
 						cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
 						manageLink,
+						true,
 					);
 				} else {
 					setStatus(
@@ -283,7 +302,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 
 		dayCells.forEach((cell) => {
 			const date = cell.dataset.sessionDate;
-			if (date && cookie?.sessionDate === date) {
+			if (date && cookie?.sessionDate === date && cookie.status === "confirmed") {
 				cell.querySelector(".cal-signed-up-dot")?.classList.remove("hidden");
 			}
 

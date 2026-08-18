@@ -42,7 +42,7 @@ Come once to see what it's like, come every time, or come back after a few month
 
 [Email field: **Sign up for [next session date] →**]
 
-You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a calendar invite. You can only sign up for the next session, not multiple in advance.
+You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a calendar invite.
 
 ### The closed group
 

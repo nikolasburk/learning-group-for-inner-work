@@ -36,7 +36,7 @@ const { sessionDate, sessionLabel } = Astro.props;
 		<input id="open-group-company" name="company" type="text" tabindex="-1" autocomplete="off" />
 	</div>
 	<input type="hidden" name="formLoadedAt" value="" />
-	<p data-signup-status role="status" aria-live="polite" class="text-sm text-solarized-textSecondary"></p>
+	<p data-signup-status role="status" aria-live="polite" class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary"></p>
 	<button
 		type="button"
 		data-cancel-signup
@@ -44,14 +44,20 @@ const { sessionDate, sessionLabel } = Astro.props;
 	>
 		Cancel my spot
 	</button>
-	<p class="text-sm text-solarized-textSecondary">
+	<p class="-mt-1 text-sm text-solarized-textSecondary">
 		You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a
-		calendar invite. You can only sign up for the next session, not multiple in advance.
+		calendar invite.
 	</p>
 </form>
 
 <script>
 	import { readSignupCookie } from "../lib/signup-cookie";
+
+	const CHECK_ICON =
+		'<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+		'<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+		'<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+		"</svg>";
 
 	document.querySelectorAll<HTMLFormElement>("[data-signup-form]").forEach((form) => {
 		const sessionDate = form.dataset.sessionDate ?? "";
@@ -66,17 +72,27 @@ const { sessionDate, sessionLabel } = Astro.props;
 
 		let currentLabel = sessionLabel;
 		let currentToken: string | undefined;
+		let currentConfirmed = false;
+
+		function renderStatus(message: string, confirmed: boolean) {
+			if (!status) return;
+			status.innerHTML = "";
+			if (confirmed) status.insertAdjacentHTML("beforeend", CHECK_ICON);
+			status.appendChild(document.createTextNode(message));
+		}
 
 		function lockAsSignedUp(label: string, confirmed: boolean, token: string | undefined) {
 			currentLabel = label;
 			currentToken = token;
+			currentConfirmed = confirmed;
 			emailInput?.setAttribute("disabled", "true");
 			submitButton?.setAttribute("disabled", "true");
-			if (status) {
-				status.textContent = confirmed
+			renderStatus(
+				confirmed
 					? `You're confirmed for ${label}.`
-					: `You're signed up for ${label} — check your email to confirm.`;
-			}
+					: `You're signed up for ${label} — check your email to confirm.`,
+				confirmed,
+			);
 			// Cookies set before cancellation shipped won't have a token —
 			// fall back to the emailed cancel link in that case.
 			cancelButton?.classList.toggle("hidden", !token);
@@ -84,10 +100,11 @@ const { sessionDate, sessionLabel } = Astro.props;
 
 		function unlockForm() {
 			currentToken = undefined;
+			currentConfirmed = false;
 			emailInput?.removeAttribute("disabled");
 			submitButton?.removeAttribute("disabled");
 			cancelButton?.classList.add("hidden");
-			if (status) status.textContent = "You're no longer signed up.";
+			renderStatus("You're no longer signed up.", false);
 		}
 
 		const cookie = readSignupCookie();
@@ -100,8 +117,9 @@ const { sessionDate, sessionLabel } = Astro.props;
 			if (!window.confirm(`Cancel your spot for ${currentLabel}?`)) return;
 
 			const previousStatusText = status?.textContent ?? "";
+			const previousConfirmed = currentConfirmed;
 			cancelButton.setAttribute("disabled", "true");
-			if (status) status.textContent = "Cancelling…";
+			renderStatus("Cancelling…", false);
 
 			try {
 				const response = await fetch("/api/cancel", {
@@ -112,14 +130,14 @@ const { sessionDate, sessionLabel } = Astro.props;
 
 				if (!response.ok) {
 					cancelButton.removeAttribute("disabled");
-					if (status) status.textContent = previousStatusText;
+					renderStatus(previousStatusText, previousConfirmed);
 					return;
 				}
 
 				unlockForm();
 			} catch {
 				cancelButton.removeAttribute("disabled");
-				if (status) status.textContent = previousStatusText;
+				renderStatus(previousStatusText, previousConfirmed);
 			}
 		});
 
@@ -128,7 +146,7 @@ const { sessionDate, sessionLabel } = Astro.props;
 			if (!emailInput || !submitButton) return;
 
 			submitButton.setAttribute("disabled", "true");
-			if (status) status.textContent = "Signing you up…";
+			renderStatus("Signing you up…", false);
 
 			try {
 				const response = await fetch("/api/signup", {
@@ -144,7 +162,7 @@ const { sessionDate, sessionLabel } = Astro.props;
 
 				if (!response.ok) {
 					submitButton.removeAttribute("disabled");
-					if (status) status.textContent = data.error ?? "Something went wrong. Please try again.";
+					renderStatus(data.error ?? "Something went wrong. Please try again.", false);
 					return;
 				}
 
@@ -152,7 +170,7 @@ const { sessionDate, sessionLabel } = Astro.props;
 				lockAsSignedUp(data.sessionLabel ?? sessionLabel, updatedCookie?.status === "confirmed", updatedCookie?.token);
 			} catch {
 				submitButton.removeAttribute("disabled");
-				if (status) status.textContent = "Something went wrong. Please try again.";
+				renderStatus("Something went wrong. Please try again.", false);
 			}
 		});
 	});
