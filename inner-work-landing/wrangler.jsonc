@@ -10,7 +10,7 @@
   "routes": [{ "pattern": "innerwork.nikolasburk.com", "custom_domain": true }],
   "vars": {
     "FROM_EMAIL": "nikolas.burk@gmail.com", // TODO: replace with a verified Brevo sender address on your domain
-    "FROM_NAME": "Nikolas — Learning group for inner work",
+    "FROM_NAME": "Nikolas — Practice group for inner work",
     "ZOOM_LINK": "https://zoom.us/j/91288994199?pwd=replace-me", // TODO: replace with the real recurring Zoom link
     "NOTIFY_EMAIL": "nikolas.burk@gmail.com", // where closed-group application notifications are sent,
     "BREVO_API_KEY": "xkeysib-01234567890123456789012345678901"

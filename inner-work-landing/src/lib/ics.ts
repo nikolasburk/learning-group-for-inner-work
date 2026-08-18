@@ -25,7 +25,7 @@ export function buildSessionIcs(session: OpenGroupSession, uid: string, zoomLink
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//Learning group for inner work//Open group//EN',
+    'PRODID:-//Practice group for inner work//Open group//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
     'BEGIN:VEVENT',

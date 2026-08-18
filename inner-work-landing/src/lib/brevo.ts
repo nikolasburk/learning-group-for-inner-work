@@ -143,7 +143,7 @@ export async function sendApplicationReceivedEmail(
 ): Promise<void> {
   await sendBrevoEmail(env, {
     to: options.to,
-    subject: `Got your application — Learning group for inner work`,
+    subject: `Got your application — Practice group for inner work`,
     htmlContent: `
       <p>Hi ${escapeHtml(options.name)},</p>
       <p>I've got your application for the closed group. I'll get back to you either way, once applications close.</p>

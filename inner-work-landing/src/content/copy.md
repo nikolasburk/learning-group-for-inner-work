@@ -8,7 +8,7 @@ It also turns out to be one of the most useful things I've done with my time rec
 
 # what-we-do
 
-We meet online, and a session takes roughly 2 hours. It looks like this:
+We meet online, a session takes roughly 2 hours. It looks like this:
 
 1. **Meditation** — we sit in silence together for a few minutes and arrive
 2. **Check-in** — everyone says how they're doing and what's on their mind
@@ -38,11 +38,7 @@ Same group of people every time. That's the point: when you sit with the same fa
 
 # join-cost
 
-The open group has no cost at all. 
-
-If you want to join the closed group, we ask for a voluntary support contribution of €25–100 for the entire cycle. We never want money to be the reason why someone can't join though, so this contribution is also fully optional. 
-
-If you think this work is valuable, you can always [support us](/support)—we're grateful for everyone who helps us cover some of our costs.
+The open group has no cost at all. If you want to join the closed group, we ask for a voluntary support contribution.
 
 # who-its-for
 
@@ -52,11 +48,11 @@ Both groups are in English and open to everyone, wherever you are.
 
 # what-this-isnt
 
-This isn't therapy and I'm not a therapist. It's a group of people practicing something together, led by someone who has been practicing a bit longer.
+This isn't therapy and I'm not a therapist. It's a group of people practicing something together.
 
 If you're going through an acute crisis, this isn't the right place for it, and I'd encourage you to find a health professional first. You're welcome here once you have some ground under your feet.
 
-It's also an experiment. It will change as it goes. Feedback, ideas, and suggestions are very welcome, always feel free to [reach out](mailto:nikolas.burk@gmail.com)!
+It's also an experiment and will change as it goes. Feedback, ideas, and suggestions are always welcome, feel free to [reach out](mailto:nikolas.burk@gmail.com)!
 
 # who-i-am
 

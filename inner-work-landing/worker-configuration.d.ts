@@ -4,7 +4,7 @@
 interface __BaseEnv_Env {
   DB: D1Database;
   FROM_EMAIL: "hello@example.com";
-  FROM_NAME: "Nikolas — Learning group for inner work";
+  FROM_NAME: "Nikolas — Practice group for inner work";
   ZOOM_LINK: "https://zoom.us/j/replace-me";
   NOTIFY_EMAIL: "nikolas.burk@gmail.com";
   BREVO_API_KEY: string;
