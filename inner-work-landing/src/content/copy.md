@@ -38,7 +38,11 @@ Same group of people every time. That's the point: when you sit with the same fa
 
 # join-cost
 
-Both groups are free to join. The open group has no cost at all; the closed group carries a support contribution of €25–100 for the cycle, entirely separate from applying — see [Support](/support) for details.
+The open group has no cost at all. 
+
+If you want to join the closed group, we ask for a voluntary support contribution of €25–100 for the entire cycle. We never want money to be the reason why someone can't join though, so this contribution is also fully optional. 
+
+If you think this work is valuable, you can always [support us](/support)—we're grateful for everyone who helps us cover some of our costs.
 
 # who-its-for
 

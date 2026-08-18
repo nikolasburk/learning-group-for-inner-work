@@ -7,6 +7,7 @@
     "directory": "./dist",
     "not_found_handling": "404-page"
   },
+  "routes": [{ "pattern": "innerwork.nikolasburk.com", "custom_domain": true }],
   "vars": {
     "FROM_EMAIL": "nikolas.burk@gmail.com", // TODO: replace with a verified Brevo sender address on your domain
     "FROM_NAME": "Nikolas — Learning group for inner work",

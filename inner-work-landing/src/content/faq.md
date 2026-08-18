@@ -32,4 +32,9 @@ A new one starts, and you can join again if you want. The open group keeps runni
 
 ## What does it cost?
 
-The open group is free. The closed group carries a [support contribution](/support) of €25–100 for the cycle.
+The open group has no cost at all. 
+
+If you want to join the closed group, we ask for a voluntary support contribution of €25–100 for the entire cycle. We never want money to be the reason why someone can't join though, so this contribution is also fully optional. 
+
+If you think this work is valuable, you can always [support us](/support)—we're grateful for everyone who helps us cover some of our costs.
+
