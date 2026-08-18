@@ -5,7 +5,7 @@ interface __BaseEnv_Env {
   DB: D1Database;
   FROM_EMAIL: "hello@example.com";
   FROM_NAME: "Nikolas — Practice group for inner work";
-  ZOOM_LINK: "https://zoom.us/j/replace-me";
+  ZOOM_LINK: "https://us04web.zoom.us/j/73412743879?pwd=WuxartnGIjWgZxFl7BFQfQW16PMYJ7.1";
   NOTIFY_EMAIL: "nikolas.burk@gmail.com";
   BREVO_API_KEY: string;
   ADMIN_USERNAME: string;
