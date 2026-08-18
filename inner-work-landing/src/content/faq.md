@@ -26,10 +26,6 @@ Not really — there's no audience here, only participants. But you can pass on 
 
 That's fine, it happens. Just let the group know. If it turns out you can't make most of them, we'll talk about it.
 
-## What happens when a cycle ends?
-
-A new one starts, and you can join again if you want. The open group keeps running throughout either way.
-
 ## What does it cost?
 
 The open group has no cost at all. 
@@ -38,6 +34,10 @@ If you want to join the closed group, we ask for a voluntary support contributio
 
 If you think our work is valuable, you can always [support us](/support)—we're grateful for everyone who helps us cover some of our costs.
 
-## Does something like this work when it's done online?
+## Is inner work effective when it's done online?
 
-It definitely can. I've experienced online sessions with groups several times and have found that it's equally possible to create deep connection with others even though we may be on different continents.
+It definitely can be! I've experienced online sessions with groups several times and have found that it's equally possible to create deep connection with others even though we're only seeing each other through screens.
+
+## How long is a triad?
+
+It's typically between 6 and 10 minutes speaking time per person.

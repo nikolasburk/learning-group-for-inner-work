@@ -1,10 +1,19 @@
 # why
 
-Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about <span class="italic">something</span>: work, plans, news, a problem that needs solving. It's rarer to sit with someone and say what's actually going on. <span class="sharpie-highlight sharpie-rotate-1">It's rarer still to be listened to without being advised, reassured, or fixed.</span>
+When I look at <span class="sharpie-highlight sharpie-rotate-1">what actually determines the quality of my life, it comes down to my relationships</span> — whether with my partner, family, friends or colleagues.
+
+I think most people would say something similar. Yet, most of us still spend the bulk of our attention elsewhere. We move through our lives quickly, project by project, deadline by deadline, appointment by appointment. Our minds are always busy. We lose the connection to ourselves, and the people around us.
+
+Inner work is the practice of paying attention to what's happening inside you. It's how that connection gets rebuilt — first with yourself, then with everyone else. It sounds simple, and it is.
+
+It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds.
+
+
+<!-- Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about <span class="italic">something</span>: work, plans, news, a problem that needs solving. It's rarer to sit with someone and say what's actually going on. <span class="sharpie-highlight sharpie-rotate-1">It's rarer still to be listened to without being advised, reassured, or fixed.</span>
 
 Inner work is the practice of paying attention to what's happening inside you, and doing it in the company of other people. It sounds simple, and it is.
 
-It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds.
+It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds. -->
 
 # what-we-do
 
@@ -18,7 +27,7 @@ We meet online, a session takes roughly 2 hours. It looks like this:
 6. **Check-out** — everyone shares where they are now
 7. **Meditation**
 
-The triads are the heart of it. Three people, one question, a set amount of time. One person speaks about whatever comes up for them; the other two listen. When the time's up, the next person speaks. No questions, no advice, no comments. <span class="sharpie-highlight sharpie-rotate-2">Being listened to like that for a few minutes is a strange experience the first time, and it tends to open things up quickly.</span>
+The triads are the heart of it. Three people, one question, a set amount of time. One person speaks about whatever comes up for them; the other two listen. When the time's up, the next person speaks. No questions, no advice, no comments. Being listened to like that for a few minutes is a strange experience the first time, and it tends to open things up quickly.
 
 # join-intro
 
@@ -38,7 +47,7 @@ Same group of people every time. That's the point: when you sit with the same fa
 
 # join-cost
 
-The open group has no cost at all. If you want to join the closed group, we ask for a voluntary support contribution.
+The open group has no cost at all. If you want to join the closed group, we ask for a support contribution (still voluntary, we don't want money to be an issue for anyone who wants to join).
 
 # who-its-for
 
@@ -58,7 +67,7 @@ It's also an experiment and will change as it goes. Feedback, ideas, and suggest
 
 My name is Nikolas Burk. I've been interested in personal development, meditation, and questions about how to live for a long time, mostly from a distance.
 
-That changed in 2024, at the [Summer Intensive](https://thomashuebl.com/summer-intensive-retreat-in-germany-2026/) retreat with Thomas Huebl. A week with 600 people turned out to be the most transformative experience of my life. I went again in 2025, joined a Practice Group for Transparent Communication in Berlin, went through the [Training](https://thomashuebl.com/de/kurse/praxisgruppenleiter-training-2026-2027/) to lead those groups myself, and built a daily meditation practice.
+That changed in 2024, at the [Summer Intensive](https://thomashuebl.com/summer-intensive-retreat-in-germany-2026/) retreat with Thomas Huebl. A week with 600 people turned out to be the most transformative experience of my life. I went again in 2025 and 2026, joined a [Practice Group for Transparent Communication](https://pocketproject.org/practice-groups/) in Berlin, went through the [Training](https://thomashuebl.com/de/kurse/praxisgruppenleiter-training-2026-2027/) to lead those groups myself, and built a daily meditation practice.
 
 My background is in software development — I spent the last nine years as a Developer Advocate at a startup. In the retreats and practice groups I met psychologists, coaches, and people from many other fields, but almost nobody from my own. That's part of why I'm starting this: I'd like to open the door for people who haven't had any contact with this kind of work, and learn alongside them.
 
@@ -68,7 +77,7 @@ I'll occasionally be joined by [Rosa Villa](https://www.rosavilla.me/), a psycho
 
 Rosa has been working with groups for several years and is currently taking part in the [Timeless Wisdom Training](https://timelesswisdomtraining.com/), an intensive two-year program offered by Thomas Huebl.
 
-It'll be visible from the calendar and the invitation for which sessions Rosa is joining.
+It'll be visible from the calendar and the invitation which sessions Rosa is joining.
 
 # apply-intro
 
