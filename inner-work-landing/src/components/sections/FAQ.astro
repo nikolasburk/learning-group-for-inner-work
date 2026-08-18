@@ -1,74 +1,29 @@
 ---
+import { getCollection, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 import FAQItem from "../FAQItem.astro";
+
+const faqs = (await getCollection("faq")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const renderedFaqs = await Promise.all(
+  faqs.map(async (entry) => {
+    const { Content } = await render(entry);
+    return { question: entry.data.question, Content };
+  }),
+);
 ---
 
 <Container>
   <SectionHeading title="FAQ" id="faq" />
   <div class="divide-y divide-solarized-base2 mt-6">
-    <FAQItem question="Which group should I pick?">
-      <p>
-        If you're curious and want to try it, take the open group. If you
-        already know you want this to be a regular part of your life for a
-        while, apply for the closed one. You can do both — they meet on
-        alternating weeks.
-      </p>
-    </FAQItem>
-    <FAQItem question="Do I have to share personal things?">
-      <p>
-        No. Share what feels right in the moment, and nothing beyond that.
-        Openness usually happens on its own once a group feels safe, and it
-        doesn't need to be pushed.
-      </p>
-    </FAQItem>
-    <FAQItem question="What if I don't know what to say?">
-      <p>
-        Then say that. "I don't know what to say" is a real answer, and often a
-        more interesting one than something prepared. Simply remaining silent is
-        also always an option.
-      </p>
-    </FAQItem>
-    <FAQItem question="Can I keep my camera turned off during a session?">
-      <p>
-        During a session, we strongly encourage everyone to have their camera
-        turned on. We are practicing connecting with other people and being able
-        to see each other is fundamental to this. That being said, if you have
-        technical difficulties or need to shortly step away, you can of course
-        always turn off your camera temporarily.
-      </p>
-    </FAQItem>
-    <FAQItem question="Do I need to meditate, or be into any of this?">
-      <p>
-        No. Sitting quietly for a few minutes is just a way of arriving, no
-        prerequisites required.
-      </p>
-    </FAQItem>
-    <FAQItem question="Can I listen without taking part?">
-      <p>
-        Not really — there's no audience here, only participants. But you can
-        pass on anything you don't want to do, and listening is already half the
-        practice.
-      </p>
-    </FAQItem>
-    <FAQItem question="What if I miss a session in the closed group?">
-      <p>
-        That's fine, it happens. Just let the group know. If it turns out you
-        can't make most of them, we'll talk about it.
-      </p>
-    </FAQItem>
-    <FAQItem question="What happens when a cycle ends?">
-      <p>
-        A new one starts, and you can join again if you want. The open group
-        keeps running throughout either way.
-      </p>
-    </FAQItem>
-    <FAQItem question="What does it cost?">
-      <p>
-        The open group is free. The closed group carries a <a href="/support"
-          >support contribution</a
-        > of €25–100 for the cycle.
-      </p>
-    </FAQItem>
+    {
+      renderedFaqs.map(({ question, Content }) => (
+        <FAQItem question={question}>
+          <Content />
+        </FAQItem>
+      ))
+    }
   </div>
 </Container>

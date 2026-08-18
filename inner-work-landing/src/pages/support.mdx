@@ -1,0 +1,32 @@
+---
+layout: ../layouts/ProseLayout.astro
+title: Support — Inner Work
+description: Optional ways to support the Inner Work practice group's running costs.
+heading: Support
+---
+
+import CopyIbanButton from "../components/CopyIbanButton.astro";
+
+This group is free and will stay that way. If you've been to a few sessions and want to chip in for the running costs, you're welcome to — it's entirely optional and makes no difference to your place in the group.
+
+### PayPal
+
+{/*
+  Must be a link to a PayPal.me page tied to a business account, not a personal one.
+  Do not use PayPal's "Donate" button/feature — it requires proof of nonprofit status,
+  which this sole proprietorship does not have.
+*/}
+
+<a href="[PAYPAL.ME LINK]">[PAYPAL.ME LINK]</a>
+
+### Bank transfer
+
+<p class="mb-2">[ACCOUNT HOLDER]</p>
+<div class="mb-2 text-lg leading-relaxed text-solarized-textBody flex flex-wrap items-center gap-3">
+  <span>IBAN</span>
+  <CopyIbanButton iban="[IBAN]" />
+</div>
+
+Reference: [REFERENCE, e.g. "Support"]
+
+Please note: contributions are voluntary and are not tax-deductible donations. I can't issue donation receipts.

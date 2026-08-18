@@ -1,35 +1,35 @@
 ---
 interface SessionDetail {
-	/** Day-of-month, matches an entry in this month's `highlighted`. */
-	day: number;
-	/** 'YYYY-MM-DD', Berlin-local */
-	date: string;
-	/** '19:00', 24h Berlin-local */
-	time: string;
-	durationMinutes: number;
-	coHost: boolean;
-	/** True only for the single currently-signable session. */
-	isNext: boolean;
+  /** Day-of-month, matches an entry in this month's `highlighted`. */
+  day: number;
+  /** 'YYYY-MM-DD', Berlin-local */
+  date: string;
+  /** '19:00', 24h Berlin-local */
+  time: string;
+  durationMinutes: number;
+  coHost: boolean;
+  /** True only for the single currently-signable session. */
+  isNext: boolean;
 }
 
 interface MonthSpec {
-	label: string;
-	year: number;
-	daysInMonth: number;
-	startWeekday: number; // 0 = Monday .. 6 = Sunday
-	highlighted: number[];
-	/** Optional per-day session data — days with a match become hoverable. */
-	sessions?: SessionDetail[];
+  label: string;
+  year: number;
+  daysInMonth: number;
+  startWeekday: number; // 0 = Monday .. 6 = Sunday
+  highlighted: number[];
+  /** Optional per-day session data — days with a match become hoverable. */
+  sessions?: SessionDetail[];
 }
 
 interface Props {
-	months: MonthSpec[];
-	startIndex?: number;
-	/** Only needed when `months[].sessions` is set. */
-	host?: string;
-	coHostName?: string;
-	hostImage?: string;
-	coHostImage?: string;
+  months: MonthSpec[];
+  startIndex?: number;
+  /** Only needed when `months[].sessions` is set. */
+  host?: string;
+  coHostName?: string;
+  hostImage?: string;
+  coHostImage?: string;
 }
 
 const { months, startIndex = 0, host, coHostName, hostImage, coHostImage } = Astro.props;
@@ -38,314 +38,312 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 ---
 
 <div
-	class="mini-calendar w-[176px]"
-	data-start-index={startIndex}
-	data-host={host}
-	data-cohost-name={coHostName}
-	data-host-image={hostImage}
-	data-cohost-image={coHostImage}
+  class="mini-calendar w-[176px]"
+  data-start-index={startIndex}
+  data-host={host}
+  data-cohost-name={coHostName}
+  data-host-image={hostImage}
+  data-cohost-image={coHostImage}
 >
-	<div class="flex items-center justify-between mb-2">
-		<button
-			type="button"
-			class="cal-prev w-6 h-6 rounded-full border border-solarized-base2 text-solarized-textSecondary flex items-center justify-center hover:bg-solarized-base2 disabled:opacity-30 disabled:cursor-not-allowed"
-			aria-label="Previous month"
-		>
-			‹
-		</button>
-		<p class="cal-label text-xs font-semibold text-solarized-textHeading"></p>
-		<button
-			type="button"
-			class="cal-next w-6 h-6 rounded-full border border-solarized-base2 text-solarized-textSecondary flex items-center justify-center hover:bg-solarized-base2 disabled:opacity-30 disabled:cursor-not-allowed"
-			aria-label="Next month"
-		>
-			›
-		</button>
-	</div>
-	<div class="cal-panels">
-		{
-			months.map((month, i) => {
-				const cells = [
-					...Array.from({ length: month.startWeekday }, () => null),
-					...Array.from({ length: month.daysInMonth }, (_, d) => d + 1),
-				];
-				return (
-					<div class="cal-panel" data-index={i} data-label={`${month.label} ${month.year}`} hidden={i !== startIndex}>
-						<div class="grid grid-cols-7 text-center mb-1">
-							{weekdayLabels.map((w) => (
-								<span class="text-[10px] text-solarized-base1">{w}</span>
-							))}
-						</div>
-						<div class="grid grid-cols-7 gap-y-1 text-center grid-rows-[repeat(6,1.5rem)]">
-							{cells.map((day) => {
-								const isHighlighted = day !== null && month.highlighted.includes(day);
-								const session = day !== null ? month.sessions?.find((s) => s.day === day) : undefined;
-								const dayClasses = [
-									"text-xs w-6 h-6 mx-auto flex items-center justify-center rounded-full",
-									isHighlighted
-										? "bg-solarized-violet text-white font-semibold"
-										: "text-solarized-textSecondary",
-								];
-								return session ? (
-									<button
-										type="button"
-										class:list={["cal-day relative", ...dayClasses]}
-										data-session-date={session.date}
-										data-session-time={session.time}
-										data-duration={session.durationMinutes}
-										data-cohost={session.coHost ? "true" : "false"}
-										data-is-next={session.isNext ? "true" : "false"}
-										aria-haspopup="true"
-									>
-										{day}
-										<svg
-											class="cal-signed-up-dot hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full ring-2 ring-solarized-base3"
-											viewBox="0 0 20 20"
-											aria-hidden="true"
-										>
-											<circle cx="10" cy="10" r="10" class="fill-solarized-green" />
-											<path
-												d="M6 10.3l2.6 2.6L14.5 7"
-												fill="none"
-												class="stroke-white"
-												stroke-width="1.75"
-												stroke-linecap="round"
-												stroke-linejoin="round"
-											/>
-										</svg>
-									</button>
-								) : (
-									<span class:list={dayClasses}>{day ?? ""}</span>
-								);
-							})}
-						</div>
-					</div>
-				);
-			})
-		}
-	</div>
-	{
-		hasSessions && (
-			<div
-				class="cal-popover hidden fixed z-50 w-72 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden text-sm"
-				role="tooltip"
-			>
-				<p class="cal-popover-datetime font-semibold text-solarized-textHeading px-4 py-3" />
-				<div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
-				<p class="cal-popover-status flex items-center gap-1.5 text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
-			</div>
-		)
-	}
+  <div class="flex items-center justify-between mb-2">
+    <button
+      type="button"
+      class="cal-prev w-6 h-6 rounded-full border border-solarized-base2 text-solarized-textSecondary flex items-center justify-center hover:bg-solarized-base2 disabled:opacity-30 disabled:cursor-not-allowed"
+      aria-label="Previous month"
+    >
+      ‹
+    </button>
+    <p class="cal-label text-xs font-semibold text-solarized-textHeading"></p>
+    <button
+      type="button"
+      class="cal-next w-6 h-6 rounded-full border border-solarized-base2 text-solarized-textSecondary flex items-center justify-center hover:bg-solarized-base2 disabled:opacity-30 disabled:cursor-not-allowed"
+      aria-label="Next month"
+    >
+      ›
+    </button>
+  </div>
+  <div class="cal-panels">
+    {
+      months.map((month, i) => {
+        const cells = [
+          ...Array.from({ length: month.startWeekday }, () => null),
+          ...Array.from({ length: month.daysInMonth }, (_, d) => d + 1),
+        ];
+        return (
+          <div class="cal-panel" data-index={i} data-label={`${month.label} ${month.year}`} hidden={i !== startIndex}>
+            <div class="grid grid-cols-7 text-center mb-1">
+              {weekdayLabels.map((w) => (
+                <span class="text-[10px] text-solarized-base1">{w}</span>
+              ))}
+            </div>
+            <div class="grid grid-cols-7 gap-y-1 text-center grid-rows-[repeat(6,1.5rem)]">
+              {cells.map((day) => {
+                const isHighlighted = day !== null && month.highlighted.includes(day);
+                const session = day !== null ? month.sessions?.find((s) => s.day === day) : undefined;
+                const dayClasses = [
+                  "text-xs w-6 h-6 mx-auto flex items-center justify-center rounded-full",
+                  isHighlighted
+                    ? "bg-solarized-violet text-white font-semibold"
+                    : "text-solarized-textSecondary",
+                ];
+                return session ? (
+                  <button
+                    type="button"
+                    class:list={["cal-day relative", ...dayClasses]}
+                    data-session-date={session.date}
+                    data-session-time={session.time}
+                    data-duration={session.durationMinutes}
+                    data-cohost={session.coHost ? "true" : "false"}
+                    data-is-next={session.isNext ? "true" : "false"}
+                    aria-haspopup="true"
+                  >
+                    {day}
+                    <svg
+                      class="cal-signed-up-dot hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full ring-2 ring-solarized-base3"
+                      viewBox="0 0 20 20"
+                      aria-hidden="true"
+                    >
+                      <circle cx="10" cy="10" r="10" class="fill-solarized-green" />
+                      <path
+                        d="M6 10.3l2.6 2.6L14.5 7"
+                        fill="none"
+                        class="stroke-white"
+                        stroke-width="1.75"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </button>
+                ) : (
+                  <span class:list={dayClasses}>{day ?? ""}</span>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })
+    }
+  </div>
+  {
+    hasSessions && (
+      <div
+        class="cal-popover hidden fixed z-50 w-72 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden text-sm"
+        role="tooltip"
+      >
+        <p class="cal-popover-datetime font-semibold text-solarized-textHeading px-4 py-3" />
+        <div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
+        <p class="cal-popover-status flex items-center gap-1.5 text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
+      </div>
+    )
+  }
 </div>
 
 <script>
-	import { formatSessionLabel } from "../lib/berlin-time";
-	import { readSignupCookie } from "../lib/signup-cookie";
+  import { formatSessionLabel } from "../lib/berlin-time";
+  import { readSignupCookie } from "../lib/signup-cookie";
 
-	const CHECK_ICON =
-		'<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
-		'<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
-		'<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
-		"</svg>";
+  const CHECK_ICON =
+    '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+    '<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+    '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+    "</svg>";
 
-	function initCalendars() {
-		document.querySelectorAll<HTMLElement>(".mini-calendar").forEach((cal) => {
-			if (cal.dataset.wired) return;
-			cal.dataset.wired = "true";
+  function initCalendars() {
+    document.querySelectorAll<HTMLElement>(".mini-calendar").forEach((cal) => {
+      if (cal.dataset.wired) return;
+      cal.dataset.wired = "true";
 
-			const panels = Array.from(cal.querySelectorAll<HTMLElement>(".cal-panel"));
-			const label = cal.querySelector(".cal-label");
-			const prev = cal.querySelector<HTMLButtonElement>(".cal-prev");
-			const next = cal.querySelector<HTMLButtonElement>(".cal-next");
-			let index = Number(cal.dataset.startIndex || 0);
+      const panels = Array.from(cal.querySelectorAll<HTMLElement>(".cal-panel"));
+      const label = cal.querySelector(".cal-label");
+      const prev = cal.querySelector<HTMLButtonElement>(".cal-prev");
+      const next = cal.querySelector<HTMLButtonElement>(".cal-next");
+      let index = Number(cal.dataset.startIndex || 0);
 
-			function render() {
-				panels.forEach((panel, i) => {
-					panel.hidden = i !== index;
-				});
-				if (label) label.textContent = panels[index]?.dataset.label ?? "";
-				if (prev) prev.disabled = index === 0;
-				if (next) next.disabled = index === panels.length - 1;
-			}
+      function render() {
+        panels.forEach((panel, i) => {
+          panel.hidden = i !== index;
+        });
+        if (label) label.textContent = panels[index]?.dataset.label ?? "";
+        if (prev) prev.disabled = index === 0;
+        if (next) next.disabled = index === panels.length - 1;
+      }
 
-			prev?.addEventListener("click", () => {
-				if (index > 0) {
-					index--;
-					render();
-				}
-			});
-			next?.addEventListener("click", () => {
-				if (index < panels.length - 1) {
-					index++;
-					render();
-				}
-			});
+      prev?.addEventListener("click", () => {
+        if (index > 0) {
+          index--;
+          render();
+        }
+      });
+      next?.addEventListener("click", () => {
+        if (index < panels.length - 1) {
+          index++;
+          render();
+        }
+      });
 
-			render();
-			initSessionCells(cal);
-		});
-	}
+      render();
+      initSessionCells(cal);
+    });
+  }
 
-	function initSessionCells(cal: HTMLElement) {
-		const dayCells = Array.from(cal.querySelectorAll<HTMLButtonElement>(".cal-day"));
-		if (dayCells.length === 0) return;
+  function initSessionCells(cal: HTMLElement) {
+    const dayCells = Array.from(cal.querySelectorAll<HTMLButtonElement>(".cal-day"));
+    if (dayCells.length === 0) return;
 
-		const host = cal.dataset.host ?? "";
-		const coHostName = cal.dataset.cohostName ?? "";
-		const hostImage = cal.dataset.hostImage ?? "";
-		const coHostImage = cal.dataset.cohostImage ?? "";
-		const cookie = readSignupCookie();
+    const host = cal.dataset.host ?? "";
+    const coHostName = cal.dataset.cohostName ?? "";
+    const hostImage = cal.dataset.hostImage ?? "";
+    const coHostImage = cal.dataset.cohostImage ?? "";
+    const cookie = readSignupCookie();
 
-		const popover = cal.querySelector<HTMLElement>(".cal-popover");
-		if (popover) document.body.appendChild(popover);
-		const datetimeEl = popover?.querySelector<HTMLElement>(".cal-popover-datetime");
-		const hostsEl = popover?.querySelector<HTMLElement>(".cal-popover-hosts");
-		const statusEl = popover?.querySelector<HTMLElement>(".cal-popover-status");
+    const popover = cal.querySelector<HTMLElement>(".cal-popover");
+    if (popover) document.body.appendChild(popover);
+    const datetimeEl = popover?.querySelector<HTMLElement>(".cal-popover-datetime");
+    const hostsEl = popover?.querySelector<HTMLElement>(".cal-popover-hosts");
+    const statusEl = popover?.querySelector<HTMLElement>(".cal-popover-status");
 
-		function buildHostRow(name: string, imageSrc: string, label: string) {
-			const row = document.createElement("div");
-			row.className = "flex items-center gap-2";
-			if (imageSrc) {
-				const img = document.createElement("img");
-				img.src = imageSrc;
-				img.alt = name;
-				img.className = "w-8 h-8 rounded-full object-cover flex-shrink-0";
-				row.appendChild(img);
-			}
-			const span = document.createElement("span");
-			span.textContent = label;
-			span.className = "text-solarized-textSecondary";
-			row.appendChild(span);
-			return row;
-		}
+    function buildHostRow(name: string, imageSrc: string, label: string) {
+      const row = document.createElement("div");
+      row.className = "flex items-center gap-2";
+      if (imageSrc) {
+        const img = document.createElement("img");
+        img.src = imageSrc;
+        img.alt = name;
+        img.className = "w-8 h-8 rounded-full object-cover flex-shrink-0";
+        row.appendChild(img);
+      }
+      const span = document.createElement("span");
+      span.textContent = label;
+      span.className = "text-solarized-textSecondary";
+      row.appendChild(span);
+      return row;
+    }
 
-		const hoverCapable = window.matchMedia("(hover: hover)").matches;
-		let openCell: HTMLElement | null = null;
-		let hideTimeout: ReturnType<typeof setTimeout> | undefined;
+    const hoverCapable = window.matchMedia("(hover: hover)").matches;
+    let openCell: HTMLElement | null = null;
+    let hideTimeout: ReturnType<typeof setTimeout> | undefined;
 
-		function setStatus(message: string, linkLabel?: string, showCheck = false) {
-			if (!statusEl) return;
-			statusEl.innerHTML = "";
-			if (showCheck) statusEl.insertAdjacentHTML("beforeend", CHECK_ICON);
-			statusEl.appendChild(document.createTextNode(message));
-			if (linkLabel) {
-				statusEl.appendChild(document.createTextNode(" "));
-				const link = document.createElement("a");
-				link.href = "#open-group-email";
-				link.textContent = linkLabel;
-				link.className = "underline";
-				link.addEventListener("click", () => {
-					document.getElementById("open-group-email")?.focus();
-				});
-				statusEl.appendChild(link);
-			}
-		}
+    function setStatus(message: string, linkLabel?: string, showCheck = false) {
+      if (!statusEl) return;
+      statusEl.innerHTML = "";
+      if (showCheck) statusEl.insertAdjacentHTML("beforeend", CHECK_ICON);
+      statusEl.appendChild(document.createTextNode(message));
+      if (linkLabel) {
+        statusEl.appendChild(document.createTextNode(" "));
+        const link = document.createElement("a");
+        link.href = "#open-group-email";
+        link.textContent = linkLabel;
+        link.className = "underline";
+        link.addEventListener("click", () => {
+          document.getElementById("open-group-email")?.focus();
+        });
+        statusEl.appendChild(link);
+      }
+    }
 
-		function position(cell: HTMLElement) {
-			if (!popover) return;
-			const rect = cell.getBoundingClientRect();
-			const left = Math.min(rect.left, window.innerWidth - popover.offsetWidth - 8);
-			popover.style.left = `${Math.max(8, left)}px`;
-			popover.style.top = `${rect.bottom + 8}px`;
-		}
+    function position(cell: HTMLElement) {
+      if (!popover) return;
+      const rect = cell.getBoundingClientRect();
+      const left = Math.min(rect.left, window.innerWidth - popover.offsetWidth - 8);
+      popover.style.left = `${Math.max(8, left)}px`;
+      popover.style.top = `${rect.bottom + 8}px`;
+    }
 
-		function open(cell: HTMLElement) {
-			if (!popover || !datetimeEl || !hostsEl || !statusEl) return;
-			clearTimeout(hideTimeout);
-			openCell = cell;
+    function open(cell: HTMLElement) {
+      if (!popover || !datetimeEl || !hostsEl || !statusEl) return;
+      clearTimeout(hideTimeout);
+      openCell = cell;
 
-			const date = cell.dataset.sessionDate ?? "";
-			const time = cell.dataset.sessionTime ?? "";
-			const isCoHost = cell.dataset.cohost === "true";
-			const isNext = cell.dataset.isNext === "true";
+      const date = cell.dataset.sessionDate ?? "";
+      const time = cell.dataset.sessionTime ?? "";
+      const isCoHost = cell.dataset.cohost === "true";
+      const isNext = cell.dataset.isNext === "true";
 
-			datetimeEl.textContent = `${formatSessionLabel(date)}, ${time} Berlin`;
+      datetimeEl.textContent = `${formatSessionLabel(date)}, ${time} Berlin`;
 
-			hostsEl.textContent = "";
-			hostsEl.appendChild(buildHostRow(host, hostImage, `Hosted by ${host}`));
-			if (isCoHost && coHostName) {
-				hostsEl.appendChild(buildHostRow(coHostName, coHostImage, `Joined by co-host ${coHostName}`));
-			}
+      hostsEl.textContent = "";
+      hostsEl.appendChild(buildHostRow(host, hostImage, `Hosted by ${host}`));
+      if (isCoHost && coHostName) {
+        hostsEl.appendChild(buildHostRow(coHostName, coHostImage, `Joined by co-host ${coHostName}`));
+      }
 
-			if (cookie?.sessionDate === date) {
-				const manageLink = cookie.token ? "Manage below" : undefined;
-				if (cookie.status === "confirmed") {
-					setStatus(
-						cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
-						manageLink,
-						true,
-					);
-				} else {
-					setStatus(
-						cookie.email
-							? `You're signed up — check your email at ${cookie.email} to confirm.`
-							: "You're signed up — check your email to confirm.",
-						manageLink,
-					);
-				}
-			} else if (isNext) {
-				setStatus("Not signed up yet.", "Sign up below");
-			} else {
-				setStatus("Sign-up opens once this becomes the next session.");
-			}
+      if (cookie?.sessionDate === date) {
+        if (cookie.status === "confirmed") {
+          setStatus(
+            cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
+            undefined,
+            true,
+          );
+        } else {
+          setStatus(
+            cookie.email
+              ? `You're signed up — check your email at ${cookie.email} to confirm.`
+              : "You're signed up — check your email to confirm.",
+          );
+        }
+      } else if (isNext) {
+        setStatus("Not signed up yet.", "Sign up below");
+      } else {
+        setStatus("Sign-up opens once this becomes the next session.");
+      }
 
-			popover.classList.remove("hidden");
-			position(cell);
-		}
+      popover.classList.remove("hidden");
+      position(cell);
+    }
 
-		function close() {
-			hideTimeout = setTimeout(() => {
-				popover?.classList.add("hidden");
-				openCell = null;
-			}, 150);
-		}
+    function close() {
+      hideTimeout = setTimeout(() => {
+        popover?.classList.add("hidden");
+        openCell = null;
+      }, 150);
+    }
 
-		dayCells.forEach((cell) => {
-			const date = cell.dataset.sessionDate;
-			if (date && cookie?.sessionDate === date && cookie.status === "confirmed") {
-				cell.querySelector(".cal-signed-up-dot")?.classList.remove("hidden");
-			}
+    dayCells.forEach((cell) => {
+      const date = cell.dataset.sessionDate;
+      if (date && cookie?.sessionDate === date && cookie.status === "confirmed") {
+        cell.querySelector(".cal-signed-up-dot")?.classList.remove("hidden");
+      }
 
-			if (hoverCapable) {
-				cell.addEventListener("mouseenter", () => open(cell));
-				cell.addEventListener("mouseleave", close);
-				cell.addEventListener("focus", () => open(cell));
-				cell.addEventListener("blur", close);
-			} else {
-				cell.addEventListener("click", (event) => {
-					event.stopPropagation();
-					if (openCell === cell) {
-						popover?.classList.add("hidden");
-						openCell = null;
-					} else {
-						open(cell);
-					}
-				});
-			}
-		});
+      if (hoverCapable) {
+        cell.addEventListener("mouseenter", () => open(cell));
+        cell.addEventListener("mouseleave", close);
+        cell.addEventListener("focus", () => open(cell));
+        cell.addEventListener("blur", close);
+      } else {
+        cell.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (openCell === cell) {
+            popover?.classList.add("hidden");
+            openCell = null;
+          } else {
+            open(cell);
+          }
+        });
+      }
+    });
 
-		popover?.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
-		popover?.addEventListener("mouseleave", close);
+    popover?.addEventListener("mouseenter", () => clearTimeout(hideTimeout));
+    popover?.addEventListener("mouseleave", close);
 
-		document.addEventListener("click", (event) => {
-			if (!openCell) return;
-			if (event.target instanceof Node && (popover?.contains(event.target) || openCell.contains(event.target))) return;
-			popover?.classList.add("hidden");
-			openCell = null;
-		});
+    document.addEventListener("click", (event) => {
+      if (!openCell) return;
+      if (event.target instanceof Node && (popover?.contains(event.target) || openCell.contains(event.target))) return;
+      popover?.classList.add("hidden");
+      openCell = null;
+    });
 
-		window.addEventListener(
-			"scroll",
-			() => {
-				if (openCell) position(openCell);
-			},
-			true,
-		);
-		window.addEventListener("resize", () => {
-			if (openCell) position(openCell);
-		});
-	}
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (openCell) position(openCell);
+      },
+      true,
+    );
+    window.addEventListener("resize", () => {
+      if (openCell) position(openCell);
+    });
+  }
 
-	initCalendars();
-	document.addEventListener("astro:page-load", initCalendars);
+  initCalendars();
+  document.addEventListener("astro:page-load", initCalendars);
 </script>

@@ -1,7 +1,11 @@
 ---
+import { getEntry, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 import Avatar from "../Avatar.astro";
+
+const entry = (await getEntry("copy", "who-i-am"))!;
+const { Content } = await render(entry);
 ---
 
 <Container>
@@ -9,26 +13,7 @@ import Avatar from "../Avatar.astro";
   <div class="flex flex-col md:flex-row gap-8 items-start mt-6">
     <Avatar src="/images/nburk.webp" alt="Nikolas Burk" />
     <div class="prose flex-1">
-      <p>
-        My name is Nikolas Burk. I've been interested in personal development, meditation, and
-        questions about how to live for a long time, mostly from a distance.
-      </p>
-      <p>
-        That changed in 2024, at the
-        <a href="https://thomashuebl.com/summer-intensive-retreat-in-germany-2026/">Summer Intensive</a>
-        retreat with Thomas Hübl. A week with 600 people
-        turned out to be the most transformative experience of my life. I went again in 2025, joined a
-        Practice Group for Transparent Communication in Berlin, went through the
-        <a href="https://thomashuebl.com/de/kurse/praxisgruppenleiter-training-2026-2027/">Training</a>
-        to lead those groups myself, and built a daily meditation practice.
-      </p>
-      <p>
-        My background is in software development — I spent the last nine years as a Developer Advocate
-        at a startup. In the retreats and practice groups I met psychologists, coaches, and people from
-        many other fields, but almost nobody from my own. That's part of why I'm starting this: I'd
-        like to open the door for people who haven't had much contact with this kind of work, and
-        learn alongside them.
-      </p>
+      <Content />
     </div>
   </div>
 </Container>

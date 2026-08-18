@@ -1,25 +1,11 @@
 ---
+import { getCollection } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 
-const rules = [
-  {
-    title: "Everything is an invitation.",
-    text: "You can step back from any part of a session at any time, without explaining yourself.",
-  },
-  {
-    title: "What's said here stays here.",
-    text: "We don't share names or personal details from a session. Your own experience is yours to share.",
-  },
-  {
-    title: "No unsolicited advice, no judgment.",
-    text: "When someone speaks, we listen. That's the whole job.",
-  },
-  {
-    title: "We're learners.",
-    text: "Mistakes happen, including mine.",
-  },
-];
+const rules = (await getCollection("rules")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <Container>
@@ -28,8 +14,8 @@ const rules = [
     {
       rules.map((rule) => (
         <div class="rounded-xl border border-solarized-base2 p-6 flex flex-col h-full">
-          <h3 class="text-lg font-bold mb-2 text-solarized-textHeading">{rule.title}</h3>
-          <p class="text-solarized-textSecondary">{rule.text}</p>
+          <h3 class="text-lg font-bold mb-2 text-solarized-textHeading">{rule.data.title}</h3>
+          <p class="text-solarized-textSecondary">{rule.data.text}</p>
         </div>
       ))
     }

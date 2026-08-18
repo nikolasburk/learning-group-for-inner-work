@@ -1,4 +1,5 @@
 ---
+import { getEntry, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 import JoinCard from "../JoinCard.astro";
@@ -13,6 +14,17 @@ import {
   getNextOpenSession,
 } from "../../data/sessions";
 import { formatSessionLabel } from "../../lib/berlin-time";
+
+const introEntry = (await getEntry("copy", "join-intro"))!;
+const { Content: Intro } = await render(introEntry);
+const openOutroEntry = (await getEntry("copy", "join-open-outro"))!;
+const { Content: OpenOutro } = await render(openOutroEntry);
+const closedOutroEntry = (await getEntry("copy", "join-closed-outro"))!;
+const { Content: ClosedOutro } = await render(closedOutroEntry);
+const notSureEntry = (await getEntry("copy", "join-not-sure"))!;
+const { Content: NotSure } = await render(notSureEntry);
+const costEntry = (await getEntry("copy", "join-cost"))!;
+const { Content: Cost } = await render(costEntry);
 
 const nextSession = getNextOpenSession();
 const nextSessionLabel = nextSession
@@ -38,9 +50,9 @@ function sessionsForMonth(year: number, month: number) {
 
 <Container>
   <SectionHeading title="Two ways to join" id="join" />
-  <p class="text-lg text-solarized-textSecondary mt-6 mb-8">
-    Both groups do the same thing. The difference is who's in the room.
-  </p>
+  <div class="text-lg text-solarized-textSecondary mt-6 mb-8">
+    <Intro />
+  </div>
   <div class="grid md:grid-cols-2 gap-6 md:gap-8">
     <JoinCard
       title="The open group"
@@ -116,11 +128,7 @@ function sessionsForMonth(year: number, month: number) {
           },
         ]}
       />
-      <p>
-        Come once to see what it's like, come every time, or come back after a
-        few months away. The group is different every session, which keeps it
-        easy to walk into.
-      </p>
+      <OpenOutro />
     </JoinCard>
     <JoinCard
       title="The closed group"
@@ -179,21 +187,13 @@ function sessionsForMonth(year: number, month: number) {
           },
         ]}
       />
-      <p>
-        Same group of people every time. That's the point: when you sit with the
-        same faces every two weeks, you stop introducing yourself and start
-        going deeper.
-      </p>
+      <ClosedOutro />
     </JoinCard>
   </div>
-  <p class="text-center text-solarized-textSecondary mt-8">
-    <strong class="text-solarized-textHeading">Not sure?</strong> Come to an open
-    session first. Most people find it easier to decide once they've done it once.
-  </p>
-  <p class="text-center text-solarized-textSecondary mt-4">
-    Both groups are free to join. The open group has no cost at all; the closed
-    group carries a support contribution of €25–100 for the cycle, entirely
-    separate from applying — see
-    <a href="/support">Support</a> for details.
-  </p>
+  <div class="text-center text-solarized-textSecondary mt-8">
+    <NotSure />
+  </div>
+  <div class="text-center text-solarized-textSecondary mt-4">
+    <Cost />
+  </div>
 </Container>

@@ -1,16 +1,15 @@
 ---
+import { getEntry, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
+
+const entry = (await getEntry("copy", "who-its-for"))!;
+const { Content } = await render(entry);
 ---
 
 <Container background="tint">
   <SectionHeading title="Who it's for" id="who-its-for" />
   <div class="prose max-w-none mt-6">
-    <p>
-      Anyone who's curious. You don't need experience with meditation, therapy, or anything similar,
-      and you don't need to believe in anything in particular. Skepticism is fine — I had plenty of
-      my own when I started.
-    </p>
-    <p>Both groups are in English and open to everyone, wherever you are.</p>
+    <Content />
   </div>
 </Container>

@@ -44,7 +44,7 @@ const { sessionDate, sessionLabel } = Astro.props;
   >
     Cancel my spot
   </button>
-  <p class="-mt-1 text-sm text-solarized-textSecondary">
+  <p data-signup-hint class="-mt-1 text-sm text-solarized-textSecondary">
     You'll get an email to confirm you're coming. Confirm it, and you'll receive the link and a
     calendar invite.
   </p>
@@ -66,6 +66,7 @@ const { sessionDate, sessionLabel } = Astro.props;
     const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const status = form.querySelector<HTMLElement>("[data-signup-status]");
     const cancelButton = form.querySelector<HTMLButtonElement>("[data-cancel-signup]");
+    const signupHint = form.querySelector<HTMLElement>("[data-signup-hint]");
     const formLoadedAtInput = form.querySelector<HTMLInputElement>('input[name="formLoadedAt"]');
 
     if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
@@ -96,6 +97,7 @@ const { sessionDate, sessionLabel } = Astro.props;
       // Cookies set before cancellation shipped won't have a token —
       // fall back to the emailed cancel link in that case.
       cancelButton?.classList.toggle("hidden", !token);
+      signupHint?.classList.toggle("hidden", confirmed);
     }
 
     function unlockForm() {
@@ -104,6 +106,7 @@ const { sessionDate, sessionLabel } = Astro.props;
       emailInput?.removeAttribute("disabled");
       submitButton?.removeAttribute("disabled");
       cancelButton?.classList.add("hidden");
+      signupHint?.classList.remove("hidden");
       renderStatus("You're no longer signed up.", false);
     }
 

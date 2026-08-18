@@ -1,0 +1,4 @@
+- **Everything is an invitation.** You can step back from any part of a session at any time, without explaining yourself.
+- **What's said here stays here.** We don't share names or personal details from a session. Your own experience is yours to share.
+- **No unsolicited advice, no judgment.** When someone speaks, we listen. That's the whole job.
+- **We're learners.** Mistakes happen, including mine.
