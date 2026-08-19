@@ -1,0 +1,17 @@
+---
+import { getEntry, render } from "astro:content";
+import Container from "../Container.astro";
+import SectionHeading from "../SectionHeading.astro";
+import NewsletterSignupForm from "../NewsletterSignupForm.astro";
+
+const entry = (await getEntry("copy", "newsletter"))!;
+const { Content } = await render(entry);
+---
+
+<Container>
+  <SectionHeading title="Newsletter" id="newsletter" />
+  <div class="prose max-w-none mt-6">
+    <Content />
+  </div>
+  <NewsletterSignupForm />
+</Container>

@@ -11,6 +11,11 @@ interface BrevoEnv {
   FROM_NAME: string;
 }
 
+interface BrevoListEnv {
+  BREVO_API_KEY: string;
+  BREVO_LIST_ID: string;
+}
+
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -150,6 +155,37 @@ export async function sendApplicationReceivedEmail(
       <p>Thanks for taking the time.</p>
     `.trim(),
   });
+}
+
+export async function addContactToNewsletterList(env: BrevoListEnv, options: { email: string }): Promise<void> {
+  // No API key/list configured (e.g. local dev, or before a Brevo list has
+  // been created) — log instead of calling the API, same fallback as
+  // sendBrevoEmail above.
+  if (!env.BREVO_API_KEY || !env.BREVO_LIST_ID) {
+    console.log(
+      `[dev newsletter signup — not sent to Brevo, BREVO_API_KEY/BREVO_LIST_ID not set] ${options.email}`,
+    );
+    return;
+  }
+
+  const response = await fetch('https://api.brevo.com/v3/contacts', {
+    method: 'POST',
+    headers: {
+      'api-key': env.BREVO_API_KEY,
+      'content-type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({
+      email: options.email,
+      listIds: [Number(env.BREVO_LIST_ID)],
+      updateEnabled: true,
+    }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Brevo add-contact failed (${response.status}): ${body}`);
+  }
 }
 
 export async function sendTimezoneInterestNotificationEmail(

@@ -31,6 +31,11 @@ interface TimezoneInterestRow {
   created_at: string;
 }
 
+interface NewsletterSignupRow {
+  email: string;
+  created_at: string;
+}
+
 const db = Astro.locals.runtime.env.DB;
 
 const { results: signups } = await db
@@ -50,6 +55,10 @@ const { results: applications } = await db
 const { results: timezoneInterest } = await db
   .prepare(`SELECT email, created_at FROM timezone_interest_signups ORDER BY created_at DESC`)
   .all<TimezoneInterestRow>();
+
+const { results: newsletterSignups } = await db
+  .prepare(`SELECT email, created_at FROM newsletter_signups ORDER BY created_at DESC`)
+  .all<NewsletterSignupRow>();
 
 function groupBy<T>(rows: T[], keyFn: (row: T) => string): Map<string, T[]> {
   const map = new Map<string, T[]>();
@@ -177,6 +186,31 @@ const applicationsByCycle = groupBy(applications, (a) => a.cycle_start_date);
         </table>
       </div>
       {timezoneInterest.length === 0 && <p class="text-solarized-textSecondary mt-4">No signups yet.</p>}
+    </div>
+  </Container>
+
+  <Container background="tint">
+    <SectionHeading title="Newsletter signups" id="newsletter-signups" />
+    <div class="mt-6">
+      <div class="overflow-x-auto rounded-lg border border-solarized-base2">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
+            <tr>
+              <th class="px-4 py-2 font-medium">Email</th>
+              <th class="px-4 py-2 font-medium">Signed up</th>
+            </tr>
+          </thead>
+          <tbody>
+            {newsletterSignups.map((row) => (
+              <tr class="border-t border-solarized-base2">
+                <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
+                <td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {newsletterSignups.length === 0 && <p class="text-solarized-textSecondary mt-4">No signups yet.</p>}
     </div>
   </Container>
 </Layout>

@@ -85,3 +85,7 @@ A few short questions about you and what brings you here. It's not a test, and I
 # apply-not-open
 
 Applications for the next cycle aren't open yet — check back soon, or come to an [open session](/#join) in the meantime.
+
+# newsletter
+
+I'll sometimes host extra events—one-off sessions, workshops, or something else entirely. If you'd like to hear about those as they come up, leave your email below.

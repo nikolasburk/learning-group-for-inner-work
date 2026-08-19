@@ -32,11 +32,15 @@ Sessions take place over Zoom, provided by Zoom Video Communications, Inc., a co
 
 ### Forms
 
-The closed-group application form is built with Google Forms (Google Ireland Limited). The open-group sign-up runs directly on this site (see "Sign-up form (open group)" above). No separate newsletter or mailing-list tool is currently in use. If that changes, this section will be updated to describe it — including recipient, purpose, legal basis, and how to unsubscribe.
+The closed-group application form is built with Google Forms (Google Ireland Limited). The open-group sign-up runs directly on this site (see "Sign-up form (open group)" above).
 
-### Brevo (transactional email)
+### Newsletter
 
-The confirmation-request and calendar-invite emails for the open-group sign-up are sent via Brevo (Sendinblue SA), an EU-based email service provider. Brevo processes your email address and the content of these transactional emails on our behalf. Legal basis: Art. 6(1)(b) GDPR (necessary to carry out the sign-up you requested). [Confirm current data processing agreement with Brevo before publishing.]
+If you sign up for the newsletter, your email address is stored in a Cloudflare D1 database and added to a contact list with Brevo (Sendinblue SA), an EU-based email and marketing service provider (see "Brevo" below for Brevo as processor). It's used only to occasionally send you updates about extra or one-off events. Legal basis: Art. 6(1)(a) GDPR (consent, given by signing up). You can unsubscribe at any time via the link included in every newsletter email, or by contacting us directly (see "Contact for privacy requests" below).
+
+### Brevo (transactional email and newsletter)
+
+The confirmation-request and calendar-invite emails for the open-group sign-up, and the newsletter described above, are sent via Brevo (Sendinblue SA), an EU-based email service provider. Brevo processes your email address, the content of these emails, and (for the newsletter) your list membership on our behalf. Legal basis: Art. 6(1)(b) GDPR for transactional emails (necessary to carry out the sign-up you requested); Art. 6(1)(a) GDPR for the newsletter (consent). [Confirm current data processing agreement with Brevo before publishing.]
 
 ### PayPal (payment provider)
 
