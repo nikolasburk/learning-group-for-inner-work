@@ -8,10 +8,12 @@ const entry = (await getEntry("copy", "newsletter"))!;
 const { Content } = await render(entry);
 ---
 
-<Container>
+<Container background="tint">
   <SectionHeading title="Newsletter" id="newsletter" />
-  <div class="prose max-w-none mt-6">
-    <Content />
+  <div class="max-w-md">
+    <div class="prose mt-6">
+      <Content />
+    </div>
+    <NewsletterSignupForm />
   </div>
-  <NewsletterSignupForm />
 </Container>
