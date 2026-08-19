@@ -8,9 +8,9 @@ const entry = (await getEntry("copy", "newsletter"))!;
 const { Content } = await render(entry);
 ---
 
-<Container background="tint">
+<Container background="tint" class="text-center">
   <SectionHeading title="Newsletter" id="newsletter" />
-  <div class="max-w-md">
+  <div class="max-w-md mx-auto">
     <div class="prose mt-6">
       <Content />
     </div>
