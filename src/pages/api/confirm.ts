@@ -24,7 +24,7 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
   }
   if (row.status === 'confirmed') {
     setSignupCookie(cookies, row.session_date, row.email, 'confirmed', token);
-    return redirect('/confirmed?state=ok');
+    return redirect(`/confirmed?state=ok&date=${row.session_date}&token=${token}`);
   }
   if (row.status !== 'pending' || new Date(row.expires_at) < new Date()) {
     // This particular signup is dead — only clear the cookie if it's the one
@@ -67,5 +67,5 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
     }
   }
 
-  return redirect('/confirmed?state=ok');
+  return redirect(`/confirmed?state=ok&date=${row.session_date}&token=${token}`);
 };

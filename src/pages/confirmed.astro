@@ -1,42 +1,67 @@
 ---
+export const prerender = false;
+
 import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
 import SectionHeading from "../components/SectionHeading.astro";
+import Button from "../components/Button.astro";
+import { OPEN_GROUP_SESSIONS } from "../data/sessions";
+import { formatSessionLabel } from "../lib/berlin-time";
+import { buildGoogleCalendarLink } from "../lib/ics";
+
+const requested = Astro.url.searchParams.get("state");
+const state =
+  requested === "ok" || requested === "expired" || requested === "cancelled" ? requested : "invalid";
+
+const date = Astro.url.searchParams.get("date");
+const token = Astro.url.searchParams.get("token");
+const session = date ? OPEN_GROUP_SESSIONS.find((s) => s.date === date) : undefined;
+
+const zoomLink = Astro.locals.runtime.env.ZOOM_LINK;
+const dateTimeLabel = session ? `${formatSessionLabel(session.date)}, ${session.time} Berlin` : null;
+const googleCalendarLink = session ? buildGoogleCalendarLink(session, zoomLink) : null;
+const icsUrl = token ? `/api/ics?token=${token}` : null;
 ---
 
 <Layout title="Confirmed — Inner Work" description="Sign-up confirmation for the open group.">
   <Container class="prose">
     <SectionHeading title="Sign-up" />
 
-    <div data-state="ok" hidden>
-      <p>You're confirmed. A calendar invite is on its way to your inbox.</p>
-      <p>See you there.</p>
-    </div>
-    <div data-state="expired" hidden>
-      <p>
-        That confirmation link has expired or was already used. If you'd still like to come,
-        please sign up again from the <a href="/#join">Join</a> section.
-      </p>
-    </div>
-    <div data-state="invalid" hidden>
-      <p>
-        That confirmation link isn't valid. If you'd still like to come, please sign up again
-        from the <a href="/#join">Join</a> section.
-      </p>
-    </div>
-    <div data-state="cancelled" hidden>
-      <p>You're no longer signed up.</p>
-      <p>
-        If you change your mind, you can sign up again from the <a href="/#join">Join</a>
-        section.
-      </p>
-    </div>
+    {
+      state === "ok" && session && dateTimeLabel && googleCalendarLink && icsUrl ? (
+        <>
+          <p>You're confirmed for the open group session on {dateTimeLabel}.</p>
+          <p>
+            Join link: <a href={zoomLink}>{zoomLink}</a>
+          </p>
+          <p>See you there.</p>
+          <Button href={googleCalendarLink}>Add to Google Calendar</Button>
+          <Button href={icsUrl}>Download calendar file (.ics)</Button>
+        </>
+      ) : state === "ok" ? (
+        <>
+          <p>You're confirmed. A calendar invite is on its way to your inbox.</p>
+          <p>See you there.</p>
+        </>
+      ) : state === "expired" ? (
+        <p>
+          That confirmation link has expired or was already used. If you'd still like to come,
+          please sign up again from the <a href="/#join">Join</a> section.
+        </p>
+      ) : state === "cancelled" ? (
+        <>
+          <p>You're no longer signed up.</p>
+          <p>
+            If you change your mind, you can sign up again from the <a href="/#join">Join</a>
+            section.
+          </p>
+        </>
+      ) : (
+        <p>
+          That confirmation link isn't valid. If you'd still like to come, please sign up again
+          from the <a href="/#join">Join</a> section.
+        </p>
+      )
+    }
   </Container>
 </Layout>
-
-<script>
-  const requested = new URLSearchParams(location.search).get("state");
-  const state =
-    requested === "ok" || requested === "expired" || requested === "cancelled" ? requested : "invalid";
-  document.querySelector(`[data-state="${state}"]`)?.removeAttribute("hidden");
-</script>
