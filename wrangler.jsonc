@@ -13,7 +13,7 @@
     "FROM_NAME": "Nikolas — Practice group for inner work",
     "ZOOM_LINK": "https://us04web.zoom.us/j/73412743879?pwd=WuxartnGIjWgZxFl7BFQfQW16PMYJ7.1", // TODO: replace with the real recurring Zoom link
     "NOTIFY_EMAIL": "nikolas.burk@gmail.com", // where closed-group application notifications are sent
-    "BREVO_LIST_ID": "" // TODO: set to the numeric ID of the Brevo contact list for newsletter signups
+    "BREVO_LIST_ID": "7" // Brevo contact list: "Newsletter | Inner Work Practice Group"
   },
   "d1_databases": [
     {

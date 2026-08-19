@@ -88,4 +88,5 @@ Applications for the next cycle aren't open yet — check back soon, or come to 
 
 # newsletter
 
-I'll sometimes host extra events—one-off sessions, workshops, or something else entirely. If you'd like to hear about those as they come up, leave your email below.
+I'll also sometimes host one-off sessions or other events. If you'd like to hear about those as they come up, leave your email below.
+
