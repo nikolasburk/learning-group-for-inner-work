@@ -5,6 +5,7 @@ import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import Button from "../components/Button.astro";
+import ConfirmedNewsletterOptIn from "../components/ConfirmedNewsletterOptIn.astro";
 import { OPEN_GROUP_SESSIONS } from "../data/sessions";
 import { formatSessionLabel } from "../lib/berlin-time";
 import { buildGoogleCalendarLink } from "../lib/ics";
@@ -37,11 +38,13 @@ const icsUrl = token ? `/api/ics?token=${token}` : null;
           <p>See you there.</p>
           <Button href={googleCalendarLink}>Add to Google Calendar</Button>
           <Button href={icsUrl}>Download calendar file (.ics)</Button>
+          {token && <ConfirmedNewsletterOptIn token={token} />}
         </>
       ) : state === "ok" ? (
         <>
           <p>You're confirmed. A calendar invite is on its way to your inbox.</p>
           <p>See you there.</p>
+          {token && <ConfirmedNewsletterOptIn token={token} />}
         </>
       ) : state === "expired" ? (
         <p>

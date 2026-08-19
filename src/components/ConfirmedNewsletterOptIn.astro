@@ -1,0 +1,80 @@
+---
+interface Props {
+  token: string;
+}
+
+const { token } = Astro.props;
+---
+
+<div data-newsletter-optin data-token={token} class="flex items-start gap-2 mt-4">
+  <input
+    id="confirmed-newsletter-opt-in"
+    type="checkbox"
+    class="mt-1 h-4 w-4 shrink-0 rounded border-solarized-base2 text-solarized-violet focus:ring-solarized-violet"
+  />
+  <label class="text-sm text-solarized-textBody" for="confirmed-newsletter-opt-in">
+    Also send me the occasional newsletter update.
+    <span class="font-normal text-solarized-textSecondary">(optional)</span>
+  </label>
+</div>
+<p
+  data-newsletter-optin-status
+  role="status"
+  aria-live="polite"
+  class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary mt-1"
+></p>
+
+<script>
+  const CHECK_ICON =
+    '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+    '<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+    '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+    "</svg>";
+
+  document.querySelectorAll<HTMLElement>("[data-newsletter-optin]").forEach((wrapper) => {
+    const checkbox = wrapper.querySelector<HTMLInputElement>('input[type="checkbox"]');
+    const status = wrapper.nextElementSibling?.matches("[data-newsletter-optin-status]")
+      ? (wrapper.nextElementSibling as HTMLElement)
+      : null;
+    const token = wrapper.dataset.token ?? "";
+
+    checkbox?.addEventListener("change", async () => {
+      if (!checkbox.checked) return;
+
+      checkbox.setAttribute("disabled", "true");
+      if (status) status.textContent = "Adding you…";
+
+      try {
+        const response = await fetch("/api/confirm-newsletter-optin", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token }),
+        });
+        const result = (await response.json().catch(() => ({}))) as { alreadyRegistered?: boolean };
+
+        if (!response.ok) {
+          checkbox.removeAttribute("disabled");
+          checkbox.checked = false;
+          if (status) status.textContent = "Something went wrong. Please try again.";
+          return;
+        }
+
+        if (status) {
+          status.classList.add("text-solarized-green", "font-semibold");
+          status.classList.remove("text-solarized-textSecondary");
+          status.innerHTML = "";
+          status.insertAdjacentHTML("beforeend", CHECK_ICON);
+          status.appendChild(
+            document.createTextNode(
+              result.alreadyRegistered ? "You're already subscribed." : "Thanks — you're on the list.",
+            ),
+          );
+        }
+      } catch {
+        checkbox.removeAttribute("disabled");
+        checkbox.checked = false;
+        if (status) status.textContent = "Something went wrong. Please try again.";
+      }
+    });
+  });
+</script>

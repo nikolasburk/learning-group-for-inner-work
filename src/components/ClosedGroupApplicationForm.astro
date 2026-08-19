@@ -45,6 +45,19 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
     <textarea id="apply-anything-else" name="anythingElse" rows="3" class={inputClass}></textarea>
   </div>
 
+  <div class="flex items-start gap-2">
+    <input
+      id="apply-newsletter-opt-in"
+      name="newsletterOptIn"
+      type="checkbox"
+      class="mt-1 h-4 w-4 shrink-0 rounded border-solarized-base2 text-solarized-violet focus:ring-solarized-violet"
+    />
+    <label class="text-sm text-solarized-textBody" for="apply-newsletter-opt-in">
+      Also send me the occasional newsletter update.
+      <span class="font-normal text-solarized-textSecondary">(optional)</span>
+    </label>
+  </div>
+
   <div class="hidden" aria-hidden="true">
     <label for="apply-company">Company</label>
     <input id="apply-company" name="company" type="text" tabindex="-1" autocomplete="off" />
@@ -117,6 +130,7 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
             whyNow: data.get("whyNow"),
             commitment: data.get("commitment"),
             anythingElse: data.get("anythingElse"),
+            newsletterOptIn: data.get("newsletterOptIn") === "on",
             honeypot: honeypotInput?.value ?? "",
             formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
           }),

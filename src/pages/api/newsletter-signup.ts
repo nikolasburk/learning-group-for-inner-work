@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { addContactToNewsletterList } from '../../lib/brevo';
+import { subscribeToNewsletter } from '../../lib/newsletter';
 
 export const prerender = false;
 
@@ -35,21 +35,6 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return jsonResponse({ error: 'Please enter a valid email address.' }, 400);
   }
 
-  const db = locals.runtime.env.DB;
-
-  try {
-    await db.prepare(`INSERT INTO newsletter_signups (email) VALUES (?)`).bind(email).run();
-  } catch {
-    // Unique-index hit: this email is already subscribed.
-    return jsonResponse({ ok: true, alreadyRegistered: true });
-  }
-
-  const env = locals.runtime.env;
-  try {
-    await addContactToNewsletterList(env, { email });
-  } catch (error) {
-    console.error('Failed to add contact to Brevo newsletter list', error);
-  }
-
-  return jsonResponse({ ok: true });
+  const result = await subscribeToNewsletter(locals.runtime.env, { email });
+  return jsonResponse({ ok: true, alreadyRegistered: result.status === 'already-subscribed' });
 };

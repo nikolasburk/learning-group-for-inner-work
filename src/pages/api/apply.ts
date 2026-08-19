@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getNextClosedCycle } from '../../data/closed-cycles';
 import { sendApplicationNotificationEmail, sendApplicationReceivedEmail } from '../../lib/brevo';
+import { subscribeToNewsletter } from '../../lib/newsletter';
 
 export const prerender = false;
 
@@ -22,6 +23,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     whyNow?: unknown;
     commitment?: unknown;
     anythingElse?: unknown;
+    newsletterOptIn?: unknown;
     honeypot?: unknown;
     formLoadedAt?: unknown;
   };
@@ -45,6 +47,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const whyNow = typeof body.whyNow === 'string' ? body.whyNow.trim() : '';
   const commitment = typeof body.commitment === 'string' ? body.commitment.trim() : '';
   const anythingElse = typeof body.anythingElse === 'string' ? body.anythingElse.trim() : '';
+  const newsletterOptIn = body.newsletterOptIn === true;
 
   if (!name || name.length > MAX_FIELD_LENGTH) {
     return jsonResponse({ error: 'Please enter your name.' }, 400);
@@ -91,6 +94,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await sendApplicationReceivedEmail(env, { to: email, name });
   } catch (error) {
     console.error('Failed to send application received email', error);
+  }
+
+  if (newsletterOptIn) {
+    try {
+      await subscribeToNewsletter(env, { email });
+    } catch (error) {
+      console.error('Failed to subscribe applicant to newsletter', error);
+    }
   }
 
   return jsonResponse({ ok: true });
