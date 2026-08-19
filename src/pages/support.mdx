@@ -5,7 +5,7 @@ description: Optional ways to support the Inner Work practice group's running co
 heading: Support
 ---
 
-import CopyIbanButton from "../components/CopyIbanButton.astro";
+import CopyButton from "../components/CopyButton.astro";
 
 This group is free and will stay that way. If you've been to a few sessions and want to chip in for the running costs, you're welcome to — it's entirely optional and makes no difference to your place in the group.
 
@@ -24,7 +24,7 @@ This group is free and will stay that way. If you've been to a few sessions and 
 <p class="mb-2">[ACCOUNT HOLDER]</p>
 <div class="mb-2 text-lg leading-relaxed text-solarized-textBody flex flex-wrap items-center gap-3">
   <span>IBAN</span>
-  <CopyIbanButton iban="[IBAN]" />
+  <CopyButton value="[IBAN]" label="Copy IBAN" />
 </div>
 
 Reference: [REFERENCE, e.g. "Support"]

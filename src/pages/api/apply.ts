@@ -23,6 +23,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     whyNow?: unknown;
     commitment?: unknown;
     anythingElse?: unknown;
+    openToContribution?: unknown;
     newsletterOptIn?: unknown;
     honeypot?: unknown;
     formLoadedAt?: unknown;
@@ -47,6 +48,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const whyNow = typeof body.whyNow === 'string' ? body.whyNow.trim() : '';
   const commitment = typeof body.commitment === 'string' ? body.commitment.trim() : '';
   const anythingElse = typeof body.anythingElse === 'string' ? body.anythingElse.trim() : '';
+  const openToContribution = body.openToContribution === true;
   const newsletterOptIn = body.newsletterOptIn === true;
 
   if (!name || name.length > MAX_FIELD_LENGTH) {
@@ -75,9 +77,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     await db
       .prepare(
-        `INSERT INTO closed_group_applications (name, email, why_now, commitment, anything_else, cycle_start_date) VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO closed_group_applications (name, email, why_now, commitment, anything_else, open_to_contribution, cycle_start_date) VALUES (?, ?, ?, ?, ?, ?, ?)`,
       )
-      .bind(name, email, whyNow, commitment, anythingElse || null, cycle.startDate)
+      .bind(name, email, whyNow, commitment, anythingElse || null, openToContribution ? 1 : 0, cycle.startDate)
       .run();
   } catch {
     // Unique-index hit: this email already applied for this cycle.

@@ -21,7 +21,7 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
 
   <div class="flex flex-col gap-1">
     <label class="font-semibold text-solarized-textHeading" for="apply-why-now">
-      Why does this feel like the right time for you?
+      Why are you interested in joining the closed group?
     </label>
     <textarea id="apply-why-now" name="whyNow" required rows="4" class={inputClass}></textarea>
   </div>
@@ -29,11 +29,12 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
   <div class="flex flex-col gap-1">
     <label class="font-semibold text-solarized-textHeading" for="apply-commitment">
       The cycle runs first and third Wednesday, 19:00 Berlin / 10:00 San Francisco, starting {startDateLabel}
-      — 6 sessions in total. Can you commit to that?
+      — 6 sessions in total. Can you commit to that? If you already know of dates where you won't be available,
+      please note them here.
     </label>
     <p class="text-sm text-solarized-textSecondary">
       Missing one or two is fine, life happens — I'm asking about your general commitment, not perfect
-      attendance.
+      attendance. 
     </p>
     <textarea id="apply-commitment" name="commitment" required rows="3" class={inputClass}></textarea>
   </div>
@@ -43,6 +44,19 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
       Anything else you'd like me to know? <span class="font-normal text-solarized-textSecondary">(optional)</span>
     </label>
     <textarea id="apply-anything-else" name="anythingElse" rows="3" class={inputClass}></textarea>
+  </div>
+
+  <div class="flex items-center gap-2">
+    <input
+      id="apply-open-to-contribution"
+      name="openToContribution"
+      type="checkbox"
+      class="h-4 w-4 shrink-0 rounded border-solarized-base2 text-solarized-violet focus:ring-solarized-violet"
+    />
+    <label class="text-sm text-solarized-textBody" for="apply-open-to-contribution">
+      I'm open to helping cover costs with a contribution between 25€ and 100€ when the cycle starts.
+      <span class="font-normal text-solarized-textSecondary">(optional)</span>
+    </label>
   </div>
 
   <div class="flex items-center gap-2">
@@ -130,6 +144,7 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
             whyNow: data.get("whyNow"),
             commitment: data.get("commitment"),
             anythingElse: data.get("anythingElse"),
+            openToContribution: data.get("openToContribution") === "on",
             newsletterOptIn: data.get("newsletterOptIn") === "on",
             honeypot: honeypotInput?.value ?? "",
             formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),

@@ -21,6 +21,7 @@ interface ApplicationRow {
   why_now: string;
   commitment: string;
   anything_else: string | null;
+  open_to_contribution: number;
   cycle_start_date: string;
   status: string;
   created_at: string;
@@ -47,7 +48,7 @@ const { results: signups } = await db
 
 const { results: applications } = await db
   .prepare(
-    `SELECT name, email, why_now, commitment, anything_else, cycle_start_date, status, created_at
+    `SELECT name, email, why_now, commitment, anything_else, open_to_contribution, cycle_start_date, status, created_at
      FROM closed_group_applications ORDER BY cycle_start_date DESC, created_at DESC`,
   )
   .all<ApplicationRow>();
@@ -153,6 +154,10 @@ const applicationsByCycle = groupBy(applications, (a) => a.cycle_start_date);
                       <strong class="text-solarized-textBody">Anything else:</strong> {row.anything_else}
                     </p>
                   )}
+                  <p class="text-sm text-solarized-textSecondary mb-1">
+                    <strong class="text-solarized-textBody">Open to contribution:</strong>{" "}
+                    {row.open_to_contribution ? "Yes" : "No"}
+                  </p>
                   <p class="text-xs text-solarized-textSecondary mt-2">Applied {row.created_at}</p>
                 </div>
               ))}

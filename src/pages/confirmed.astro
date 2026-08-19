@@ -5,6 +5,7 @@ import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import Button from "../components/Button.astro";
+import CopyButton from "../components/CopyButton.astro";
 import ConfirmedNewsletterOptIn from "../components/ConfirmedNewsletterOptIn.astro";
 import { OPEN_GROUP_SESSIONS } from "../data/sessions";
 import { formatSessionLabel } from "../lib/berlin-time";
@@ -31,13 +32,44 @@ const icsUrl = token ? `/api/ics?token=${token}` : null;
     {
       state === "ok" && session && dateTimeLabel && googleCalendarLink && icsUrl ? (
         <>
-          <p>You're confirmed for the open group session on {dateTimeLabel}.</p>
-          <p>
-            Join link: <a href={zoomLink}>{zoomLink}</a>
-          </p>
-          <p>See you there.</p>
-          <Button href={googleCalendarLink}>Add to Google Calendar</Button>
-          <Button href={icsUrl}>Download calendar file (.ics)</Button>
+          <div class="mb-6 rounded-xl border border-solarized-base2 p-6 md:p-8">
+            <p class="mb-0 text-base leading-normal font-semibold text-solarized-textHeading">
+              You're confirmed — see you there.
+            </p>
+
+            <p class="mb-0 mt-4 text-2xl leading-normal font-bold text-solarized-textHeading">{dateTimeLabel}</p>
+
+            <div class="mt-4 border-t border-solarized-base2 pt-4">
+              <p class="mb-0 flex flex-wrap items-center gap-2 text-base leading-normal text-solarized-textBody">
+                Join on Zoom: <a href={zoomLink}>{zoomLink}</a>
+                <CopyButton value={zoomLink} label="Copy Zoom link" />
+              </p>
+            </div>
+
+            <div class="mt-4 flex flex-wrap gap-3 border-t border-solarized-base2 pt-4 -mb-6">
+              <Button href={googleCalendarLink}>
+                <svg class="inline-block w-4 h-4 mr-1.5 -mt-0.5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <rect x="3" y="4.5" width="14" height="12" rx="1.5" class="stroke-current" stroke-width="1.5" />
+                  <path d="M3 8h14" class="stroke-current" stroke-width="1.5" />
+                  <path d="M6.5 3v3M13.5 3v3" class="stroke-current" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                Add to Google Calendar
+              </Button>
+              <Button href={icsUrl}>
+                <svg class="inline-block w-4 h-4 mr-1.5 -mt-0.5" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path
+                    d="M10 3v9.5M6.5 9l3.5 3.5L13.5 9"
+                    class="stroke-current"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path d="M4 15.5h12" class="stroke-current" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+                Download calendar file (.ics)
+              </Button>
+            </div>
+          </div>
           {token && <ConfirmedNewsletterOptIn token={token} />}
         </>
       ) : state === "ok" ? (

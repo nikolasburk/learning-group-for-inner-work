@@ -6,11 +6,11 @@ interface Props {
 const { token } = Astro.props;
 ---
 
-<div data-newsletter-optin data-token={token} class="flex items-start gap-2 mt-4">
+<div data-newsletter-optin data-token={token} class="flex items-center gap-2 mt-4">
   <input
     id="confirmed-newsletter-opt-in"
     type="checkbox"
-    class="mt-1 h-4 w-4 shrink-0 rounded border-solarized-base2 text-solarized-violet focus:ring-solarized-violet"
+    class="h-4 w-4 shrink-0 rounded border-solarized-base2 text-solarized-violet focus:ring-solarized-violet"
   />
   <label class="text-sm text-solarized-textBody" for="confirmed-newsletter-opt-in">
     Also send me the occasional newsletter update.

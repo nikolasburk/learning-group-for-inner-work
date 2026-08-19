@@ -19,7 +19,7 @@ It also turns out to be one of the most useful things I've done with my time rec
 We meet online, a session takes roughly 2 hours. It looks like this:
 
 1. **Sitting in silence** — slow down for a few minutes and arrive
-2. **Check-in** — everyone says how they’re doing and what’s on their mind
+2. **Check-in** — everyone says how they're doing and what's on their mind
 3. **Triad** — we split into groups of three and work with a prompt
 4. **Break**
 5. **Triad** — new groups, new prompt
@@ -46,11 +46,13 @@ Same group of people every time. That's the point: when you sit with the same fa
 
 # join-cost
 
-The open group has no cost at all. If you want to join the closed group, we ask for a support contribution (still voluntary, we don't want money to be an issue for anyone who wants to join).
+The open group has no cost at all. If you want to join the closed group, we ask for a support contribution (still voluntary, we don't want money to be the reason for anyone to not join).
 
 # who-its-for
 
 Anyone who's curious. You don't need experience with meditation, therapy, or anything similar, and you don't need to believe in anything in particular. Skepticism is fine — I had plenty of my own when I started.
+
+You also don't need to have a "problem". This is not a therapy group and we're not here to “solve” anything. We're here to understand ourselves more deeply, the rest will follow anyways.
 
 Both groups are in English and open to everyone, wherever you are.
 
@@ -68,7 +70,7 @@ My name is Nikolas Burk. I've been interested in personal development, meditatio
 
 That changed in 2024, at the [Summer Intensive](https://thomashuebl.com/summer-intensive-retreat-in-germany-2026/) retreat with Thomas Huebl. A week with 600 people turned out to be the most transformative experience of my life. I went again in 2025 and 2026, joined a [Practice Group for Transparent Communication](https://pocketproject.org/practice-groups/) in Berlin, went through the [Training](https://thomashuebl.com/de/kurse/praxisgruppenleiter-training-2026-2027/) to lead those groups myself, and built a daily meditation practice.
 
-My background is in software development — I spent the last nine years as a Developer Advocate at a startup. In the retreats and practice groups I met psychologists, coaches, and people from many other fields, but almost nobody from my own. That's part of why I'm starting this: I'd like to open the door for people who haven't had any contact with this kind of work, and learn alongside them.
+My background is in software development — I spent the last nine years as a Developer Advocate at a startup. In the retreats and practice groups I met psychologists, coaches, and people from many other fields, but almost nobody from my own. That's part of why I'm starting this: I'd like to open the door for people who haven't had any contact with this kind of work, and learn alongside them. [Learn more about my motivation](https://www.nikolasburk.com/blog/starting-a-practice-group-for-inner-work/).
 
 # co-host
 
