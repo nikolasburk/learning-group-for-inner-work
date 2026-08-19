@@ -18,13 +18,13 @@ It also turns out to be one of the most useful things I've done with my time rec
 
 We meet online, a session takes roughly 2 hours. It looks like this:
 
-1. **Meditation** — we sit in silence together for a few minutes and arrive
-2. **Check-in** — everyone says how they're doing and what's on their mind
-3. **Triad** — we split into groups of three and work with a prompt
+1. **Sitting in silence** — slow down for a few minutes and arrive
+2. **Check-in** — everyone says how they’re doing and what’s on their mind
+3. **Triad** — we split into groups of three and work with a prompt
 4. **Break**
-5. **Triad** — new groups, new prompt
-6. **Check-out** — everyone shares where they are now
-7. **Meditation**
+5. **Triad** — new groups, new prompt
+6. **Check-out** — everyone shares where they are now
+7. **Sitting in silence** — slow down and digest
 
 The triads are the heart of it. Three people, one question, a set amount of time. One person speaks about whatever comes up for them; the other two listen. When the time's up, the next person speaks. No questions, no advice, no comments. Being listened to like that for a few minutes is a strange experience the first time, and it tends to open things up quickly.
 
