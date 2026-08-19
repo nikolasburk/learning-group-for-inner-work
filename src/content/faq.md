@@ -41,3 +41,7 @@ It definitely can be! I've experienced online sessions with groups several times
 ## How long is a triad?
 
 It's typically between 6 and 10 minutes speaking time per person.
+
+## Is there a group in an Asian-friendly time zone?
+
+Not yet, but I'm considering starting one depending on interest. If you're interested, please leave your email here and you will be notified when it happens: 

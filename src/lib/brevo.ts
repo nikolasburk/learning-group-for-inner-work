@@ -151,3 +151,17 @@ export async function sendApplicationReceivedEmail(
     `.trim(),
   });
 }
+
+export async function sendTimezoneInterestNotificationEmail(
+  env: BrevoEnv,
+  options: { to: string; email: string },
+): Promise<void> {
+  await sendBrevoEmail(env, {
+    to: options.to,
+    subject: `New Asia-timezone interest signup — ${options.email}`,
+    htmlContent: `
+      <p>Someone registered interest in an Asian-friendly time zone group.</p>
+      <p><strong>Email:</strong> ${escapeHtml(options.email)}</p>
+    `.trim(),
+  });
+}

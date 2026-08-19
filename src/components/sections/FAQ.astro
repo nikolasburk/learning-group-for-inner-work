@@ -3,6 +3,11 @@ import { getCollection, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 import FAQItem from "../FAQItem.astro";
+import TimezoneInterestForm from "../TimezoneInterestForm.astro";
+
+// Keep in sync with the question text in src/content/faq.md — the id is
+// derived from it via slugify() in src/content/loaders.ts.
+const TIMEZONE_INTEREST_FAQ_ID = "is-there-a-group-in-an-asian-friendly-time-zone";
 
 const faqs = (await getCollection("faq")).sort(
   (a, b) => a.data.order - b.data.order,
@@ -10,7 +15,7 @@ const faqs = (await getCollection("faq")).sort(
 const renderedFaqs = await Promise.all(
   faqs.map(async (entry) => {
     const { Content } = await render(entry);
-    return { question: entry.data.question, Content };
+    return { id: entry.id, question: entry.data.question, Content };
   }),
 );
 ---
@@ -19,9 +24,10 @@ const renderedFaqs = await Promise.all(
   <SectionHeading title="FAQ" id="faq" />
   <div class="divide-y divide-solarized-base2 mt-6">
     {
-      renderedFaqs.map(({ question, Content }) => (
+      renderedFaqs.map(({ id, question, Content }) => (
         <FAQItem question={question}>
           <Content />
+          {id === TIMEZONE_INTEREST_FAQ_ID && <TimezoneInterestForm />}
         </FAQItem>
       ))
     }

@@ -1,0 +1,98 @@
+---
+---
+
+<form data-timezone-interest-form class="flex flex-col gap-2 mt-3">
+  <div class="flex flex-col sm:flex-row gap-2">
+    <label class="sr-only" for="timezone-interest-email">Email address</label>
+    <input
+      id="timezone-interest-email"
+      name="email"
+      type="email"
+      required
+      placeholder="you@example.com"
+      autocomplete="email"
+      class="w-full sm:flex-1 min-w-0 px-3 py-1.5 rounded-lg border border-solarized-base2 text-solarized-textBody text-sm"
+    />
+    <button
+      type="submit"
+      class="w-full sm:w-auto text-center px-4 py-1.5 rounded-lg text-sm transition-all duration-200 bg-solarized-violet text-white hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:hover:shadow-none"
+    >
+      Notify me
+    </button>
+  </div>
+  <div class="hidden" aria-hidden="true">
+    <label for="timezone-interest-company">Company</label>
+    <input id="timezone-interest-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+  <input type="hidden" name="formLoadedAt" value="" />
+  <p
+    data-timezone-interest-status
+    role="status"
+    aria-live="polite"
+    class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary"
+  ></p>
+</form>
+
+<script>
+  const CHECK_ICON =
+    '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+    '<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
+    '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+    "</svg>";
+
+  document.querySelectorAll<HTMLFormElement>("[data-timezone-interest-form]").forEach((form) => {
+    const emailInput = form.querySelector<HTMLInputElement>("#timezone-interest-email");
+    const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
+    const status = form.querySelector<HTMLElement>("[data-timezone-interest-status]");
+    const formLoadedAtInput = form.querySelector<HTMLInputElement>('input[name="formLoadedAt"]');
+    const honeypotInput = form.querySelector<HTMLInputElement>("#timezone-interest-company");
+
+    if (formLoadedAtInput) formLoadedAtInput.value = String(Date.now());
+
+    function lockAsSubmitted(message: string) {
+      form.querySelectorAll("input, button").forEach((el) => el.setAttribute("disabled", "true"));
+      if (!status) return;
+      status.classList.add("text-solarized-green", "font-semibold");
+      status.classList.remove("text-solarized-textSecondary");
+      status.innerHTML = "";
+      status.insertAdjacentHTML("beforeend", CHECK_ICON);
+      status.appendChild(document.createTextNode(message));
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      if (!emailInput || !submitButton) return;
+
+      submitButton.setAttribute("disabled", "true");
+      if (status) status.textContent = "Sending…";
+
+      try {
+        const response = await fetch("/api/timezone-interest", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            email: emailInput.value,
+            honeypot: honeypotInput?.value ?? "",
+            formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
+          }),
+        });
+        const result = (await response.json()) as { error?: string; alreadyRegistered?: boolean };
+
+        if (!response.ok) {
+          submitButton.removeAttribute("disabled");
+          if (status) status.textContent = result.error ?? "Something went wrong. Please try again.";
+          return;
+        }
+
+        lockAsSubmitted(
+          result.alreadyRegistered
+            ? "You're already on the list — I'll let you know if it happens."
+            : "Thanks — I'll let you know if it happens.",
+        );
+      } catch {
+        submitButton.removeAttribute("disabled");
+        if (status) status.textContent = "Something went wrong. Please try again.";
+      }
+    });
+  });
+</script>

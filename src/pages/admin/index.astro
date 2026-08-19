@@ -26,6 +26,11 @@ interface ApplicationRow {
   created_at: string;
 }
 
+interface TimezoneInterestRow {
+  email: string;
+  created_at: string;
+}
+
 const db = Astro.locals.runtime.env.DB;
 
 const { results: signups } = await db
@@ -41,6 +46,10 @@ const { results: applications } = await db
      FROM closed_group_applications ORDER BY cycle_start_date DESC, created_at DESC`,
   )
   .all<ApplicationRow>();
+
+const { results: timezoneInterest } = await db
+  .prepare(`SELECT email, created_at FROM timezone_interest_signups ORDER BY created_at DESC`)
+  .all<TimezoneInterestRow>();
 
 function groupBy<T>(rows: T[], keyFn: (row: T) => string): Map<string, T[]> {
   const map = new Map<string, T[]>();
@@ -143,6 +152,31 @@ const applicationsByCycle = groupBy(applications, (a) => a.cycle_start_date);
         ))
       }
       {applicationsByCycle.size === 0 && <p class="text-solarized-textSecondary">No applications yet.</p>}
+    </div>
+  </Container>
+
+  <Container>
+    <SectionHeading title="Timezone interest" id="timezone-interest" />
+    <div class="mt-6">
+      <div class="overflow-x-auto rounded-lg border border-solarized-base2">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
+            <tr>
+              <th class="px-4 py-2 font-medium">Email</th>
+              <th class="px-4 py-2 font-medium">Registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            {timezoneInterest.map((row) => (
+              <tr class="border-t border-solarized-base2">
+                <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
+                <td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {timezoneInterest.length === 0 && <p class="text-solarized-textSecondary mt-4">No signups yet.</p>}
     </div>
   </Container>
 </Layout>
