@@ -6,19 +6,33 @@ interface Props {
   note: string;
   cadence: string;
   time: string;
+  /** 'YYYY-MM-DD', Berlin-local — the specific upcoming session used to compute the viewer's local time. */
+  sessionDate?: string;
+  /** '19:00', 24h Berlin-local. Defaults to '19:00'. */
+  sessionTime?: string;
   ctaLabel?: string;
   ctaHref?: string;
   footnote?: string;
 }
 
-const { title, note, cadence, time, ctaLabel, ctaHref, footnote } = Astro.props;
+const { title, note, cadence, time, sessionDate, sessionTime = "19:00", ctaLabel, ctaHref, footnote } =
+  Astro.props;
 ---
 
 <div class="rounded-xl border border-solarized-base2 p-6 md:p-8 flex flex-col h-full hover:shadow-md transition-shadow">
   <h3 class="text-2xl font-bold mb-2 text-solarized-textHeading">{title}</h3>
   <p class="mb-4 text-solarized-textSecondary">{note}</p>
   <p class="text-sm uppercase tracking-wide text-solarized-textSecondary">{cadence}</p>
-  <p class="text-2xl font-bold text-solarized-textHeading mb-4">{time}</p>
+  <p class="text-2xl font-bold text-solarized-textHeading mb-4">
+    {time}
+    {sessionDate && (
+      <span
+        class="viewer-local-time text-base font-normal text-solarized-textSecondary"
+        data-session-date={sessionDate}
+        data-session-time={sessionTime}
+      />
+    )}
+  </p>
   <div class="mb-4 flex justify-center">
     <slot name="calendar" />
   </div>
@@ -32,3 +46,18 @@ const { title, note, cadence, time, ctaLabel, ctaHref, footnote } = Astro.props;
   </div>
   {footnote && <p class="text-sm text-solarized-textSecondary -mt-4">{footnote}</p>}
 </div>
+
+<script>
+  import { formatSessionTimeInZone } from "../lib/berlin-time";
+
+  const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (viewerTimeZone !== "Europe/Berlin") {
+    document.querySelectorAll<HTMLElement>(".viewer-local-time").forEach((el) => {
+      const date = el.dataset.sessionDate;
+      const time = el.dataset.sessionTime;
+      if (!date || !time) return;
+      el.textContent = ` · ${formatSessionTimeInZone(date, time, viewerTimeZone)}`;
+    });
+  }
+</script>

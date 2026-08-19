@@ -34,3 +34,14 @@ export function formatSessionLabel(dateISO: string): string {
     day: 'numeric',
   });
 }
+
+/** e.g. "10:00 AM PDT" — a Berlin-local session date + time, formatted in an arbitrary IANA zone. */
+export function formatSessionTimeInZone(dateISO: string, timeHHmm: string, timeZone: string): string {
+  const instant = berlinLocalToUtc(dateISO, timeHHmm);
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    hour: 'numeric',
+    minute: '2-digit',
+    timeZoneName: 'short',
+  }).format(instant);
+}

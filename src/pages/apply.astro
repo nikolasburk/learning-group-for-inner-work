@@ -27,7 +27,7 @@ const { Content: NotOpen } = await render(notOpenEntry);
     </div>
     {
       cycle && startDateLabel && (
-        <ClosedGroupApplicationForm startDateLabel={startDateLabel} />
+        <ClosedGroupApplicationForm startDateLabel={startDateLabel} startDate={cycle.startDate} />
       )
     }
   </Container>

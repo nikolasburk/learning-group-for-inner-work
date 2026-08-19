@@ -13,6 +13,7 @@ import {
   CO_HOST_IMAGE,
   getNextOpenSession,
 } from "../../data/sessions";
+import { CLOSED_GROUP_SESSIONS, getNextClosedCycle } from "../../data/closed-cycles";
 import { formatSessionLabel } from "../../lib/berlin-time";
 
 const introEntry = (await getEntry("copy", "join-intro"))!;
@@ -30,21 +31,38 @@ const nextSession = getNextOpenSession();
 const nextSessionLabel = nextSession
   ? formatSessionLabel(nextSession.date)
   : null;
+const closedCycle = getNextClosedCycle();
 
-// Matches OPEN_GROUP_SESSIONS entries into the given month's hover-card data.
+// Matches a session list's entries into the given month's hover-card data.
 // Days with no match (e.g. already-past sessions) stay non-interactive.
-function sessionsForMonth(year: number, month: number) {
+function sessionsForMonth<T extends { date: string; time: string; durationMinutes: number }>(
+  sessions: T[],
+  year: number,
+  month: number,
+  options: { coHost?: (session: T) => boolean; isNext?: (session: T) => boolean } = {},
+) {
   const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
-  return OPEN_GROUP_SESSIONS.filter((session) =>
-    session.date.startsWith(monthPrefix),
-  ).map((session) => ({
-    day: Number(session.date.slice(8, 10)),
-    date: session.date,
-    time: session.time,
-    durationMinutes: session.durationMinutes,
-    coHost: session.coHost,
-    isNext: nextSession !== null && session.date === nextSession.date,
-  }));
+  return sessions
+    .filter((session) => session.date.startsWith(monthPrefix))
+    .map((session) => ({
+      day: Number(session.date.slice(8, 10)),
+      date: session.date,
+      time: session.time,
+      durationMinutes: session.durationMinutes,
+      coHost: options.coHost?.(session) ?? false,
+      isNext: options.isNext?.(session) ?? false,
+    }));
+}
+
+function openSessionsForMonth(year: number, month: number) {
+  return sessionsForMonth(OPEN_GROUP_SESSIONS, year, month, {
+    coHost: (session) => session.coHost,
+    isNext: (session) => nextSession !== null && session.date === nextSession.date,
+  });
+}
+
+function closedSessionsForMonth(year: number, month: number) {
+  return sessionsForMonth(CLOSED_GROUP_SESSIONS, year, month);
 }
 ---
 
@@ -58,7 +76,9 @@ function sessionsForMonth(year: number, month: number) {
       title="The open group"
       note="Free, no application, no commitment."
       cadence="2nd & 4th Wednesday of the month"
-      time="19:00 Berlin · 10:00 San Francisco"
+      time="19:00 Berlin"
+      sessionDate={nextSession?.date}
+      sessionTime={nextSession?.time}
     >
       {
         nextSession && nextSessionLabel && (
@@ -84,7 +104,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 31,
             startWeekday: 5,
             highlighted: [26],
-            sessions: sessionsForMonth(2026, 8),
+            sessions: openSessionsForMonth(2026, 8),
           },
           {
             label: "September",
@@ -92,7 +112,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 30,
             startWeekday: 1,
             highlighted: [9, 23],
-            sessions: sessionsForMonth(2026, 9),
+            sessions: openSessionsForMonth(2026, 9),
           },
           {
             label: "October",
@@ -100,7 +120,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 31,
             startWeekday: 3,
             highlighted: [14, 28],
-            sessions: sessionsForMonth(2026, 10),
+            sessions: openSessionsForMonth(2026, 10),
           },
           {
             label: "November",
@@ -108,7 +128,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 30,
             startWeekday: 6,
             highlighted: [11, 25],
-            sessions: sessionsForMonth(2026, 11),
+            sessions: openSessionsForMonth(2026, 11),
           },
           {
             label: "December",
@@ -116,7 +136,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 31,
             startWeekday: 1,
             highlighted: [9, 23],
-            sessions: sessionsForMonth(2026, 12),
+            sessions: openSessionsForMonth(2026, 12),
           },
           {
             label: "January",
@@ -124,7 +144,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 31,
             startWeekday: 4,
             highlighted: [13, 27],
-            sessions: sessionsForMonth(2027, 1),
+            sessions: openSessionsForMonth(2027, 1),
           },
         ]}
       />
@@ -134,7 +154,8 @@ function sessionsForMonth(year: number, month: number) {
       title="The closed group"
       note="3 months starting in September (6 sessions in total)"
       cadence="1st & 3rd Wednesday of the month"
-      time="19:00 Berlin · 10:00 San Francisco"
+      time="19:00 Berlin"
+      sessionDate={closedCycle?.startDate}
       ctaLabel="Apply for the next cycle →"
       ctaHref="/apply"
       footnote="Applications close September 9. I'll get back to everyone either way."
@@ -142,6 +163,9 @@ function sessionsForMonth(year: number, month: number) {
       <MiniCalendar
         slot="calendar"
         startIndex={0}
+        host={HOST_NAME}
+        hostImage={HOST_IMAGE}
+        signupEnabled={false}
         months={[
           {
             label: "September",
@@ -149,6 +173,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 30,
             startWeekday: 1,
             highlighted: [16],
+            sessions: closedSessionsForMonth(2026, 9),
           },
           {
             label: "October",
@@ -156,6 +181,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 31,
             startWeekday: 3,
             highlighted: [7, 21],
+            sessions: closedSessionsForMonth(2026, 10),
           },
           {
             label: "November",
@@ -163,6 +189,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 30,
             startWeekday: 6,
             highlighted: [4, 18],
+            sessions: closedSessionsForMonth(2026, 11),
           },
           {
             label: "December",
@@ -170,6 +197,7 @@ function sessionsForMonth(year: number, month: number) {
             daysInMonth: 31,
             startWeekday: 1,
             highlighted: [2],
+            sessions: closedSessionsForMonth(2026, 12),
           },
           {
             label: "January",

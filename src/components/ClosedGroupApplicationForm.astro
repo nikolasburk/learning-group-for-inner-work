@@ -1,9 +1,11 @@
 ---
 interface Props {
   startDateLabel: string;
+  /** 'YYYY-MM-DD', Berlin-local — first session of the cycle. */
+  startDate: string;
 }
 
-const { startDateLabel } = Astro.props;
+const { startDateLabel, startDate } = Astro.props;
 
 const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 text-solarized-textBody";
 ---
@@ -28,7 +30,11 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
 
   <div class="flex flex-col gap-1">
     <label class="font-semibold text-solarized-textHeading" for="apply-commitment">
-      The cycle runs first and third Wednesday, 19:00 Berlin / 10:00 San Francisco, starting {startDateLabel}
+      The cycle runs first and third Wednesday, 19:00 Berlin<span
+        class="viewer-local-time"
+        data-session-date={startDate}
+        data-session-time="19:00"
+      />, starting {startDateLabel}
       — 6 sessions in total. Can you commit to that? If you already know of dates where you won't be available,
       please note them here.
     </label>
@@ -92,6 +98,21 @@ const inputClass = "w-full px-4 py-2 rounded-lg border border-solarized-base2 te
     Apply →
   </button>
 </form>
+
+<script>
+  import { formatSessionTimeInZone } from "../lib/berlin-time";
+
+  const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (viewerTimeZone !== "Europe/Berlin") {
+    document.querySelectorAll<HTMLElement>(".viewer-local-time").forEach((el) => {
+      const date = el.dataset.sessionDate;
+      const time = el.dataset.sessionTime;
+      if (!date || !time) return;
+      el.textContent = ` · ${formatSessionTimeInZone(date, time, viewerTimeZone)}`;
+    });
+  }
+</script>
 
 <script>
   const CHECK_ICON =

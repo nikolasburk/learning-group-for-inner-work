@@ -37,7 +37,14 @@ const icsUrl = token ? `/api/ics?token=${token}` : null;
               You're confirmed — see you there.
             </p>
 
-            <p class="mb-0 mt-4 text-2xl leading-normal font-bold text-solarized-textHeading">{dateTimeLabel}</p>
+            <p
+              id="confirmed-datetime"
+              class="mb-0 mt-4 text-2xl leading-normal font-bold text-solarized-textHeading"
+              data-session-date={session.date}
+              data-session-time={session.time}
+            >
+              {dateTimeLabel}
+            </p>
 
             <div class="mt-4 border-t border-solarized-base2 pt-4">
               <p class="mb-0 flex flex-wrap items-center gap-2 text-base leading-normal text-solarized-textBody">
@@ -100,3 +107,18 @@ const icsUrl = token ? `/api/ics?token=${token}` : null;
     }
   </Container>
 </Layout>
+
+<script>
+  import { formatSessionTimeInZone } from "../lib/berlin-time";
+
+  const el = document.getElementById("confirmed-datetime");
+  const date = el?.dataset.sessionDate;
+  const time = el?.dataset.sessionTime;
+
+  if (el && date && time) {
+    const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (viewerTimeZone !== "Europe/Berlin") {
+      el.textContent = `${el.textContent?.trim()} (${formatSessionTimeInZone(date, time, viewerTimeZone)} your time)`;
+    }
+  }
+</script>

@@ -30,9 +30,19 @@ interface Props {
   coHostName?: string;
   hostImage?: string;
   coHostImage?: string;
+  /** Whether the popover shows a sign-up/confirmation status line. Default true. */
+  signupEnabled?: boolean;
 }
 
-const { months, startIndex = 0, host, coHostName, hostImage, coHostImage } = Astro.props;
+const {
+  months,
+  startIndex = 0,
+  host,
+  coHostName,
+  hostImage,
+  coHostImage,
+  signupEnabled = true,
+} = Astro.props;
 const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
 const hasSessions = months.some((month) => month.sessions && month.sessions.length > 0);
 ---
@@ -44,6 +54,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
   data-cohost-name={coHostName}
   data-host-image={hostImage}
   data-cohost-image={coHostImage}
+  data-signup-enabled={signupEnabled ? "true" : "false"}
 >
   <div class="flex items-center justify-between mb-2">
     <button
@@ -139,8 +150,10 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 </div>
 
 <script>
-  import { formatSessionLabel } from "../lib/berlin-time";
+  import { formatSessionLabel, formatSessionTimeInZone } from "../lib/berlin-time";
   import { readSignupCookie } from "../lib/signup-cookie";
+
+  const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const CHECK_ICON =
     '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
@@ -194,7 +207,8 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
     const coHostName = cal.dataset.cohostName ?? "";
     const hostImage = cal.dataset.hostImage ?? "";
     const coHostImage = cal.dataset.cohostImage ?? "";
-    const cookie = readSignupCookie();
+    const signupEnabled = cal.dataset.signupEnabled !== "false";
+    const cookie = signupEnabled ? readSignupCookie() : null;
 
     const popover = cal.querySelector<HTMLElement>(".cal-popover");
     if (popover) document.body.appendChild(popover);
@@ -259,7 +273,11 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
       const isCoHost = cell.dataset.cohost === "true";
       const isNext = cell.dataset.isNext === "true";
 
-      datetimeEl.textContent = `${formatSessionLabel(date)}, ${time} Berlin`;
+      const viewerLocalTime =
+        viewerTimeZone !== "Europe/Berlin" ? formatSessionTimeInZone(date, time, viewerTimeZone) : null;
+      datetimeEl.textContent = `${formatSessionLabel(date)}, ${time} Berlin${
+        viewerLocalTime ? ` (${viewerLocalTime} your time)` : ""
+      }`;
 
       hostsEl.textContent = "";
       hostsEl.appendChild(buildHostRow(host, hostImage, `Hosted by ${host}`));
@@ -267,24 +285,29 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
         hostsEl.appendChild(buildHostRow(coHostName, coHostImage, `Joined by co-host ${coHostName}`));
       }
 
-      if (cookie?.sessionDate === date) {
-        if (cookie.status === "confirmed") {
-          setStatus(
-            cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
-            undefined,
-            true,
-          );
-        } else {
-          setStatus(
-            cookie.email
-              ? `You're signed up — check your email at ${cookie.email} to confirm.`
-              : "You're signed up — check your email to confirm.",
-          );
-        }
-      } else if (isNext) {
-        setStatus("Sign up to access the session link.");
+      if (!signupEnabled) {
+        statusEl.classList.add("hidden");
       } else {
-        setStatus("Sign-up opens once this becomes the next session.");
+        statusEl.classList.remove("hidden");
+        if (cookie?.sessionDate === date) {
+          if (cookie.status === "confirmed") {
+            setStatus(
+              cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
+              undefined,
+              true,
+            );
+          } else {
+            setStatus(
+              cookie.email
+                ? `You're signed up — check your email at ${cookie.email} to confirm.`
+                : "You're signed up — check your email to confirm.",
+            );
+          }
+        } else if (isNext) {
+          setStatus("Sign up to access the session link.");
+        } else {
+          setStatus("Sign-up opens once this becomes the next session.");
+        }
       }
 
       popover.classList.remove("hidden");
