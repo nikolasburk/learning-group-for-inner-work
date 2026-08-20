@@ -9,7 +9,7 @@ interface Props {
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const imageURL = new URL('/og-image.svg', Astro.site);
+const imageURL = new URL('/og-image.png', Astro.site);
 
 const { title, description } = Astro.props;
 ---
@@ -40,9 +40,13 @@ const { title, description } = Astro.props;
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content={Astro.url} />
+<meta property="og:site_name" content="Practice Group for Inner Work" />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={imageURL} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Practice Group for Inner Work — A space to slow down, be honest, and listen to each other." />
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image" />
