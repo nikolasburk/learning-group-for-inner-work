@@ -14,9 +14,7 @@ Legal/info pages (`src/pages/privacy.md`, `impressum.md`, `support.mdx`) are edi
 
 The open-group join link lives in `wrangler.jsonc` → `vars.ZOOM_LINK`. It is a plain (non-secret) Worker var, read at request time as `env.ZOOM_LINK`, and it is the single source for every place the link reaches an attendee: the confirmation email body (`src/lib/brevo.ts`), the attached `session.ics` — both `DESCRIPTION` and `LOCATION` — and the "Add to Google Calendar" URL (`src/lib/ics.ts`), and the `/confirmed` page. Never paste the URL into any of those directly.
 
-Keep it in the hostname-free `https://zoom.us/j/<id>?pwd=<pwd>` form. Zoom's own UI shows a cluster-specific host instead (`us04web.zoom.us`, `us06web.zoom.us`, …), which silently pins the link to whichever cluster the account sat on when the meeting was created — that goes stale when the account tier changes. The bare `zoom.us` host always routes to the account's current cluster.
-
-After changing it, re-run `pnpm wrangler types` (the value is duplicated as a literal string type in `worker-configuration.d.ts`) and redeploy — `vars` only reach production via `pnpm run deploy`.
+Keep it in the hostname-free `https://zoom.us/j/<id>?pwd=<pwd>` form. 
 
 ## Git workflow
 
