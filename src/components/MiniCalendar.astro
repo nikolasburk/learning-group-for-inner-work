@@ -10,6 +10,8 @@ interface SessionDetail {
   coHost: boolean;
   /** True only for the single currently-signable session. */
   isNext: boolean;
+  /** True once the session has finished — renders the day faded rather than active. */
+  isPast: boolean;
 }
 
 interface MonthSpec {
@@ -91,11 +93,15 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
               {cells.map((day) => {
                 const isHighlighted = day !== null && month.highlighted.includes(day);
                 const session = day !== null ? month.sessions?.find((s) => s.day === day) : undefined;
+                // A finished session keeps the chip, faded to the muted violet, so the
+                // day still reads as a session — just one that has already happened.
                 const dayClasses = [
                   "text-xs w-6 h-6 mx-auto flex items-center justify-center rounded-full",
-                  isHighlighted
-                    ? "bg-solarized-violet text-white font-semibold"
-                    : "text-solarized-textSecondary",
+                  isHighlighted && session?.isPast
+                    ? "bg-solarized-sharpieViolet text-solarized-textBody"
+                    : isHighlighted
+                      ? "bg-solarized-violet text-white font-semibold"
+                      : "text-solarized-textSecondary",
                 ];
                 return session ? (
                   <button
@@ -150,16 +156,30 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 </div>
 
 <script>
-  import { formatSessionLabel, formatSessionTimeInZone } from "../lib/berlin-time";
-  import { readSignupCookie } from "../lib/signup-cookie";
+  import { formatSessionLabel, formatSessionTimeInZone, hasSessionEnded } from "../lib/berlin-time";
+  import { confirmedHistory, readSignupCookie } from "../lib/signup-cookie";
 
   const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  const CHECK_ICON =
-    '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
-    '<circle cx="10" cy="10" r="10" class="fill-solarized-green" />' +
-    '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
-    "</svg>";
+  // A finished session's check is muted rather than green, so a confirmation for
+  // something that already happened doesn't read as one that's still coming up.
+  // Both fills are written as whole literals — Tailwind scans this script for class
+  // names, so a fill assembled from fragments would never be generated.
+  const CHECK_FILL_UPCOMING = "fill-solarized-green";
+  const CHECK_FILL_FINISHED = "fill-solarized-base00";
+
+  type CheckTone = "none" | "upcoming" | "finished";
+
+  function checkIcon(tone: Exclude<CheckTone, "none">) {
+    const fill = tone === "finished" ? CHECK_FILL_FINISHED : CHECK_FILL_UPCOMING;
+    return (
+      '<svg class="inline-block w-4 h-4 shrink-0" viewBox="0 0 20 20" aria-hidden="true">' +
+      `<circle cx="10" cy="10" r="10" class="${fill}" />` +
+      '<path d="M6 10.3l2.6 2.6L14.5 7" fill="none" class="stroke-white" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" />' +
+      "</svg>"
+    );
+  }
+
 
   function initCalendars() {
     document.querySelectorAll<HTMLElement>(".mini-calendar").forEach((cal) => {
@@ -237,10 +257,10 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
     let openCell: HTMLElement | null = null;
     let hideTimeout: ReturnType<typeof setTimeout> | undefined;
 
-    function setStatus(message: string, linkLabel?: string, showCheck = false) {
+    function setStatus(message: string, linkLabel?: string, tone: CheckTone = "none") {
       if (!statusEl) return;
       statusEl.innerHTML = "";
-      if (showCheck) statusEl.insertAdjacentHTML("beforeend", CHECK_ICON);
+      if (tone !== "none") statusEl.insertAdjacentHTML("beforeend", checkIcon(tone));
       statusEl.appendChild(document.createTextNode(message));
       if (linkLabel) {
         statusEl.appendChild(document.createTextNode(" "));
@@ -272,6 +292,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
       const time = cell.dataset.sessionTime ?? "";
       const isCoHost = cell.dataset.cohost === "true";
       const isNext = cell.dataset.isNext === "true";
+      const finished = hasSessionEnded(date, time, Number(cell.dataset.duration || 0));
 
       const viewerLocalTime =
         viewerTimeZone !== "Europe/Berlin" ? formatSessionTimeInZone(date, time, viewerTimeZone) : null;
@@ -289,20 +310,27 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
         statusEl.classList.add("hidden");
       } else {
         statusEl.classList.remove("hidden");
-        if (cookie?.sessionDate === date) {
-          if (cookie.status === "confirmed") {
-            setStatus(
-              cookie.email ? `You're confirmed for this session (${cookie.email}).` : "You're confirmed for this session.",
-              undefined,
-              true,
-            );
-          } else {
-            setStatus(
-              cookie.email
-                ? `You're signed up — check your email at ${cookie.email} to confirm.`
-                : "You're signed up — check your email to confirm.",
-            );
-          }
+        const confirmedHere =
+          (cookie?.sessionDate === date && cookie.status === "confirmed") ||
+          confirmedHistory(cookie).includes(date);
+
+        if (confirmedHere) {
+          const suffix = cookie?.email ? ` (${cookie.email}).` : ".";
+          setStatus(
+            finished
+              ? `You were confirmed for this session${suffix}`
+              : `You're confirmed for this session${suffix}`,
+            undefined,
+            finished ? "finished" : "upcoming",
+          );
+        } else if (cookie?.sessionDate === date) {
+          setStatus(
+            cookie.email
+              ? `You're signed up — check your email at ${cookie.email} to confirm.`
+              : "You're signed up — check your email to confirm.",
+          );
+        } else if (finished) {
+          setStatus("This session has already taken place.");
         } else if (isNext) {
           setStatus("Sign up to access the session link.");
         } else {
@@ -321,10 +349,21 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
       }, 150);
     }
 
+    const history = confirmedHistory(cookie);
+
     dayCells.forEach((cell) => {
       const date = cell.dataset.sessionDate;
-      if (date && cookie?.sessionDate === date && cookie.status === "confirmed") {
-        cell.querySelector(".cal-signed-up-dot")?.classList.remove("hidden");
+      const confirmedHere =
+        !!date &&
+        ((cookie?.sessionDate === date && cookie.status === "confirmed") || history.includes(date));
+      if (confirmedHere) {
+        const dot = cell.querySelector(".cal-signed-up-dot");
+        dot?.classList.remove("hidden");
+        if (hasSessionEnded(date!, cell.dataset.sessionTime ?? "", Number(cell.dataset.duration || 0))) {
+          dot
+            ?.querySelector("circle")
+            ?.classList.replace(CHECK_FILL_UPCOMING, CHECK_FILL_FINISHED);
+        }
       }
 
       if (hoverCapable) {

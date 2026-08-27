@@ -26,6 +26,21 @@ export function berlinLocalToUtc(dateISO: string, timeHHmm: string): Date {
   return new Date(midnightUtc + (localMinutesFromMidnight - offsetMinutes) * 60_000);
 }
 
+/**
+ * Whether a session has finished — start *plus* its duration, not start. A session
+ * that is currently running still counts as ongoing, so the calendar keeps showing
+ * it as live rather than greying it out from under whoever is sitting in it.
+ */
+export function hasSessionEnded(
+  dateISO: string,
+  timeHHmm: string,
+  durationMinutes: number,
+  now: Date = new Date(),
+): boolean {
+  if (!dateISO || !timeHHmm) return false;
+  return berlinLocalToUtc(dateISO, timeHHmm).getTime() + durationMinutes * 60_000 <= now.getTime();
+}
+
 /** e.g. "August 26" — for a 'YYYY-MM-DD' Berlin-local session date. */
 export function formatSessionLabel(dateISO: string): string {
   return new Date(`${dateISO}T12:00:00Z`).toLocaleDateString('en-US', {

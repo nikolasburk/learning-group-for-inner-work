@@ -14,7 +14,7 @@ import {
   getSessionsInMonth,
 } from "../../data/sessions";
 import { getClosedSessionsForCycle, getNextClosedCycle } from "../../data/closed-cycles";
-import { formatSessionLabel } from "../../lib/berlin-time";
+import { formatSessionLabel, hasSessionEnded } from "../../lib/berlin-time";
 import {
   berlinMonthOf,
   daysInMonth,
@@ -60,7 +60,9 @@ const CALENDAR_MONTHS = 6;
 
 // Both calendars start at the current Berlin month, so the view is never stranded
 // on a month that has already passed.
-const calendarStart = berlinMonthOf(new Date());
+// One instant for the whole render, so every cell agrees on what counts as past.
+const now = new Date();
+const calendarStart = berlinMonthOf(now);
 
 // Turns a month's sessions into the calendar's hover-card data. `highlighted` is
 // derived from the same list rather than hand-typed alongside it, so the two can
@@ -78,6 +80,7 @@ function buildMonth<T extends { date: string; time: string; durationMinutes: num
     durationMinutes: session.durationMinutes,
     coHost: options.coHost?.(session) ?? false,
     isNext: options.isNext?.(session) ?? false,
+    isPast: hasSessionEnded(session.date, session.time, session.durationMinutes, now),
   }));
   return {
     label: monthLabel(year, month),
