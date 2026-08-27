@@ -12,6 +12,6 @@ We are not used to slowing down. We are not used to spaces where we pause and ho
 
 When I announced this group, I had no idea what it would become. Yesterday gave me confidence that I want to keep going with it and share this experience with even more people.
 
-Next open session is in two weeks, I'm considering adding a one-off session next Wednesday though.
+Next open session is in two weeks, I'm considering adding a one-off session next Wednesday though. You can [sign up via the website](https://innerwork.nikolasburk.com).
 
 If you have questions about the work we do or are uncertain, I'm always open to hopping on a brief call with you. Reach out or directly [book a slot on my calendar](https://cal.com/nikolas-burk/30min?overlayCalendar=true).
