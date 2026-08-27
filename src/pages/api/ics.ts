@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { OPEN_GROUP_SESSIONS } from '../../data/sessions';
+import { getSessionByDate } from '../../data/sessions';
 import { buildSessionIcs } from '../../lib/ics';
 
 export const prerender = false;
@@ -20,7 +20,7 @@ export const GET: APIRoute = async ({ url, locals }) => {
     return new Response('Not found', { status: 404 });
   }
 
-  const session = OPEN_GROUP_SESSIONS.find((s) => s.date === row.session_date);
+  const session = getSessionByDate(row.session_date);
   if (!session) {
     return new Response('Not found', { status: 404 });
   }

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { OPEN_GROUP_SESSIONS } from '../../data/sessions';
+import { getSessionByDate } from '../../data/sessions';
 import { formatSessionLabel } from '../../lib/berlin-time';
 import { sendCalendarInviteEmail } from '../../lib/brevo';
 import { buildGoogleCalendarLink, buildSessionIcs } from '../../lib/ics';
@@ -43,7 +43,7 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
 
   setSignupCookie(cookies, row.session_date, row.email, 'confirmed', token);
 
-  const session = OPEN_GROUP_SESSIONS.find((s) => s.date === row.session_date);
+  const session = getSessionByDate(row.session_date);
   if (session) {
     const env = locals.runtime.env;
     const sessionLabel = formatSessionLabel(session.date);
