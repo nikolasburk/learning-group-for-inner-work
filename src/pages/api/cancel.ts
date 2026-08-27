@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { SIGNUP_COOKIE_NAME } from '../../lib/signup-cookie';
+import { clearSignupCookie } from '../../lib/signup-cookie';
 
 export const prerender = false;
 
@@ -49,7 +49,7 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
     return redirect('/confirmed?state=expired');
   }
   // 'ok' and 'already-cancelled' both land on the same confirmation copy.
-  cookies.delete(SIGNUP_COOKIE_NAME, { path: '/' });
+  clearSignupCookie(cookies);
   return redirect('/confirmed?state=cancelled');
 };
 
@@ -74,7 +74,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
 
   // The token came from the client's own cookie, so it's always safe to
   // clear it here — there's no risk of clobbering an unrelated signup.
-  cookies.delete(SIGNUP_COOKIE_NAME, { path: '/' });
+  clearSignupCookie(cookies);
 
   if (outcome === 'invalid') {
     return jsonResponse({ ok: false, outcome }, 404);

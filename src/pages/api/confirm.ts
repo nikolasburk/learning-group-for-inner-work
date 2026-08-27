@@ -3,7 +3,7 @@ import { getSessionByDate } from '../../data/sessions';
 import { formatSessionLabel } from '../../lib/berlin-time';
 import { sendCalendarInviteEmail } from '../../lib/brevo';
 import { buildGoogleCalendarLink, buildSessionIcs } from '../../lib/ics';
-import { SIGNUP_COOKIE_NAME, readSignupCookieValue, setSignupCookie } from '../../lib/signup-cookie';
+import { clearSignupCookie, readSignupCookieValue, setSignupCookie } from '../../lib/signup-cookie';
 
 export const prerender = false;
 
@@ -31,7 +31,7 @@ export const GET: APIRoute = async ({ url, locals, redirect, cookies }) => {
     // pointing at it, so we don't clobber an unrelated active signup.
     const existingCookie = readSignupCookieValue(cookies);
     if (existingCookie?.sessionDate === row.session_date && existingCookie.email === row.email) {
-      cookies.delete(SIGNUP_COOKIE_NAME, { path: '/' });
+      clearSignupCookie(cookies);
     }
     return redirect('/confirmed?state=expired');
   }
