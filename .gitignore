@@ -33,3 +33,6 @@ pnpm-debug.log*
 
 # playwright mcp
 .playwright-mcp/
+
+# exported contact lists (personal data — never commit)
+emails/*.csv

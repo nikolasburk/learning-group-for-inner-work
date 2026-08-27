@@ -1,0 +1,17 @@
+# Thank you for an amazing first session 🌀❤️
+
+Hey there,
+
+yesterday was the kickoff session of the open version of my Practice Group for Inner Work, and I was quite nervous beforehand.
+
+As a host, my worst nightmare is that people feel disoriented, quietly question whether this is worth their time, and disconnect. None of that happened.
+
+We were a small group, from very different backgrounds, all of whom showed up genuinely open. And already during the check-in I noticed how quickly the performing dropped away, how people stopped presenting a version of themselves and were able to say what was going on inside them.
+
+We are not used to slowing down. We are not used to spaces where we pause and hold the silence because nothing needs to be said. We are not used to moving our attention inward. During the two hours of yesterday's session, we practiced all three.
+
+When I announced this group, I had no idea what it would become. Yesterday gave me confidence that I want to keep going with it and share this experience with even more people.
+
+Next open session is in two weeks, I'm considering adding a one-off session next Wednesday though.
+
+If you have questions about the work we do or are uncertain, I'm always open to hopping on a brief call with you. Reach out or directly [book a slot on my calendar](https://cal.com/nikolas-burk/30min?overlayCalendar=true).
