@@ -1,0 +1,142 @@
+---
+import { formatSessionLabelWithYear, formatTimestamp } from "../../lib/berlin-time";
+import { isVisibleByDefault, tallyVisible, type DecoratedSignup } from "../../lib/admin-status";
+import StatusBadge from "./StatusBadge.astro";
+
+interface Props {
+  sessionDate: string;
+  rows: DecoratedSignup[];
+  /** The next session: open on load, and never hidden by the filter. */
+  pinned?: boolean;
+  /** The stored date no longer matches the recurrence rule in src/data/sessions.ts. */
+  orphan?: boolean;
+  today?: boolean;
+}
+
+const { sessionDate, rows, pinned = false, orphan = false, today = false } = Astro.props;
+
+// Counts ship with the default filter already applied, so the no-JS render is
+// self-consistent and there's no flash of unfiltered content before the script runs.
+const { total, breakdown } = tallyVisible(rows, (row) => row.effectiveStatus);
+---
+
+<details
+  data-group
+  data-group-key={sessionDate}
+  data-noun="signup"
+  data-always-visible={pinned ? "" : undefined}
+  open={pinned}
+  class="group border-t border-solarized-base2 first:border-t-0"
+>
+  <summary
+    class="cursor-pointer select-none list-none py-3 flex flex-wrap items-baseline gap-x-3 gap-y-1 [&::-webkit-details-marker]:hidden"
+  >
+    <span
+      aria-hidden="true"
+      class="inline-block text-sm text-solarized-violet transition-transform group-open:rotate-90"
+    >
+      &#9654;
+    </span>
+    <span
+      class:list={[
+        "font-semibold text-solarized-textHeading",
+        pinned ? "text-lg" : "text-base",
+      ]}
+    >
+      {formatSessionLabelWithYear(sessionDate)}
+    </span>
+    <span class="text-sm text-solarized-textSecondary">
+      <span data-count-total>{total}</span>{" "}
+      <span data-count-noun>{total === 1 ? "signup" : "signups"}</span>
+      <span data-count-breakdown class="before:content-['·'] before:mx-1 empty:before:content-none">
+        {breakdown}
+      </span>
+    </span>
+    {
+      today && (
+        <span class="px-2 py-0.5 rounded-full text-xs bg-solarized-violet/10 text-solarized-violet">
+          Today
+        </span>
+      )
+    }
+    {
+      orphan && (
+        <span
+          title="This stored session_date no longer matches the recurrence rule in src/data/sessions.ts — a skip override, a rule change, or a date before seriesStart."
+          class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary"
+        >
+          not in current schedule
+        </span>
+      )
+    }
+  </summary>
+
+  <div class="pb-4">
+    {/* Outside <summary> on purpose: a nested control there fights the disclosure toggle. */}
+    <button
+      type="button"
+      data-copy-emails
+      disabled={total === 0}
+      class="mb-2 px-3 py-1 rounded-lg text-sm border border-solarized-base2 text-solarized-textSecondary transition-colors hover:bg-solarized-base2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet focus-visible:ring-offset-2"
+    >
+      Copy emails
+    </button>
+
+    <div
+      data-table
+      class:list={[
+        "overflow-x-auto rounded-lg border border-solarized-base2",
+        total === 0 && "hidden",
+      ]}
+    >
+      <table class="w-full text-sm text-left">
+        <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
+          <tr>
+            <th scope="col" class="px-4 py-2 font-medium">Email</th>
+            <th scope="col" class="px-4 py-2 font-medium">Status</th>
+            <th scope="col" class="px-4 py-2 font-medium">Signed up</th>
+            <th scope="col" class="px-4 py-2 font-medium">Confirmed</th>
+            <th scope="col" class="px-4 py-2 font-medium">Cancelled</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((row) => (
+              <tr
+                data-row
+                data-section="signups"
+                data-email={row.email.toLowerCase()}
+                data-status={row.effectiveStatus}
+                class:list={[
+                  "border-t border-solarized-base2",
+                  !isVisibleByDefault(row.effectiveStatus) && "hidden",
+                ]}
+              >
+                <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
+                <td class="px-4 py-2">
+                  <StatusBadge status={row.effectiveStatus} />
+                </td>
+                <td class="px-4 py-2 text-solarized-textSecondary whitespace-nowrap">
+                  {formatTimestamp(row.created_at)}
+                </td>
+                <td class="px-4 py-2 text-solarized-textSecondary whitespace-nowrap">
+                  {formatTimestamp(row.confirmed_at)}
+                </td>
+                <td class="px-4 py-2 text-solarized-textSecondary whitespace-nowrap">
+                  {formatTimestamp(row.cancelled_at)}
+                </td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p
+      data-empty
+      class:list={["mt-3 text-sm text-solarized-textSecondary", total > 0 && "hidden"]}
+    >
+      {rows.length === 0 ? "No signups yet." : "No signups match the current filter."}
+    </p>
+  </div>
+</details>

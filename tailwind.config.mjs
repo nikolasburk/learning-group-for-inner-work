@@ -22,6 +22,9 @@ export default {
           blue: '#268bd2',
           cyan: '#2aa198',
           green: '#1a7f52',
+          // Solarized yellow (#b58900) darkened until badge-size text clears WCAG AA
+          // on base3 — the palette had no accessible warm tone for 'pending'.
+          amber: '#8a6a00',
           sharpieViolet: 'rgb(198, 190, 226)',
           tintViolet: '#f3f1f7',
         },

@@ -1,0 +1,25 @@
+---
+import { statusBadgeClass } from "../../lib/admin-status";
+
+interface Props {
+  status: string;
+}
+
+const { status } = Astro.props;
+
+// A future maintainer will go looking for this value in the database and not find it.
+const title =
+  status === "expired"
+    ? "Derived, not stored: this row is still status='pending' in D1, but its expires_at has passed."
+    : undefined;
+---
+
+<span
+  title={title}
+  class:list={[
+    "inline-block px-2 py-0.5 rounded-full text-xs whitespace-nowrap",
+    statusBadgeClass(status),
+  ]}
+>
+  {status}
+</span>

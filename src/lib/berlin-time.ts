@@ -45,3 +45,48 @@ export function formatSessionTimeInZone(dateISO: string, timeHHmm: string, timeZ
     timeZoneName: 'short',
   }).format(instant);
 }
+
+/**
+ * Timestamps reach us in two shapes, and both live in `open_group_signups`:
+ *   - `datetime('now')` columns  -> '2026-08-19 15:08:15' (UTC, space-separated, unzoned)
+ *   - `expires_at`               -> '2026-08-22T15:08:15.914Z' (toISOString, see api/signup.ts)
+ * V8 parses the first as *local* time, so a bare space-separated string has to be
+ * normalised before it means anything. Returns null rather than an Invalid Date.
+ */
+export function parseStoredTimestamp(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  const normalized = value.trim().replace(' ', 'T');
+  const zoned = /([Zz]|[+-]\d{2}:?\d{2})$/.test(normalized) ? normalized : `${normalized}Z`;
+  const parsed = new Date(zoned);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/** e.g. "Aug 19, 17:08" — a stored UTC timestamp read in Berlin. */
+export function formatTimestamp(value: string | null | undefined, fallback = '—'): string {
+  const parsed = parseStoredTimestamp(value);
+  // Show the raw value rather than swallowing something we failed to parse.
+  if (!parsed) return value ? value : fallback;
+  return new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Europe/Berlin',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(parsed);
+}
+
+/** e.g. "September 9, 2026" — the year-bearing sibling of `formatSessionLabel`. */
+export function formatSessionLabelWithYear(dateISO: string): string {
+  return new Date(`${dateISO}T12:00:00Z`).toLocaleDateString('en-US', {
+    timeZone: 'Europe/Berlin',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  });
+}
+
+/** 'YYYY-MM-DD' for "now" in Berlin — en-CA formats as ISO. */
+export function berlinToday(now: Date = new Date()): string {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Berlin' }).format(now);
+}

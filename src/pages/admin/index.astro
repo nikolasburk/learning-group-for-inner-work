@@ -2,18 +2,21 @@
 import Layout from "../../layouts/Layout.astro";
 import Container from "../../components/Container.astro";
 import SectionHeading from "../../components/SectionHeading.astro";
-import { formatSessionLabel } from "../../lib/berlin-time";
+import SessionSignups from "../../components/admin/SessionSignups.astro";
+import StatusBadge from "../../components/admin/StatusBadge.astro";
+import { getSessionByDate, getUpcomingSessions } from "../../data/sessions";
+import { berlinToday, formatSessionLabelWithYear, formatTimestamp } from "../../lib/berlin-time";
+import {
+  STATUS_ORDER,
+  effectiveSignupStatus,
+  isVisibleByDefault,
+  pillClass,
+  tallyVisible,
+  type DecoratedSignup,
+  type SignupRow,
+} from "../../lib/admin-status";
 
 export const prerender = false;
-
-interface SignupRow {
-  email: string;
-  session_date: string;
-  status: string;
-  created_at: string;
-  confirmed_at: string | null;
-  cancelled_at: string | null;
-}
 
 interface ApplicationRow {
   name: string;
@@ -27,21 +30,18 @@ interface ApplicationRow {
   created_at: string;
 }
 
-interface TimezoneInterestRow {
-  email: string;
-  created_at: string;
-}
-
-interface NewsletterSignupRow {
+interface EmailRow {
   email: string;
   created_at: string;
 }
 
 const db = Astro.locals.runtime.env.DB;
 
+// `expires_at` is needed to derive the 'expired' status, which is never stored.
+// `token` stays unselected — it is the sole credential for /api/confirm and /api/cancel.
 const { results: signups } = await db
   .prepare(
-    `SELECT email, session_date, status, created_at, confirmed_at, cancelled_at
+    `SELECT email, session_date, status, created_at, confirmed_at, cancelled_at, expires_at
      FROM open_group_signups ORDER BY session_date DESC, created_at DESC`,
   )
   .all<SignupRow>();
@@ -55,11 +55,11 @@ const { results: applications } = await db
 
 const { results: timezoneInterest } = await db
   .prepare(`SELECT email, created_at FROM timezone_interest_signups ORDER BY created_at DESC`)
-  .all<TimezoneInterestRow>();
+  .all<EmailRow>();
 
 const { results: newsletterSignups } = await db
   .prepare(`SELECT email, created_at FROM newsletter_signups ORDER BY created_at DESC`)
-  .all<NewsletterSignupRow>();
+  .all<EmailRow>();
 
 function groupBy<T>(rows: T[], keyFn: (row: T) => string): Map<string, T[]> {
   const map = new Map<string, T[]>();
@@ -72,150 +72,713 @@ function groupBy<T>(rows: T[], keyFn: (row: T) => string): Map<string, T[]> {
   return map;
 }
 
-const signupsBySession = groupBy(signups, (s) => s.session_date);
-const applicationsByCycle = groupBy(applications, (a) => a.cycle_start_date);
+const now = new Date();
+const todayBerlin = berlinToday(now);
+
+const decorated: DecoratedSignup[] = signups.map((row) => ({
+  ...row,
+  effectiveStatus: effectiveSignupStatus(row.status, row.expires_at, now),
+}));
+
+const signupsBySession = groupBy(decorated, (row) => row.session_date);
+const storedDates = [...signupsBySession.keys()];
+
+// The schedule is derived from a recurrence rule and therefore unbounded, so
+// "every upcoming session" is no longer a finite list — seven is the window we
+// choose to preview: the next one plus roughly three months.
+const upcoming = getUpcomingSessions(7, now);
+const nextSession = upcoming[0] ?? null;
+const nextDate = nextSession?.date ?? null;
+
+// Union the previewed schedule with anything stored beyond it, so a signup further
+// out than our horizon is never invisible.
+const laterDates = nextDate
+  ? [
+      ...new Set([
+        ...upcoming.slice(1).map((session) => session.date),
+        ...storedDates.filter((date) => date > nextDate),
+      ]),
+    ].sort()
+  : [];
+
+// Stored dates only — an empty historical session is noise.
+const pastDates = storedDates
+  .filter((date) => (nextDate ? date < nextDate : true))
+  .sort()
+  .reverse();
+
+const rowsFor = (date: string) => signupsBySession.get(date) ?? [];
+
+// getSessionByDate returns null when a stored date no longer matches the rule: a skip
+// override added after signups landed, a rule change, or a date before seriesStart.
+const isOrphan = (date: string) => getSessionByDate(date) === null;
+
+const laterSummary = tallyVisible(laterDates.flatMap(rowsFor), (row) => row.effectiveStatus);
+const pastSummary = tallyVisible(pastDates.flatMap(rowsFor), (row) => row.effectiveStatus);
+
+const applicationsByCycle = groupBy(applications, (row) => row.cycle_start_date);
+
+// All-time counts for the pills — deliberately not filter-reactive, so the numbers
+// stay a stable reference for what exists rather than a restatement of the view.
+const statusCounts = new Map<string, number>();
+for (const row of decorated) {
+  statusCounts.set(row.effectiveStatus, (statusCounts.get(row.effectiveStatus) ?? 0) + 1);
+}
+for (const row of applications) {
+  statusCounts.set(row.status, (statusCounts.get(row.status) ?? 0) + 1);
+}
+const pillStatuses = STATUS_ORDER.filter((status) => statusCounts.has(status));
+
+const nextRows = nextDate ? rowsFor(nextDate) : [];
+const countOf = (status: string) => nextRows.filter((row) => row.effectiveStatus === status).length;
+
+const stats = [
+  { label: "Next session", value: nextDate ? formatSessionLabelWithYear(nextDate) : "—" },
+  { label: "Confirmed", value: String(countOf("confirmed")) },
+  { label: "Awaiting confirmation", value: String(countOf("pending")) },
+  { label: "Newsletter", value: String(newsletterSignups.length) },
+  { label: "Timezone interest", value: String(timezoneInterest.length) },
+];
 ---
 
 <Layout title="Admin — Inner Work" description="Roster of open-group signups and closed-group applications.">
+  <div class="border-b border-solarized-base2 bg-solarized-base3">
+    <div class="max-w-5xl mx-auto px-4 py-6">
+      <dl class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        {
+          stats.map((stat) => (
+            <div class="rounded-lg border border-solarized-base2 px-4 py-3">
+              <dt class="text-xs uppercase tracking-wide text-solarized-textSecondary">
+                {stat.label}
+              </dt>
+              <dd class="mt-1 text-lg font-semibold text-solarized-textHeading">{stat.value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <p class="mt-2 text-xs text-solarized-textSecondary">
+        All-time totals — these do not respond to the filters below.
+      </p>
+    </div>
+  </div>
+
+  <div class="sticky top-0 z-20 border-b border-solarized-base2 bg-solarized-base3/95 backdrop-blur">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-3">
+      <div role="group" aria-label="Filter by status" class="flex flex-wrap items-center gap-2">
+        {
+          pillStatuses.map((status) => (
+            <button
+              type="button"
+              data-status-pill={status}
+              aria-pressed={isVisibleByDefault(status) ? "true" : "false"}
+              class={pillClass(status)}
+            >
+              {status}
+              <span data-pill-count class="text-xs opacity-70">{statusCounts.get(status)}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="flex items-center gap-2">
+        <label class="sr-only" for="admin-search">Filter by email</label>
+        <input
+          id="admin-search"
+          data-email-search
+          type="search"
+          placeholder="Filter by email…"
+          autocomplete="off"
+          class="w-56 px-3 py-1 rounded-lg border border-solarized-base2 text-sm text-solarized-textBody focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet"
+        />
+        <button
+          type="button"
+          data-filter-reset
+          class="px-3 py-1 rounded-lg text-sm text-solarized-textSecondary underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet focus-visible:ring-offset-2"
+        >
+          Reset
+        </button>
+      </div>
+
+      <p
+        data-result-summary
+        role="status"
+        aria-live="polite"
+        class="text-sm text-solarized-textSecondary ml-auto"
+      >
+      </p>
+    </div>
+  </div>
+
   <Container>
     <SectionHeading title="Open group signups" id="signups" />
-    <div class="mt-6 flex flex-col gap-8">
+
+    <div class="mt-6">
       {
-        [...signupsBySession.entries()].map(([sessionDate, rows]) => (
-          <div>
-            <h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
-              {formatSessionLabel(sessionDate)}{" "}
-              <span class="text-solarized-textSecondary font-normal">({rows.length})</span>
-            </h3>
-            <div class="overflow-x-auto rounded-lg border border-solarized-base2">
-              <table class="w-full text-sm text-left">
-                <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
-                  <tr>
-                    <th class="px-4 py-2 font-medium">Email</th>
-                    <th class="px-4 py-2 font-medium">Status</th>
-                    <th class="px-4 py-2 font-medium">Signed up</th>
-                    <th class="px-4 py-2 font-medium">Confirmed</th>
-                    <th class="px-4 py-2 font-medium">Cancelled</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row) => (
-                    <tr class="border-t border-solarized-base2">
-                      <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
-                      <td class="px-4 py-2">
-                        <span class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary">
-                          {row.status}
-                        </span>
-                      </td>
-                      <td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
-                      <td class="px-4 py-2 text-solarized-textSecondary">{row.confirmed_at ?? "—"}</td>
-                      <td class="px-4 py-2 text-solarized-textSecondary">{row.cancelled_at ?? "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        nextDate ? (
+          <div class="rounded-lg border border-solarized-sharpieViolet bg-solarized-tintViolet/40 px-4 py-3">
+            <p class="text-xs uppercase tracking-wide text-solarized-textSecondary mb-1">
+              Next session
+            </p>
+            <SessionSignups
+              sessionDate={nextDate}
+              rows={nextRows}
+              pinned
+              today={nextDate === todayBerlin}
+              orphan={isOrphan(nextDate)}
+            />
           </div>
-        ))
+        ) : (
+          <div class="rounded-lg border border-solarized-base2 px-4 py-3">
+            <p class="font-semibold text-solarized-textHeading">No upcoming session scheduled</p>
+            <p class="text-sm text-solarized-textSecondary mt-1">
+              Every date on the recurrence rule is skipped for the next two years — check
+              <code class="font-mono text-xs">OPEN_GROUP_OVERRIDES</code> in
+              <code class="font-mono text-xs">src/data/sessions.ts</code>.
+            </p>
+          </div>
+        )
       }
-      {signupsBySession.size === 0 && <p class="text-solarized-textSecondary">No signups yet.</p>}
     </div>
+
+    {
+      laterDates.length > 0 && (
+        <details data-bucket="later" class="group mt-8 rounded-lg border border-solarized-base2 px-4">
+          <summary class="cursor-pointer select-none list-none py-3 flex flex-wrap items-baseline gap-x-3 [&::-webkit-details-marker]:hidden">
+            <span
+              aria-hidden="true"
+              class="inline-block text-sm text-solarized-violet transition-transform group-open:rotate-90"
+            >
+              &#9654;
+            </span>
+            <span class="font-semibold text-solarized-textHeading">Later upcoming</span>
+            <span class="text-sm text-solarized-textSecondary">
+              <span data-count-groups>{laterDates.length}</span>{" "}
+              <span data-count-groups-noun>
+                {laterDates.length === 1 ? "session" : "sessions"}
+              </span>{" "}·{" "}
+              <span data-count-total>{laterSummary.total}</span>{" "}
+              <span data-count-noun>{laterSummary.total === 1 ? "signup" : "signups"}</span>
+              <span data-count-breakdown class="before:content-['·'] before:mx-1 empty:before:content-none">
+                {laterSummary.breakdown}
+              </span>
+            </span>
+          </summary>
+          <div class="pb-2">
+            {laterDates.map((date) => (
+              <SessionSignups
+                sessionDate={date}
+                rows={rowsFor(date)}
+                today={date === todayBerlin}
+                orphan={isOrphan(date)}
+              />
+            ))}
+          </div>
+        </details>
+      )
+    }
+
+    {
+      pastDates.length > 0 && (
+        <details data-bucket="past" class="group mt-4 rounded-lg border border-solarized-base2 px-4">
+          <summary class="cursor-pointer select-none list-none py-3 flex flex-wrap items-baseline gap-x-3 [&::-webkit-details-marker]:hidden">
+            <span
+              aria-hidden="true"
+              class="inline-block text-sm text-solarized-violet transition-transform group-open:rotate-90"
+            >
+              &#9654;
+            </span>
+            <span class="font-semibold text-solarized-textHeading">Past &amp; in progress</span>
+            <span class="text-sm text-solarized-textSecondary">
+              <span data-count-groups>{pastDates.length}</span>{" "}
+              <span data-count-groups-noun>
+                {pastDates.length === 1 ? "session" : "sessions"}
+              </span>{" "}·{" "}
+              <span data-count-total>{pastSummary.total}</span>{" "}
+              <span data-count-noun>{pastSummary.total === 1 ? "signup" : "signups"}</span>
+              <span data-count-breakdown class="before:content-['·'] before:mx-1 empty:before:content-none">
+                {pastSummary.breakdown}
+              </span>
+            </span>
+          </summary>
+          <div class="pb-2">
+            {pastDates.map((date) => (
+              <SessionSignups
+                sessionDate={date}
+                rows={rowsFor(date)}
+                today={date === todayBerlin}
+                orphan={isOrphan(date)}
+              />
+            ))}
+          </div>
+        </details>
+      )
+    }
+
+    {storedDates.length === 0 && <p class="mt-6 text-solarized-textSecondary">No signups yet.</p>}
   </Container>
 
   <Container background="tint">
     <SectionHeading title="Closed group applications" id="applications" />
     <div class="mt-6 flex flex-col gap-8">
       {
-        [...applicationsByCycle.entries()].map(([cycleStart, rows]) => (
-          <div>
-            <h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
-              Cycle starting {formatSessionLabel(cycleStart)}{" "}
-              <span class="text-solarized-textSecondary font-normal">({rows.length})</span>
-            </h3>
-            <div class="flex flex-col gap-4">
-              {rows.map((row) => (
-                <div class="rounded-lg border border-solarized-base2 bg-solarized-base3 p-4">
-                  <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
-                    <p class="font-semibold text-solarized-textHeading">
-                      {row.name} <span class="font-normal text-solarized-textSecondary">— {row.email}</span>
+        [...applicationsByCycle.entries()].map(([cycleStart, rows]) => {
+          const summary = tallyVisible(rows, (row) => row.status);
+          return (
+            <div data-group data-group-key={cycleStart} data-noun="application">
+              <h3 class="text-lg font-semibold text-solarized-textHeading mb-2">
+                Cycle starting {formatSessionLabelWithYear(cycleStart)}{" "}
+                <span class="text-solarized-textSecondary font-normal text-base">
+                  <span data-count-total>{summary.total}</span>{" "}
+                  <span data-count-noun>
+                    {summary.total === 1 ? "application" : "applications"}
+                  </span>
+                  <span data-count-breakdown class="before:content-['·'] before:mx-1 empty:before:content-none">
+                    {summary.breakdown}
+                  </span>
+                </span>
+              </h3>
+              <button
+                type="button"
+                data-copy-emails
+                disabled={summary.total === 0}
+                class="mb-2 px-3 py-1 rounded-lg text-sm border border-solarized-base2 text-solarized-textSecondary transition-colors hover:bg-solarized-base2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet focus-visible:ring-offset-2"
+              >
+                Copy emails
+              </button>
+              <div class="flex flex-col gap-4">
+                {rows.map((row) => (
+                  <div
+                    data-row
+                    data-section="applications"
+                    data-email={row.email.toLowerCase()}
+                    data-status={row.status}
+                    class:list={[
+                      "rounded-lg border border-solarized-base2 bg-solarized-base3 p-4",
+                      !isVisibleByDefault(row.status) && "hidden",
+                    ]}
+                  >
+                    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-2">
+                      <p class="font-semibold text-solarized-textHeading">
+                        {row.name}{" "}
+                        <span class="font-normal text-solarized-textSecondary">— {row.email}</span>
+                      </p>
+                      <StatusBadge status={row.status} />
+                    </div>
+                    <p class="text-sm text-solarized-textSecondary mb-1">
+                      <strong class="text-solarized-textBody">Why now:</strong> {row.why_now}
                     </p>
-                    <span class="px-2 py-0.5 rounded-full text-xs bg-solarized-base2 text-solarized-textSecondary">
-                      {row.status}
-                    </span>
+                    <p class="text-sm text-solarized-textSecondary mb-1">
+                      <strong class="text-solarized-textBody">Commitment:</strong> {row.commitment}
+                    </p>
+                    {row.anything_else && (
+                      <p class="text-sm text-solarized-textSecondary">
+                        <strong class="text-solarized-textBody">Anything else:</strong>{" "}
+                        {row.anything_else}
+                      </p>
+                    )}
+                    <p class="text-sm text-solarized-textSecondary mb-1">
+                      <strong class="text-solarized-textBody">Open to contribution:</strong>{" "}
+                      {row.open_to_contribution ? "Yes" : "No"}
+                    </p>
+                    <p class="text-xs text-solarized-textSecondary mt-2">
+                      Applied {formatTimestamp(row.created_at)}
+                    </p>
                   </div>
-                  <p class="text-sm text-solarized-textSecondary mb-1">
-                    <strong class="text-solarized-textBody">Why now:</strong> {row.why_now}
-                  </p>
-                  <p class="text-sm text-solarized-textSecondary mb-1">
-                    <strong class="text-solarized-textBody">Commitment:</strong> {row.commitment}
-                  </p>
-                  {row.anything_else && (
-                    <p class="text-sm text-solarized-textSecondary">
-                      <strong class="text-solarized-textBody">Anything else:</strong> {row.anything_else}
-                    </p>
-                  )}
-                  <p class="text-sm text-solarized-textSecondary mb-1">
-                    <strong class="text-solarized-textBody">Open to contribution:</strong>{" "}
-                    {row.open_to_contribution ? "Yes" : "No"}
-                  </p>
-                  <p class="text-xs text-solarized-textSecondary mt-2">Applied {row.created_at}</p>
-                </div>
-              ))}
+                ))}
+              </div>
+              <p
+                data-empty
+                class:list={[
+                  "mt-3 text-sm text-solarized-textSecondary",
+                  summary.total > 0 && "hidden",
+                ]}
+              >
+                {rows.length === 0
+                  ? "No applications yet."
+                  : "No applications match the current filter."}
+              </p>
             </div>
-          </div>
-        ))
+          );
+        })
       }
-      {applicationsByCycle.size === 0 && <p class="text-solarized-textSecondary">No applications yet.</p>}
+      {applicationsByCycle.size === 0 && (
+        <p class="text-solarized-textSecondary">No applications yet.</p>
+      )}
     </div>
   </Container>
 
   <Container>
     <SectionHeading title="Timezone interest" id="timezone-interest" />
-    <div class="mt-6">
-      <div class="overflow-x-auto rounded-lg border border-solarized-base2">
+    <div class="mt-6" data-group data-group-key="timezone">
+      <p class="mb-2 text-sm text-solarized-textSecondary">
+        <span data-count-total>{timezoneInterest.length}</span>{" "}
+        <span data-count-noun>{timezoneInterest.length === 1 ? "signup" : "signups"}</span>
+      </p>
+      <button
+        type="button"
+        data-copy-emails
+        disabled={timezoneInterest.length === 0}
+        class="mb-2 px-3 py-1 rounded-lg text-sm border border-solarized-base2 text-solarized-textSecondary transition-colors hover:bg-solarized-base2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet focus-visible:ring-offset-2"
+      >
+        Copy emails
+      </button>
+      <div
+        data-table
+        class:list={[
+          "overflow-x-auto rounded-lg border border-solarized-base2",
+          timezoneInterest.length === 0 && "hidden",
+        ]}
+      >
         <table class="w-full text-sm text-left">
           <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
             <tr>
-              <th class="px-4 py-2 font-medium">Email</th>
-              <th class="px-4 py-2 font-medium">Registered</th>
+              <th scope="col" class="px-4 py-2 font-medium">Email</th>
+              <th scope="col" class="px-4 py-2 font-medium">Registered</th>
             </tr>
           </thead>
           <tbody>
-            {timezoneInterest.map((row) => (
-              <tr class="border-t border-solarized-base2">
-                <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
-                <td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
-              </tr>
-            ))}
+            {
+              timezoneInterest.map((row) => (
+                <tr
+                  data-row
+                  data-section="timezone"
+                  data-email={row.email.toLowerCase()}
+                  class="border-t border-solarized-base2"
+                >
+                  <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
+                  <td class="px-4 py-2 text-solarized-textSecondary whitespace-nowrap">
+                    {formatTimestamp(row.created_at)}
+                  </td>
+                </tr>
+              ))
+            }
           </tbody>
         </table>
       </div>
-      {timezoneInterest.length === 0 && <p class="text-solarized-textSecondary mt-4">No signups yet.</p>}
+      <p
+        data-empty
+        class:list={[
+          "mt-3 text-sm text-solarized-textSecondary",
+          timezoneInterest.length > 0 && "hidden",
+        ]}
+      >
+        No signups yet.
+      </p>
     </div>
   </Container>
 
   <Container background="tint">
     <SectionHeading title="Newsletter signups" id="newsletter-signups" />
-    <div class="mt-6">
-      <div class="overflow-x-auto rounded-lg border border-solarized-base2">
+    <div class="mt-6" data-group data-group-key="newsletter">
+      <p class="mb-2 text-sm text-solarized-textSecondary">
+        <span data-count-total>{newsletterSignups.length}</span>{" "}
+        <span data-count-noun>{newsletterSignups.length === 1 ? "signup" : "signups"}</span>
+      </p>
+      <button
+        type="button"
+        data-copy-emails
+        disabled={newsletterSignups.length === 0}
+        class="mb-2 px-3 py-1 rounded-lg text-sm border border-solarized-base2 text-solarized-textSecondary transition-colors hover:bg-solarized-base2 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet focus-visible:ring-offset-2"
+      >
+        Copy emails
+      </button>
+      <div
+        data-table
+        class:list={[
+          "overflow-x-auto rounded-lg border border-solarized-base2",
+          newsletterSignups.length === 0 && "hidden",
+        ]}
+      >
         <table class="w-full text-sm text-left">
           <thead class="bg-solarized-tintViolet text-solarized-textSecondary">
             <tr>
-              <th class="px-4 py-2 font-medium">Email</th>
-              <th class="px-4 py-2 font-medium">Signed up</th>
+              <th scope="col" class="px-4 py-2 font-medium">Email</th>
+              <th scope="col" class="px-4 py-2 font-medium">Signed up</th>
             </tr>
           </thead>
           <tbody>
-            {newsletterSignups.map((row) => (
-              <tr class="border-t border-solarized-base2">
-                <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
-                <td class="px-4 py-2 text-solarized-textSecondary">{row.created_at}</td>
-              </tr>
-            ))}
+            {
+              newsletterSignups.map((row) => (
+                <tr
+                  data-row
+                  data-section="newsletter"
+                  data-email={row.email.toLowerCase()}
+                  class="border-t border-solarized-base2"
+                >
+                  <td class="px-4 py-2 text-solarized-textBody">{row.email}</td>
+                  <td class="px-4 py-2 text-solarized-textSecondary whitespace-nowrap">
+                    {formatTimestamp(row.created_at)}
+                  </td>
+                </tr>
+              ))
+            }
           </tbody>
         </table>
       </div>
-      {newsletterSignups.length === 0 && <p class="text-solarized-textSecondary mt-4">No signups yet.</p>}
+      <p
+        data-empty
+        class:list={[
+          "mt-3 text-sm text-solarized-textSecondary",
+          newsletterSignups.length > 0 && "hidden",
+        ]}
+      >
+        No signups yet.
+      </p>
     </div>
   </Container>
 </Layout>
+
+<script>
+  import {
+    DEFAULT_HIDDEN_STATUSES,
+    STATUS_ORDER,
+    formatBreakdown,
+  } from "../../lib/admin-status";
+
+  const pills = [...document.querySelectorAll<HTMLButtonElement>("[data-status-pill]")];
+  const searchInput = document.querySelector<HTMLInputElement>("[data-email-search]");
+  const resetButton = document.querySelector<HTMLButtonElement>("[data-filter-reset]");
+  const resultSummary = document.querySelector<HTMLElement>("[data-result-summary]");
+
+  const allRows = [...document.querySelectorAll<HTMLElement>("[data-row]")];
+
+  const groups = [...document.querySelectorAll<HTMLElement>("[data-group]")].map((el) => ({
+    el,
+    rows: [...el.querySelectorAll<HTMLElement>("[data-row]")],
+    alwaysVisible: el.hasAttribute("data-always-visible"),
+    table: el.querySelector<HTMLElement>("[data-table]"),
+    empty: el.querySelector<HTMLElement>("[data-empty]"),
+    copyButton: el.querySelector<HTMLButtonElement>("[data-copy-emails]"),
+  }));
+
+  // Groups never nest, so a bucket's groups are simply the ones it contains.
+  const buckets = [...document.querySelectorAll<HTMLElement>("[data-bucket]")].map((el) => ({
+    el,
+    groups: groups.filter((group) => el.contains(group.el)),
+  }));
+
+  const knownStatuses = new Set(pills.map((pill) => pill.dataset.statusPill!));
+  const defaultStatuses = new Set(
+    [...knownStatuses].filter((status) => !DEFAULT_HIDDEN_STATUSES.includes(status)),
+  );
+
+  let active = new Set(defaultStatuses);
+  let query = "";
+
+  const isDefaultSelection = () =>
+    active.size === defaultStatuses.size && [...active].every((s) => defaultStatuses.has(s));
+
+  function setCounts(scope: HTMLElement, total: number, counts: Map<string, number>, noun: string) {
+    const totalEl = scope.querySelector<HTMLElement>("[data-count-total]");
+    if (totalEl) totalEl.textContent = String(total);
+    const nounEl = scope.querySelector<HTMLElement>("[data-count-noun]");
+    if (nounEl) nounEl.textContent = total === 1 ? noun : `${noun}s`;
+    const breakdownEl = scope.querySelector<HTMLElement>("[data-count-breakdown]");
+    if (breakdownEl) breakdownEl.textContent = formatBreakdown(counts);
+  }
+
+  function apply() {
+    const needle = query.trim().toLowerCase();
+    let visibleTotal = 0;
+
+    for (const group of groups) {
+      const counts = new Map<string, number>();
+      let visible = 0;
+
+      for (const row of group.rows) {
+        const status = row.dataset.status;
+        // No data-status (timezone / newsletter) means the status filter doesn't apply.
+        const statusOk = !status || active.has(status);
+        const searchOk = !needle || (row.dataset.email ?? "").includes(needle);
+        const show = statusOk && searchOk;
+        row.classList.toggle("hidden", !show);
+        if (show) {
+          visible += 1;
+          if (status) counts.set(status, (counts.get(status) ?? 0) + 1);
+        }
+      }
+
+      visibleTotal += visible;
+      const noun = group.el.dataset.noun ?? "signup";
+      setCounts(group.el, visible, counts, noun);
+      group.table?.classList.toggle("hidden", visible === 0);
+      group.empty?.classList.toggle("hidden", visible > 0);
+      // A group with no rows at all is a scheduled session nobody has signed up for
+      // yet — part of the forward roster, not something the filter removed. Only
+      // groups that had rows and filtered down to nothing disappear.
+      const filteredAway = visible === 0 && group.rows.length > 0;
+      group.el.classList.toggle("hidden", filteredAway && !group.alwaysVisible);
+      if (group.copyButton) group.copyButton.disabled = visible === 0;
+    }
+
+    for (const bucket of buckets) {
+      const counts = new Map<string, number>();
+      let visible = 0;
+      let visibleGroups = 0;
+      for (const group of bucket.groups) {
+        let groupVisible = 0;
+        for (const row of group.rows) {
+          if (row.classList.contains("hidden")) continue;
+          groupVisible += 1;
+          const status = row.dataset.status;
+          if (status) counts.set(status, (counts.get(status) ?? 0) + 1);
+        }
+        visible += groupVisible;
+        if (!group.el.classList.contains("hidden")) visibleGroups += 1;
+      }
+      const groupsEl = bucket.el.querySelector<HTMLElement>("[data-count-groups]");
+      if (groupsEl) groupsEl.textContent = String(visibleGroups);
+      const groupsNounEl = bucket.el.querySelector<HTMLElement>("[data-count-groups-noun]");
+      if (groupsNounEl) groupsNounEl.textContent = visibleGroups === 1 ? "session" : "sessions";
+      // The bucket's own summary spans are the first ones inside it, and the nested
+      // group spans have already been written above — so target the summary directly.
+      const summary = bucket.el.querySelector<HTMLElement>("summary");
+      if (summary) setCounts(summary, visible, counts, "signup");
+      bucket.el.classList.toggle("hidden", visibleGroups === 0);
+    }
+
+    if (resultSummary) {
+      resultSummary.textContent =
+        visibleTotal === allRows.length
+          ? `${allRows.length} rows`
+          : `Showing ${visibleTotal} of ${allRows.length} rows`;
+    }
+
+    revealMatches(needle.length > 0);
+  }
+
+  /**
+   * A collapsed <details> would otherwise swallow search hits silently, so a non-empty
+   * query force-opens anything containing a match. The pre-search state is snapshotted
+   * once and restored when the query clears, leaving manual toggles alone.
+   */
+  function revealMatches(searching: boolean) {
+    const disclosures = [
+      ...document.querySelectorAll<HTMLDetailsElement>("details[data-group], details[data-bucket]"),
+    ];
+    for (const el of disclosures) {
+      if (searching) {
+        if (el.dataset.prevOpen === undefined) el.dataset.prevOpen = String(el.open);
+        const hasMatch = [...el.querySelectorAll<HTMLElement>("[data-row]")].some(
+          (row) => !row.classList.contains("hidden"),
+        );
+        if (hasMatch) el.open = true;
+      } else if (el.dataset.prevOpen !== undefined) {
+        el.open = el.dataset.prevOpen === "true";
+        delete el.dataset.prevOpen;
+      }
+    }
+  }
+
+  function syncPills() {
+    for (const pill of pills) {
+      pill.setAttribute("aria-pressed", active.has(pill.dataset.statusPill!) ? "true" : "false");
+    }
+  }
+
+  function writeUrl() {
+    const params = new URLSearchParams(location.search);
+    if (isDefaultSelection()) params.delete("status");
+    // An explicitly empty selection round-trips as `status=`: the key is present, so
+    // read-on-load branches on has() rather than on truthiness.
+    else params.set("status", STATUS_ORDER.filter((s) => active.has(s)).join(","));
+    if (query) params.set("q", query);
+    else params.delete("q");
+    const search = params.toString();
+    // replaceState, so Back leaves the page rather than stepping through filter states,
+    // and the hash is carried through so the section anchors keep working.
+    history.replaceState(
+      history.state,
+      "",
+      `${location.pathname}${search ? `?${search}` : ""}${location.hash}`,
+    );
+  }
+
+  // Safari throws SecurityError after ~100 replaceState calls in 30s, so a per-keystroke
+  // URL write is a real hazard, not just noise.
+  let urlTimer: number | undefined;
+  function scheduleUrlWrite() {
+    clearTimeout(urlTimer);
+    urlTimer = window.setTimeout(writeUrl, 300);
+  }
+
+  function readUrl() {
+    const params = new URLSearchParams(location.search);
+    if (params.has("status")) {
+      active = new Set(
+        params
+          .get("status")!
+          .split(",")
+          .map((value) => value.trim().toLowerCase())
+          .filter((value) => knownStatuses.has(value)),
+      );
+    }
+    query = params.get("q") ?? "";
+    if (searchInput) searchInput.value = query;
+  }
+
+  for (const pill of pills) {
+    pill.addEventListener("click", () => {
+      const status = pill.dataset.statusPill!;
+      if (active.has(status)) active.delete(status);
+      else active.add(status);
+      syncPills();
+      apply();
+      writeUrl();
+    });
+  }
+
+  searchInput?.addEventListener("input", () => {
+    query = searchInput.value;
+    apply();
+    scheduleUrlWrite();
+  });
+  searchInput?.addEventListener("change", () => {
+    clearTimeout(urlTimer);
+    writeUrl();
+  });
+  searchInput?.addEventListener("blur", () => {
+    clearTimeout(urlTimer);
+    writeUrl();
+  });
+
+  resetButton?.addEventListener("click", () => {
+    active = new Set(defaultStatuses);
+    query = "";
+    if (searchInput) searchInput.value = "";
+    syncPills();
+    apply();
+    writeUrl();
+  });
+
+  for (const group of groups) {
+    const button = group.copyButton;
+    if (!button) continue;
+    const defaultLabel = button.textContent?.trim() || "Copy emails";
+    button.addEventListener("click", async () => {
+      // Recomputed at click time so it can never go stale, and deduped — a cancelled
+      // signup that re-signed appears as two rows but one person.
+      const emails = [
+        ...new Set(
+          group.rows
+            .filter((row) => !row.classList.contains("hidden"))
+            .map((row) => row.dataset.email ?? "")
+            .filter(Boolean),
+        ),
+      ];
+      try {
+        await navigator.clipboard.writeText(emails.join(", "));
+        button.textContent = `Copied ${emails.length}`;
+      } catch {
+        button.textContent = "Copy failed";
+      }
+      setTimeout(() => {
+        button.textContent = defaultLabel;
+      }, 1500);
+    });
+  }
+
+  readUrl();
+  syncPills();
+  apply();
+</script>
