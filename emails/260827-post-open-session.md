@@ -2,7 +2,7 @@
 
 Hey there,
 
-yesterday was the kickoff session of the open version of my Practice Group for Inner Work, and I was quite nervous beforehand. So, first of all, <span class="sharpie-highlight sharpie-rotate-1">I want to say a huge thank you to everyone who joined</span> and made this such an amazing experience!
+yesterday was the kickoff session of the open version of my Practice Group for Inner Work, and I was quite nervous beforehand. <span class="sharpie-highlight sharpie-rotate-1">I want to say a huge thank you to everyone who joined</span> and made this such an amazing experience!
 
 As a host, my worst nightmare is that people feel disoriented, quietly question whether this is worth their time, and disconnect. None of that happened.
 
