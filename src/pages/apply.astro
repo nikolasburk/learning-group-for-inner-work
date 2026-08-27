@@ -1,4 +1,8 @@
 ---
+// Rendered per request: the next session is computed from the current date,
+// so this page must not be baked at build time.
+export const prerender = false;
+
 import { getEntry, render } from "astro:content";
 import Layout from "../layouts/Layout.astro";
 import Container from "../components/Container.astro";

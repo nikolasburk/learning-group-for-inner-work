@@ -6,15 +6,22 @@ import JoinCard from "../JoinCard.astro";
 import MiniCalendar from "../MiniCalendar.astro";
 import OpenGroupSignupForm from "../OpenGroupSignupForm.astro";
 import {
-  OPEN_GROUP_SESSIONS,
   HOST_NAME,
   CO_HOST_NAME,
   HOST_IMAGE,
   CO_HOST_IMAGE,
   getNextOpenSession,
+  getSessionsInMonth,
 } from "../../data/sessions";
-import { CLOSED_GROUP_SESSIONS, getNextClosedCycle } from "../../data/closed-cycles";
+import { getClosedSessionsForCycle, getNextClosedCycle } from "../../data/closed-cycles";
 import { formatSessionLabel } from "../../lib/berlin-time";
+import {
+  berlinMonthOf,
+  daysInMonth,
+  mondayFirstWeekday,
+  monthLabel,
+  monthsFrom,
+} from "../../lib/recurrence";
 
 const introEntry = (await getEntry("copy", "join-intro"))!;
 const { Content: Intro } = await render(introEntry);
@@ -32,38 +39,70 @@ const nextSessionLabel = nextSession
   ? formatSessionLabel(nextSession.date)
   : null;
 const closedCycle = getNextClosedCycle();
+const closedSessions = closedCycle ? getClosedSessionsForCycle(closedCycle) : [];
+const closedDeadlineLabel = closedCycle
+  ? formatSessionLabel(closedCycle.applicationDeadline)
+  : null;
+// Derived from the cycle so the card can't advertise a month or a deadline the
+// schedule has already moved past.
+const closedNote = closedCycle
+  ? `3 months starting in ${monthLabel(
+      Number(closedCycle.startDate.slice(0, 4)),
+      Number(closedCycle.startDate.slice(5, 7)),
+    )} (${closedSessions.length} sessions in total)`
+  : "Applications are closed for now.";
+const closedFootnote = closedDeadlineLabel
+  ? `Applications close ${closedDeadlineLabel}. I'll get back to everyone either way.`
+  : undefined;
 
-// Matches a session list's entries into the given month's hover-card data.
-// Days with no match (e.g. already-past sessions) stay non-interactive.
-function sessionsForMonth<T extends { date: string; time: string; durationMinutes: number }>(
-  sessions: T[],
+// How many months the calendar lets you page through.
+const CALENDAR_MONTHS = 6;
+
+// Both calendars start at the current Berlin month, so the view is never stranded
+// on a month that has already passed.
+const calendarStart = berlinMonthOf(new Date());
+
+// Turns a month's sessions into the calendar's hover-card data. `highlighted` is
+// derived from the same list rather than hand-typed alongside it, so the two can
+// no longer drift apart.
+function buildMonth<T extends { date: string; time: string; durationMinutes: number }>(
   year: number,
   month: number,
+  sessions: T[],
   options: { coHost?: (session: T) => boolean; isNext?: (session: T) => boolean } = {},
 ) {
-  const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
-  return sessions
-    .filter((session) => session.date.startsWith(monthPrefix))
-    .map((session) => ({
-      day: Number(session.date.slice(8, 10)),
-      date: session.date,
-      time: session.time,
-      durationMinutes: session.durationMinutes,
-      coHost: options.coHost?.(session) ?? false,
-      isNext: options.isNext?.(session) ?? false,
-    }));
+  const details = sessions.map((session) => ({
+    day: Number(session.date.slice(8, 10)),
+    date: session.date,
+    time: session.time,
+    durationMinutes: session.durationMinutes,
+    coHost: options.coHost?.(session) ?? false,
+    isNext: options.isNext?.(session) ?? false,
+  }));
+  return {
+    label: monthLabel(year, month),
+    year,
+    daysInMonth: daysInMonth(year, month),
+    startWeekday: mondayFirstWeekday(year, month),
+    highlighted: details.map((detail) => detail.day),
+    sessions: details,
+  };
 }
 
-function openSessionsForMonth(year: number, month: number) {
-  return sessionsForMonth(OPEN_GROUP_SESSIONS, year, month, {
+const calendarMonths = monthsFrom(calendarStart.year, calendarStart.month, CALENDAR_MONTHS);
+
+const openMonths = calendarMonths.map(({ year, month }) =>
+  buildMonth(year, month, getSessionsInMonth(year, month), {
     coHost: (session) => session.coHost,
-    isNext: (session) => nextSession !== null && session.date === nextSession.date,
-  });
-}
+    isNext: (session) => session.date === nextSession?.date,
+  }),
+);
 
-function closedSessionsForMonth(year: number, month: number) {
-  return sessionsForMonth(CLOSED_GROUP_SESSIONS, year, month);
-}
+const closedMonths = calendarMonths.map(({ year, month }) => {
+  const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
+  const inMonth = closedSessions.filter((session) => session.date.startsWith(monthPrefix));
+  return buildMonth(year, month, inMonth);
+});
 ---
 
 <Container>
@@ -97,68 +136,19 @@ function closedSessionsForMonth(year: number, month: number) {
         coHostName={CO_HOST_NAME}
         hostImage={HOST_IMAGE}
         coHostImage={CO_HOST_IMAGE}
-        months={[
-          {
-            label: "August",
-            year: 2026,
-            daysInMonth: 31,
-            startWeekday: 5,
-            highlighted: [26],
-            sessions: openSessionsForMonth(2026, 8),
-          },
-          {
-            label: "September",
-            year: 2026,
-            daysInMonth: 30,
-            startWeekday: 1,
-            highlighted: [9, 23],
-            sessions: openSessionsForMonth(2026, 9),
-          },
-          {
-            label: "October",
-            year: 2026,
-            daysInMonth: 31,
-            startWeekday: 3,
-            highlighted: [14, 28],
-            sessions: openSessionsForMonth(2026, 10),
-          },
-          {
-            label: "November",
-            year: 2026,
-            daysInMonth: 30,
-            startWeekday: 6,
-            highlighted: [11, 25],
-            sessions: openSessionsForMonth(2026, 11),
-          },
-          {
-            label: "December",
-            year: 2026,
-            daysInMonth: 31,
-            startWeekday: 1,
-            highlighted: [9, 23],
-            sessions: openSessionsForMonth(2026, 12),
-          },
-          {
-            label: "January",
-            year: 2027,
-            daysInMonth: 31,
-            startWeekday: 4,
-            highlighted: [13, 27],
-            sessions: openSessionsForMonth(2027, 1),
-          },
-        ]}
+        months={openMonths}
       />
       <OpenOutro />
     </JoinCard>
     <JoinCard
       title="The closed group"
-      note="3 months starting in September (6 sessions in total)"
+      note={closedNote}
       cadence="1st & 3rd Wednesday of the month"
       time="19:00 Berlin"
       sessionDate={closedCycle?.startDate}
       ctaLabel="Apply for the next cycle →"
       ctaHref="/apply"
-      footnote="Applications close September 9. I'll get back to everyone either way."
+      footnote={closedFootnote}
     >
       <MiniCalendar
         slot="calendar"
@@ -166,54 +156,7 @@ function closedSessionsForMonth(year: number, month: number) {
         host={HOST_NAME}
         hostImage={HOST_IMAGE}
         signupEnabled={false}
-        months={[
-          {
-            label: "September",
-            year: 2026,
-            daysInMonth: 30,
-            startWeekday: 1,
-            highlighted: [16],
-            sessions: closedSessionsForMonth(2026, 9),
-          },
-          {
-            label: "October",
-            year: 2026,
-            daysInMonth: 31,
-            startWeekday: 3,
-            highlighted: [7, 21],
-            sessions: closedSessionsForMonth(2026, 10),
-          },
-          {
-            label: "November",
-            year: 2026,
-            daysInMonth: 30,
-            startWeekday: 6,
-            highlighted: [4, 18],
-            sessions: closedSessionsForMonth(2026, 11),
-          },
-          {
-            label: "December",
-            year: 2026,
-            daysInMonth: 31,
-            startWeekday: 1,
-            highlighted: [2],
-            sessions: closedSessionsForMonth(2026, 12),
-          },
-          {
-            label: "January",
-            year: 2027,
-            daysInMonth: 31,
-            startWeekday: 4,
-            highlighted: [],
-          },
-          {
-            label: "February",
-            year: 2027,
-            daysInMonth: 28,
-            startWeekday: 0,
-            highlighted: [],
-          },
-        ]}
+        months={closedMonths}
       />
       <ClosedOutro />
     </JoinCard>
