@@ -1,8 +1,9 @@
 import type { APIRoute } from 'astro';
 import { getNextOpenSession } from '../../data/sessions';
 import { formatSessionLabel } from '../../lib/berlin-time';
-import { sendConfirmationRequestEmail } from '../../lib/brevo';
+import { sendConfirmationRequestEmail, sendOpenSignupNotificationEmail } from '../../lib/brevo';
 import { addToContactsList } from '../../lib/contacts';
+import { countOpenSignups } from '../../lib/signup-counts';
 import { setSignupCookie } from '../../lib/signup-cookie';
 
 export const prerender = false;
@@ -72,6 +73,9 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
   // silently no-op'ing. This is also what repairs a prior failed send
   // (e.g. a Brevo outage) instead of leaving the visitor stuck.
   let token = existing?.token;
+  // Only a genuinely new row is worth telling the host about: a repeat submit
+  // resends the confirmation email, but it isn't a new person.
+  let isNewSignup = false;
 
   if (!token) {
     token = randomToken();
@@ -83,6 +87,7 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
         )
         .bind(email, nextSession.date, token, expiresAt)
         .run();
+      isNewSignup = true;
     } catch {
       // Unique-index race with a concurrent duplicate request — re-read and fall through to a resend.
       const raced = await db
@@ -107,5 +112,23 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
   }
 
   setSignupCookie(cookies, nextSession.date, email, 'pending', token);
+
+  if (isNewSignup) {
+    const env = locals.runtime.env;
+    try {
+      const { pending, confirmed } = await countOpenSignups(db, nextSession.date);
+      await sendOpenSignupNotificationEmail(env, {
+        to: env.NOTIFY_EMAIL,
+        email,
+        sessionLabel,
+        pending,
+        confirmed,
+      });
+    } catch (error) {
+      // Host-facing only — never let it fail the visitor's signup.
+      console.error('Failed to send open signup notification email', error);
+    }
+  }
+
   return jsonResponse({ ok: true, alreadySignedUp: Boolean(existing), sessionLabel });
 };

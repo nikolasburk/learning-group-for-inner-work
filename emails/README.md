@@ -64,11 +64,12 @@ white text, matching the site's violet button; secondary actions (cancelling a
 spot, adding to Google Calendar) stay underlined links.
 
 Their footer is the context line only — no `{{ unsubscribe }}`, since Brevo
-substitutes that tag for campaigns, not for transactional sends. The two internal
-notifications (a new application, an Asia-timezone signup) use the same scaffold
-with no footer at all — they go to `NOTIFY_EMAIL`, not to a subscriber.
+substitutes that tag for campaigns, not for transactional sends. The four internal
+notifications (a new application, an Asia-timezone signup, an open-session signup
+and its cancellation) use the same scaffold with no footer at all — they go to
+`NOTIFY_EMAIL`, not to a subscriber.
 
-To see them, `pnpm preview:emails` renders all five into `.preview/emails.html`
+To see them, `pnpm preview:emails` renders all seven into `.preview/emails.html`
 with fixture data — open that in a browser. It reads the emails straight out of
 `src/lib/brevo.ts`, so it can't drift from what actually gets sent; what it
 can't check is the data the API routes pass in, which is what `pnpm dev` with

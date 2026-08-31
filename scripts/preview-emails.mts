@@ -15,6 +15,8 @@ import {
   sendApplicationReceivedEmail,
   sendCalendarInviteEmail,
   sendConfirmationRequestEmail,
+  sendOpenSignupCancellationEmail,
+  sendOpenSignupNotificationEmail,
   sendTimezoneInterestNotificationEmail,
 } from '../src/lib/brevo.ts';
 
@@ -65,6 +67,20 @@ await sendApplicationNotificationEmail(env, {
   openToContribution: true,
 });
 await sendTimezoneInterestNotificationEmail(env, { to: 'nikolas@example.com', email: 'someone@example.com' });
+await sendOpenSignupNotificationEmail(env, {
+  to: 'nikolas@example.com',
+  email: 'someone@example.com',
+  sessionLabel,
+  pending: 2,
+  confirmed: 7,
+});
+await sendOpenSignupCancellationEmail(env, {
+  to: 'nikolas@example.com',
+  email: 'someone@example.com',
+  sessionLabel,
+  pending: 1,
+  confirmed: 7,
+});
 
 console.log = realLog;
 

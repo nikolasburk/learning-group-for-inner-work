@@ -413,3 +413,52 @@ export async function sendTimezoneInterestNotificationEmail(
     }),
   });
 }
+
+/** "7 confirmed · 2 awaiting confirmation" — the head count both host notifications carry. */
+function headCount(confirmed: number, pending: number): string {
+  return `${confirmed} confirmed \u00b7 ${pending} awaiting confirmation`;
+}
+
+export async function sendOpenSignupNotificationEmail(
+  env: BrevoEnv,
+  options: { to: string; email: string; sessionLabel: string; pending: number; confirmed: number },
+): Promise<void> {
+  const email = escapeHtml(options.email);
+  const sessionLabel = escapeHtml(options.sessionLabel);
+  await sendBrevoEmail(env, {
+    to: options.to,
+    subject: `New open-session signup \u2014 ${email}`,
+    htmlContent: renderEmail({
+      preheader: `${email} signed up for the open group session on ${sessionLabel}.`,
+      heading: 'New open-session signup',
+      body: [
+        p('Someone signed up for the open group session. They still have to confirm before they get the link.'),
+        field('Email', link(`mailto:${email}`, email)),
+        field('Session', sessionLabel),
+        field('Signed up so far', headCount(options.confirmed, options.pending)),
+      ].join('\n\n            '),
+    }),
+  });
+}
+
+export async function sendOpenSignupCancellationEmail(
+  env: BrevoEnv,
+  options: { to: string; email: string; sessionLabel: string; pending: number; confirmed: number },
+): Promise<void> {
+  const email = escapeHtml(options.email);
+  const sessionLabel = escapeHtml(options.sessionLabel);
+  await sendBrevoEmail(env, {
+    to: options.to,
+    subject: `Open-session signup cancelled \u2014 ${email}`,
+    htmlContent: renderEmail({
+      preheader: `${email} cancelled their spot for the open group session on ${sessionLabel}.`,
+      heading: 'Open-session signup cancelled',
+      body: [
+        p('Someone cancelled their spot for the open group session.'),
+        field('Email', link(`mailto:${email}`, email)),
+        field('Session', sessionLabel),
+        field('Still signed up', headCount(options.confirmed, options.pending)),
+      ].join('\n\n            '),
+    }),
+  });
+}
