@@ -71,7 +71,11 @@ function buildMonth<T extends { date: string; time: string; durationMinutes: num
   year: number,
   month: number,
   sessions: T[],
-  options: { coHost?: (session: T) => boolean; isNext?: (session: T) => boolean } = {},
+  options: {
+    coHost?: (session: T) => boolean;
+    isNext?: (session: T) => boolean;
+    oneOff?: (session: T) => boolean;
+  } = {},
 ) {
   const details = sessions.map((session) => ({
     day: Number(session.date.slice(8, 10)),
@@ -80,6 +84,9 @@ function buildMonth<T extends { date: string; time: string; durationMinutes: num
     durationMinutes: session.durationMinutes,
     coHost: options.coHost?.(session) ?? false,
     isNext: options.isNext?.(session) ?? false,
+    // Left undefined rather than defaulted to false: that is what tells the calendar
+    // this schedule has no notion of one-offs, so the closed group shows no badge.
+    oneOff: options.oneOff ? options.oneOff(session) : undefined,
     isPast: hasSessionEnded(session.date, session.time, session.durationMinutes, now),
   }));
   return {
@@ -98,6 +105,7 @@ const openMonths = calendarMonths.map(({ year, month }) =>
   buildMonth(year, month, getSessionsInMonth(year, month), {
     coHost: (session) => session.coHost,
     isNext: (session) => session.date === nextSession?.date,
+    oneOff: (session) => session.oneOff,
   }),
 );
 

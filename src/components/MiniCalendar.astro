@@ -12,6 +12,9 @@ interface SessionDetail {
   isNext: boolean;
   /** True once the session has finished — renders the day faded rather than active. */
   isPast: boolean;
+  /** Off-rule session. Omit entirely when the schedule has no notion of one-offs —
+   *  the popover then shows no kind badge at all. */
+  oneOff?: boolean;
 }
 
 interface MonthSpec {
@@ -112,6 +115,11 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
                     data-duration={session.durationMinutes}
                     data-cohost={session.coHost ? "true" : "false"}
                     data-is-next={session.isNext ? "true" : "false"}
+                    data-one-off={session.oneOff === undefined
+                      ? undefined
+                      : session.oneOff
+                        ? "true"
+                        : "false"}
                     aria-haspopup="true"
                   >
                     {day}
@@ -147,7 +155,10 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
         class="cal-popover hidden fixed z-50 w-72 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden text-sm"
         role="tooltip"
       >
-        <p class="cal-popover-datetime font-semibold text-solarized-textHeading px-4 py-3" />
+        <div class="px-4 py-3">
+          <p class="cal-popover-datetime font-semibold text-solarized-textHeading" />
+          <span class="cal-popover-kind" />
+        </div>
         <div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
         <p class="cal-popover-status flex items-center gap-1.5 text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
       </div>
@@ -167,6 +178,13 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
   // names, so a fill assembled from fragments would never be generated.
   const CHECK_FILL_UPCOMING = "fill-solarized-green";
   const CHECK_FILL_FINISHED = "fill-solarized-base00";
+
+  // Same reason as the fills above: whole literals only. KIND_BASE keeps the
+  // `cal-popover-kind` hook so reassigning className can't strip it.
+  const KIND_BASE = "cal-popover-kind inline-block mt-2 px-2 py-0.5 rounded-full text-xs";
+  const KIND_HIDDEN = "cal-popover-kind hidden";
+  const KIND_REGULAR_CLASS = "bg-solarized-base2 text-solarized-textSecondary";
+  const KIND_ONE_OFF_CLASS = "bg-solarized-violet/10 text-solarized-violet";
 
   type CheckTone = "none" | "upcoming" | "finished";
 
@@ -233,6 +251,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
     const popover = cal.querySelector<HTMLElement>(".cal-popover");
     if (popover) document.body.appendChild(popover);
     const datetimeEl = popover?.querySelector<HTMLElement>(".cal-popover-datetime");
+    const kindEl = popover?.querySelector<HTMLElement>(".cal-popover-kind");
     const hostsEl = popover?.querySelector<HTMLElement>(".cal-popover-hosts");
     const statusEl = popover?.querySelector<HTMLElement>(".cal-popover-status");
 
@@ -299,6 +318,18 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
       datetimeEl.textContent = `${formatSessionLabel(date)}, ${time} Berlin${
         viewerLocalTime ? ` (${viewerLocalTime} your time)` : ""
       }`;
+
+      // Absent attribute => this schedule doesn't distinguish, so show nothing.
+      const kind = cell.dataset.oneOff;
+      if (kindEl) {
+        if (kind === undefined) {
+          kindEl.className = KIND_HIDDEN;
+        } else {
+          const isOneOff = kind === "true";
+          kindEl.className = `${KIND_BASE} ${isOneOff ? KIND_ONE_OFF_CLASS : KIND_REGULAR_CLASS}`;
+          kindEl.textContent = isOneOff ? "One-off session" : "Regular session";
+        }
+      }
 
       hostsEl.textContent = "";
       hostsEl.appendChild(buildHostRow(host, hostImage, `Hosted by ${host}`));

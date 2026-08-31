@@ -9,6 +9,8 @@ export interface OpenGroupSession {
   durationMinutes: number;
   /** Whether co-host Rosa Villa is joining this specific session. */
   coHost: boolean;
+  /** True for a session held outside OPEN_GROUP_RULE — see OPEN_GROUP_ADDITIONS. */
+  oneOff: boolean;
 }
 
 export const HOST_NAME = 'Nikolas Burk';
@@ -46,15 +48,38 @@ const OPEN_GROUP_OVERRIDES: Record<
   // '2026-11-11': { time: '20:00' },  // one-off later start
 };
 
-/** Applies the rule's defaults, then any override. Null for a skipped date. */
+/**
+ * Sessions held outside OPEN_GROUP_RULE — the one-offs. Same hand-maintained spirit
+ * as OPEN_GROUP_OVERRIDES, but these *add* a date rather than adjust one. A date that
+ * already matches the rule belongs in OPEN_GROUP_OVERRIDES; listing it here does
+ * nothing. Keyed by 'YYYY-MM-DD'.
+ */
+const OPEN_GROUP_ADDITIONS: Record<
+  string,
+  Partial<Omit<OpenGroupSession, 'date' | 'oneOff'>>
+> = {
+  // '2026-10-06': {},                  // extra session, rule's default time
+  // '2026-11-20': { time: '18:00' },   // extra session, earlier start
+  // '2026-12-02': { coHost: true },    // extra session with Rosa
+};
+
+/**
+ * Resolves a date into a session, or null when it isn't one. The single place that
+ * decides whether a date is on the rule or a one-off, so no caller has to re-derive it.
+ */
 function buildSession(dateISO: string): OpenGroupSession | null {
-  const override = OPEN_GROUP_OVERRIDES[dateISO];
+  const onRule = matchesRule(dateISO);
+  const addition = OPEN_GROUP_ADDITIONS[dateISO];
+  if (!onRule && !addition) return null;
+  const override = onRule ? OPEN_GROUP_OVERRIDES[dateISO] : undefined;
   if (override?.skip) return null;
+  const spec = onRule ? override : addition;
   return {
     date: dateISO,
-    time: override?.time ?? OPEN_GROUP_RULE.time,
-    durationMinutes: override?.durationMinutes ?? OPEN_GROUP_RULE.durationMinutes,
-    coHost: override?.coHost ?? false,
+    time: spec?.time ?? OPEN_GROUP_RULE.time,
+    durationMinutes: spec?.durationMinutes ?? OPEN_GROUP_RULE.durationMinutes,
+    coHost: spec?.coHost ?? false,
+    oneOff: !onRule,
   };
 }
 
@@ -76,7 +101,7 @@ function matchesRule(dateISO: string): boolean {
  * session — so this must not be limited to an upcoming window.
  */
 export function getSessionByDate(dateISO: string): OpenGroupSession | null {
-  if (!matchesRule(dateISO) || dateISO < OPEN_GROUP_RULE.seriesStart) return null;
+  if (dateISO < OPEN_GROUP_RULE.seriesStart) return null;
   return buildSession(dateISO);
 }
 
@@ -88,11 +113,10 @@ export function getUpcomingSessions(count: number, now: Date = new Date()): Open
   // if every date in range were skipped.
   const start = new Date(now.getTime());
   for (const { year, month } of monthsFrom(start.getUTCFullYear(), start.getUTCMonth() + 1, 24)) {
-    for (const ordinal of OPEN_GROUP_RULE.ordinals) {
-      const date = nthWeekdayOfMonth(year, month, OPEN_GROUP_RULE.weekday, ordinal);
-      if (!date || date < OPEN_GROUP_RULE.seriesStart) continue;
-      const session = buildSession(date);
-      if (!session) continue;
+    // Delegated rather than re-deriving the rule here: a one-off can fall before a
+    // rule date in the same month, so the month has to be resolved and sorted as a
+    // whole before it can be walked in chronological order.
+    for (const session of getSessionsInMonth(year, month)) {
       if (berlinLocalToUtc(session.date, session.time) > now) sessions.push(session);
       if (sessions.length >= count) return sessions;
     }
@@ -102,9 +126,16 @@ export function getUpcomingSessions(count: number, now: Date = new Date()): Open
 
 /** Every session falling in a given calendar month — used to build the mini calendar. */
 export function getSessionsInMonth(year: number, month: number): OpenGroupSession[] {
-  return OPEN_GROUP_RULE.ordinals
+  const prefix = `${year}-${String(month).padStart(2, '0')}-`;
+  const ruleDates = OPEN_GROUP_RULE.ordinals
     .map((ordinal) => nthWeekdayOfMonth(year, month, OPEN_GROUP_RULE.weekday, ordinal))
-    .filter((date): date is string => date !== null && date >= OPEN_GROUP_RULE.seriesStart)
+    .filter((date): date is string => date !== null);
+  const additionDates = Object.keys(OPEN_GROUP_ADDITIONS).filter((date) =>
+    date.startsWith(prefix),
+  );
+  return [...new Set([...ruleDates, ...additionDates])]
+    .filter((date) => date >= OPEN_GROUP_RULE.seriesStart)
+    .sort()
     .map(buildSession)
     .filter((session): session is OpenGroupSession => session !== null);
 }
