@@ -34,5 +34,8 @@ pnpm-debug.log*
 # playwright mcp
 .playwright-mcp/
 
+# rendered email previews (pnpm preview:emails)
+.preview/
+
 # exported contact lists (personal data — never commit)
 emails/*.csv
