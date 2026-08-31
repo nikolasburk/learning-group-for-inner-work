@@ -103,7 +103,10 @@ const { sessionDate, sessionLabel } = Astro.props;
       // Cookies set before cancellation shipped won't have a token —
       // fall back to the emailed cancel link in that case.
       cancelButton?.classList.toggle("hidden", !token);
-      signupHint?.classList.toggle("hidden", confirmed);
+      // Hidden for both signed-up states, not just the confirmed one: the hint is
+      // pre-signup guidance, and once you're in, the status line and the cancel
+      // button above already say everything it does.
+      signupHint?.classList.add("hidden");
     }
 
     function unlockForm() {
