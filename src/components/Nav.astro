@@ -13,8 +13,103 @@ import NavLink from "./NavLink.astro";
       <NavLink href="/#why">Why</NavLink>
       <NavLink href="/#what-we-do">What we do</NavLink>
       <NavLink href="/#join">Join</NavLink>
+      <details class="group/dropdown relative" data-nav-dropdown>
+        {/* Trigger styling mirrors NavLink.astro — keep the two in sync. */}
+        <summary
+          class="group/trigger inline-block px-3 py-2 md:px-4 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet"
+        >
+          <span class="inline-block px-2 py-1 rounded text-sm md:text-base text-solarized-textBody group-hover/trigger:bg-solarized-sharpieViolet group-hover/trigger:text-solarized-base03 transition-colors">
+            Info
+            <span
+              aria-hidden="true"
+              class="ml-1 inline-block text-[0.7em] align-middle transition-transform group-open/dropdown:rotate-180"
+            >
+              &#9662;
+            </span>
+          </span>
+        </summary>
+        <div
+          data-nav-dropdown-panel
+          class="fixed z-50 w-56 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden py-1"
+        >
+          {
+            [
+              { href: "/#who-its-for", label: "Who it's for" },
+              { href: "/#how-it-works", label: "How it works" },
+              { href: "/#how-to-prepare", label: "How to prepare" },
+              { href: "/#what-this-isnt", label: "What this isn't" },
+            ].map(({ href, label }) => (
+              <a
+                href={href}
+                class="block px-4 py-2 text-sm md:text-base no-underline text-solarized-textBody hover:bg-solarized-sharpieViolet hover:text-solarized-base03 transition-colors"
+              >
+                {label}
+              </a>
+            ))
+          }
+        </div>
+      </details>
       <NavLink href="/#who-i-am">Who I am</NavLink>
       <NavLink href="/#faq">FAQ</NavLink>
+      <NavLink href="/#newsletter">Newsletter</NavLink>
     </div>
   </nav>
 </header>
+
+<script>
+  const dropdowns = document.querySelectorAll<HTMLDetailsElement>("[data-nav-dropdown]");
+
+  // The nav row is `overflow-x-auto` on mobile, so the panel is `fixed` rather
+  // than absolutely positioned inside it, and gets placed by hand.
+  function position(dropdown: HTMLDetailsElement) {
+    const trigger = dropdown.querySelector<HTMLElement>("summary");
+    const panel = dropdown.querySelector<HTMLElement>("[data-nav-dropdown-panel]");
+    if (!trigger || !panel) return;
+    const rect = trigger.getBoundingClientRect();
+    const left = Math.min(rect.left, window.innerWidth - panel.offsetWidth - 8);
+    panel.style.left = `${Math.max(8, left)}px`;
+    panel.style.top = `${rect.bottom + 4}px`;
+  }
+
+  function repositionOpen() {
+    dropdowns.forEach((dropdown) => {
+      if (dropdown.open) position(dropdown);
+    });
+  }
+
+  function closeAll() {
+    dropdowns.forEach((dropdown) => {
+      dropdown.open = false;
+    });
+  }
+
+  dropdowns.forEach((dropdown) => {
+    dropdown.addEventListener("toggle", () => {
+      if (dropdown.open) position(dropdown);
+    });
+
+    const panel = dropdown.querySelector<HTMLElement>("[data-nav-dropdown-panel]");
+    panel?.addEventListener("click", (event) => {
+      if (event.target instanceof Element && event.target.closest("a")) {
+        dropdown.open = false;
+      }
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    dropdowns.forEach((dropdown) => {
+      if (!dropdown.open) return;
+      if (event.target instanceof Node && dropdown.contains(event.target)) return;
+      dropdown.open = false;
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeAll();
+  });
+
+  // Reposition rather than close: tapping a partly off-screen trigger makes the
+  // browser scroll the nav row, and that scroll lands after the panel opens.
+  document.addEventListener("scroll", repositionOpen, true);
+  window.addEventListener("resize", repositionOpen);
+</script>
