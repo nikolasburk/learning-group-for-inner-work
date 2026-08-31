@@ -23,18 +23,12 @@ const cards = await Promise.all(
   <div class="prose max-w-none mt-6">
     <Content />
   </div>
-  <div class="grid sm:grid-cols-2 gap-6 mt-8">
+  <div class="grid gap-6 lg:grid-cols-3 mt-8">
     {
-      cards.map(({ title, Content }, i) => (
-        <div
-          class:list={[
-            i === cards.length - 1 && cards.length % 2 === 1 && "sm:col-span-2",
-          ]}
-        >
-          <SessionElementCard title={title}>
-            <Content />
-          </SessionElementCard>
-        </div>
+      cards.map(({ title, Content }) => (
+        <SessionElementCard title={title}>
+          <Content />
+        </SessionElementCard>
       ))
     }
   </div>
