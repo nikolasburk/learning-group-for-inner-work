@@ -58,8 +58,8 @@ const closedFootnote = closedDeadlineLabel
 // How many months the calendar lets you page through.
 const CALENDAR_MONTHS = 6;
 
-// Both calendars start at the current Berlin month, so the view is never stranded
-// on a month that has already passed.
+// The calendars span from the current Berlin month onwards, so the view is never
+// stranded on a month that has already passed.
 // One instant for the whole render, so every cell agrees on what counts as past.
 const now = new Date();
 const calendarStart = berlinMonthOf(now);
@@ -101,6 +101,19 @@ function buildMonth<T extends { date: string; time: string; durationMinutes: num
 
 const calendarMonths = monthsFrom(calendarStart.year, calendarStart.month, CALENDAR_MONTHS);
 
+const monthPrefix = (year: number, month: number) => `${year}-${String(month).padStart(2, "0")}`;
+
+// Which panel a calendar opens on: the month holding its next upcoming session rather
+// than the current one, so a month whose sessions have all passed doesn't greet you
+// with an empty grid while the next date sits one page over.
+function monthIndexOf(dateISO: string | undefined): number {
+  if (!dateISO) return 0;
+  const index = calendarMonths.findIndex(({ year, month }) =>
+    dateISO.startsWith(monthPrefix(year, month)),
+  );
+  return index === -1 ? 0 : index;
+}
+
 const openMonths = calendarMonths.map(({ year, month }) =>
   buildMonth(year, month, getSessionsInMonth(year, month), {
     coHost: (session) => session.coHost,
@@ -110,10 +123,16 @@ const openMonths = calendarMonths.map(({ year, month }) =>
 );
 
 const closedMonths = calendarMonths.map(({ year, month }) => {
-  const monthPrefix = `${year}-${String(month).padStart(2, "0")}`;
-  const inMonth = closedSessions.filter((session) => session.date.startsWith(monthPrefix));
+  const prefix = monthPrefix(year, month);
+  const inMonth = closedSessions.filter((session) => session.date.startsWith(prefix));
   return buildMonth(year, month, inMonth);
 });
+
+const openStartIndex = monthIndexOf(nextSession?.date);
+const nextClosedSession = closedSessions.find(
+  (session) => !hasSessionEnded(session.date, session.time, session.durationMinutes, now),
+);
+const closedStartIndex = monthIndexOf(nextClosedSession?.date ?? closedCycle?.startDate);
 ---
 
 <Container>
@@ -142,7 +161,7 @@ const closedMonths = calendarMonths.map(({ year, month }) => {
       }
       <MiniCalendar
         slot="calendar"
-        startIndex={0}
+        startIndex={openStartIndex}
         host={HOST_NAME}
         coHostName={CO_HOST_NAME}
         hostImage={HOST_IMAGE}
@@ -163,7 +182,7 @@ const closedMonths = calendarMonths.map(({ year, month }) => {
     >
       <MiniCalendar
         slot="calendar"
-        startIndex={0}
+        startIndex={closedStartIndex}
         host={HOST_NAME}
         hostImage={HOST_IMAGE}
         signupEnabled={false}
