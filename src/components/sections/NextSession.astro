@@ -1,5 +1,5 @@
 ---
-import { getEntry, render } from "astro:content";
+import { getEntry } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 import OpenGroupSignupForm from "../OpenGroupSignupForm.astro";
@@ -7,18 +7,28 @@ import { getNextOpenSession } from "../../data/sessions";
 import { formatSessionLabel } from "../../lib/berlin-time";
 
 const entry = (await getEntry("copy", "closing-cta"))!;
-const { Content } = await render(entry);
 
 const nextSession = getNextOpenSession();
 const nextSessionLabel = nextSession ? formatSessionLabel(nextSession.date) : null;
+
+// The copy carries a `{Date, Time}` placeholder. It's filled here rather than in
+// the markdown so the schedule stays the single source for the date: Berlin time
+// is server-rendered, and the empty span after it is where the client script
+// appends the viewer's own zone.
+const PLACEHOLDER = /\{\s*date\s*,\s*time\s*\}/i;
+const dateTimeHtml =
+  nextSession && nextSessionLabel
+    ? `${nextSessionLabel}, ${nextSession.time} Berlin` +
+      `<span class="font-normal" data-viewer-local` +
+      ` data-session-date="${nextSession.date}" data-session-time="${nextSession.time}"></span>`
+    : "a date still to be announced";
+const html = (entry.rendered?.html ?? "").replace(PLACEHOLDER, dateTimeHtml);
 ---
 
-<Container>
+<Container class="text-center">
   <SectionHeading title="Come to the next session" id="next-session" />
-  <div class="max-w-xl">
-    <div class="prose max-w-none mt-6">
-      <Content />
-    </div>
+  <div class="max-w-xl mx-auto">
+    <div class="prose max-w-none mt-6" set:html={html} />
     {
       nextSession && nextSessionLabel && (
         <div class="mt-6">
@@ -33,3 +43,30 @@ const nextSessionLabel = nextSession ? formatSessionLabel(nextSession.date) : nu
     }
   </div>
 </Container>
+
+<script>
+  import { berlinLocalToUtc, formatSessionTimeInZone } from "../../lib/berlin-time";
+
+  const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+  if (viewerTimeZone !== "Europe/Berlin") {
+    const dayIn = (instant: Date, timeZone: string) =>
+      new Intl.DateTimeFormat("en-US", { timeZone, month: "long", day: "numeric" }).format(instant);
+
+    document.querySelectorAll<HTMLElement>("[data-viewer-local]").forEach((el) => {
+      const date = el.dataset.sessionDate;
+      const time = el.dataset.sessionTime;
+      if (!date || !time) return;
+
+      const instant = berlinLocalToUtc(date, time);
+      const localTime = formatSessionTimeInZone(date, time, viewerTimeZone);
+      // Far enough east or west and the session lands on another calendar day,
+      // so a bare time would point at the wrong date.
+      const localDay = dayIn(instant, viewerTimeZone);
+      el.textContent =
+        localDay === dayIn(instant, "Europe/Berlin")
+          ? ` (${localTime})`
+          : ` (${localDay}, ${localTime})`;
+    });
+  }
+</script>
