@@ -81,22 +81,33 @@ that's faster and safer than assembling the scaffold from scratch.
 5. **Line breaks.** A single newline inside a paragraph (the sign-off, for
    example) becomes `<br>`, not a new `<p>`.
 
-6. **Links.** `[text](url)` becomes
+6. **Lists.** `<ol>` / `<ul>` with `margin:0 0 20px 0;padding:0 0 0 24px;`. Outlook
+   drops the inherited font inside lists, so repeat the body
+   `font-family` / `font-size` / `line-height` / `color` on the list element
+   itself. Each `<li>` gets `margin:0 0 10px 0;padding:0 0 0 4px;`, and the last
+   one gets `margin:0;` so the list's own bottom margin isn't doubled.
+
+7. **Bold.** `**text**` becomes
+   `<strong style="font-weight:700;color:#1e293b;">text</strong>` — the darker
+   heading color makes the label read as a label. Some clients render bare
+   `<strong>` inconsistently, hence the explicit weight.
+
+8. **Links.** `[text](url)` becomes
    `<a href="url" style="color:#6c71c4;text-decoration:underline;">text</a>`.
    Every link needs its own inline style; clients apply their own blue otherwise.
 
-7. **Highlights.** `<span class="sharpie-highlight sharpie-rotate-1">` in the
+9. **Highlights.** `<span class="sharpie-highlight sharpie-rotate-1">` in the
    markdown becomes this inline span (the class is meaningless in email):
 
    ```html
    <span style="background-color:#e0dcec;padding:0.15em 0.2em 0.1em;margin:0 0.05em;border-radius:2px 3px 2px 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;">…</span>
    ```
 
-8. **Footer.** Fixed boilerplate on every email — an `<hr>` in `#eee8d5`, then
+10. **Footer.** Fixed boilerplate on every email — an `<hr>` in `#eee8d5`, then
    the 13px context line and the unsubscribe link. Brevo substitutes
    `{{ unsubscribe }}` at send time; leave the tag exactly as written.
 
-9. **Copy is verbatim.** Don't fix wording, punctuation or apostrophes while
+11. **Copy is verbatim.** Don't fix wording, punctuation or apostrophes while
    converting. If you spot a typo, fix it in the markdown, then mirror it.
 
 ## Sending
