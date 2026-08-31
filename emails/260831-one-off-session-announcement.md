@@ -1,4 +1,4 @@
-# Join our one-off session on Wednesday
+# Join the one-off session on Wednesday
 
 Hey friend,
 
@@ -19,4 +19,4 @@ This group is an invitation to slow down and connect with other humans. No need 
 I look forward to seeing you,
 Nikolas
 
-PS. If you're on the fence about or have any other questions, feel free to reach out—I'm always happy to have a chat!
+PS. If you're on the fence about joining or have any other questions, feel free to reach out—I'm always happy to have a chat!
