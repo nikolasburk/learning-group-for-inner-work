@@ -1,0 +1,35 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import Container from "../Container.astro";
+import SectionHeading from "../SectionHeading.astro";
+import SessionElementCard from "../SessionElementCard.astro";
+
+const entry = (await getEntry("copy", "how-to-prepare"))!;
+const { Content } = await render(entry);
+
+const tips = (await getCollection("preparation")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const cards = await Promise.all(
+  tips.map(async (tip) => {
+    const { Content } = await render(tip);
+    return { title: tip.data.title, Content };
+  }),
+);
+---
+
+<Container background="tint">
+  <SectionHeading title="How to prepare" id="how-to-prepare" />
+  <div class="prose max-w-none mt-6">
+    <Content />
+  </div>
+  <div class="grid gap-6 lg:grid-cols-3 mt-8">
+    {
+      cards.map(({ title, Content }) => (
+        <SessionElementCard title={title}>
+          <Content />
+        </SessionElementCard>
+      ))
+    }
+  </div>
+</Container>

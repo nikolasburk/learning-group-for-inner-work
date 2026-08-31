@@ -64,6 +64,14 @@ If you're going through an acute crisis, this isn't the right place for it, and 
 
 It's also an experiment and will change as it goes. Feedback, ideas, and suggestions are always welcome, feel free to [reach out](mailto:nikolas.burk@gmail.com)!
 
+# how-to-prepare
+
+Someone once told me they weren't sure this was for them: they sit in front of a computer all day for work, and opening Zoom _again_ in the evening — same screen, same app as their business meetings — didn't feel like something that could bring them closer to themselves or to anyone else.
+
+That's a fair concern. And still: some of the most honest conversations I've had happened through a screen. Once a group settles and people start speaking from the inside, the medium mostly disappears. What matters much more than the technology is the state you arrive in.
+
+That part you can influence, and it takes about five minutes. A few things that help:
+
 # who-i-am
 
 My name is Nikolas Burk. I've been interested in personal development, meditation, and questions about how to live for a long time, mostly from a distance.

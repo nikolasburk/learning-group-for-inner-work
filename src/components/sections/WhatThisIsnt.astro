@@ -7,7 +7,7 @@ const entry = (await getEntry("copy", "what-this-isnt"))!;
 const { Content } = await render(entry);
 ---
 
-<Container background="tint">
+<Container>
   <SectionHeading title="What this isn't" id="what-this-isnt" />
   <div class="prose max-w-none mt-6">
     <Content />

@@ -30,4 +30,12 @@ const sessionElements = defineCollection({
   }),
 });
 
-export const collections = { copy, faq, rules, sessionElements };
+const preparation = defineCollection({
+  loader: cardsLoader('./src/content/preparation.md'),
+  schema: z.object({
+    title: z.string(),
+    order: z.number(),
+  }),
+});
+
+export const collections = { copy, faq, rules, sessionElements, preparation };
