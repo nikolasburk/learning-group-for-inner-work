@@ -14,7 +14,7 @@ This session will follow the usual structure:
 6. **Check-out** — everyone shares where they are now
 7. **Sitting in silence** — slow down and digest
 
-This group is an invitation to slow down and connect with other humans. No need to perform or play a version of yourself—come as you are.
+<span class="sharpie-highlight sharpie-rotate-1">This group is an invitation to slow down</span> and connect with other humans. No need to perform or play a version of yourself—come as you are.
 
 I look forward to seeing you,
 Nikolas
