@@ -96,6 +96,10 @@ A few short questions about you and what brings you here. It's not a test, and I
 
 Applications for the next cycle aren't open yet — check back soon, or come to an [open session](/#join) in the meantime.
 
+# closing-cta
+
+That's all of it. If it sounds like something you'd want to try, the next open session on **{Date , Time}** is the easiest place to start — no application, nothing to prepare, and you can step back from any part of it.
+
 # newsletter
 
 I'll also sometimes host one-off sessions or other events. If you'd like to hear about those as they come up, leave your email below.

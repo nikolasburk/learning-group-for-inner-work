@@ -1,11 +1,13 @@
 ---
 interface Props {
-  href: string;
+  /** Omit to render a <button> instead of a link, e.g. to open a dialog. */
+  href?: string;
   variant?: "primary" | "secondary";
   class?: string;
+  [key: string]: unknown;
 }
 
-const { href, variant = "primary", class: className } = Astro.props;
+const { href, variant = "primary", class: className, ...rest } = Astro.props;
 
 const variantClass = {
   primary: "bg-solarized-violet text-white border border-solarized-violet",
@@ -14,15 +16,32 @@ const variantClass = {
 }[variant];
 ---
 
-<a
-  href={href}
-  class:list={[
-    "inline-block px-6 py-2 rounded-lg text-lg text-center transition-all duration-200 no-underline hover:shadow-lg transform hover:-translate-y-0.5",
-    variantClass,
-    className,
-  ]}
-  target={href.startsWith('http') ? '_blank' : undefined}
-  rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
->
-  <slot />
-</a>
+{
+  href ? (
+    <a
+      href={href}
+      class:list={[
+        "inline-block px-6 py-2 rounded-lg text-lg text-center transition-all duration-200 no-underline hover:shadow-lg transform hover:-translate-y-0.5",
+        variantClass,
+        className,
+      ]}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+      {...rest}
+    >
+      <slot />
+    </a>
+  ) : (
+    <button
+      type="button"
+      class:list={[
+        "inline-block px-6 py-2 rounded-lg text-lg text-center transition-all duration-200 no-underline hover:shadow-lg transform hover:-translate-y-0.5",
+        variantClass,
+        className,
+      ]}
+      {...rest}
+    >
+      <slot />
+    </button>
+  )
+}

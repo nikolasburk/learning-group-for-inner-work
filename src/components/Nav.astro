@@ -1,5 +1,6 @@
 ---
 import NavLink from "./NavLink.astro";
+import NewsletterModal from "./NewsletterModal.astro";
 
 type NavItem = { href: string; label: string; highlight?: boolean };
 
@@ -19,7 +20,6 @@ const infoLinks: NavItem[] = [
 const secondaryLinks: NavItem[] = [
   { href: "/#who-i-am", label: "Who I am" },
   { href: "/#faq", label: "FAQ" },
-  { href: "/#newsletter", label: "Newsletter" },
 ];
 
 // Shared by the "Info" dropdown and the mobile menu.
@@ -74,6 +74,15 @@ const triggerLabel =
         </div>
       </details>
       {secondaryLinks.map(({ href, label }) => <NavLink href={href}>{label}</NavLink>)}
+      <button
+        type="button"
+        data-newsletter-open
+        class="group inline-block px-3 py-2 md:px-4 text-solarized-textBody rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet"
+      >
+        <span class={`${labelBase} group-hover:bg-solarized-sharpieViolet group-hover:text-solarized-base03`}>
+          Newsletter
+        </span>
+      </button>
     </div>
 
     {/* Below `lg`, everything collapses into one menu. */}
@@ -105,10 +114,19 @@ const triggerLabel =
             ),
           )
         }
+        <button
+          type="button"
+          data-newsletter-open
+          class={`${panelItem} w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-solarized-violet`}
+        >
+          Newsletter
+        </button>
       </div>
     </details>
   </nav>
 </header>
+
+<NewsletterModal />
 
 <script>
   const dropdowns = document.querySelectorAll<HTMLDetailsElement>("[data-nav-dropdown]");
@@ -122,7 +140,7 @@ const triggerLabel =
   dropdowns.forEach((dropdown) => {
     const panel = dropdown.querySelector<HTMLElement>("[data-nav-dropdown-panel]");
     panel?.addEventListener("click", (event) => {
-      if (event.target instanceof Element && event.target.closest("a")) {
+      if (event.target instanceof Element && event.target.closest("a, button")) {
         dropdown.open = false;
       }
     });

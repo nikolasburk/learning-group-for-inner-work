@@ -1,0 +1,54 @@
+---
+import { getEntry, render } from "astro:content";
+import NewsletterSignupForm from "./NewsletterSignupForm.astro";
+
+const entry = (await getEntry("copy", "newsletter"))!;
+const { Content } = await render(entry);
+---
+
+{/* Opened by any [data-newsletter-open] trigger — the nav item and the hero button. */}
+<dialog
+  data-newsletter-modal
+  aria-labelledby="newsletter-modal-title"
+  class="w-[min(30rem,calc(100vw-2rem))] p-0 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg text-solarized-textBody backdrop:bg-solarized-base03/40"
+>
+  <div class="p-6">
+    <div class="flex items-start justify-between gap-4">
+      <h2 id="newsletter-modal-title" class="text-2xl font-bold text-solarized-textHeading">
+        Newsletter
+      </h2>
+      <button
+        type="button"
+        data-newsletter-close
+        aria-label="Close"
+        class="-mt-1 -mr-1 p-1 rounded text-solarized-textSecondary hover:text-solarized-violet transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+    </div>
+    <div class="prose [&_p:last-child]:mb-0 mt-3">
+      <Content />
+    </div>
+    <NewsletterSignupForm />
+  </div>
+</dialog>
+
+<script>
+  const modal = document.querySelector<HTMLDialogElement>("[data-newsletter-modal]");
+
+  document.querySelectorAll("[data-newsletter-open]").forEach((trigger) => {
+    trigger.addEventListener("click", (event) => {
+      event.preventDefault();
+      modal?.showModal();
+    });
+  });
+
+  modal?.querySelector("[data-newsletter-close]")?.addEventListener("click", () => modal.close());
+
+  // A click on the backdrop is reported against the dialog element itself.
+  modal?.addEventListener("click", (event) => {
+    if (event.target === modal) modal.close();
+  });
+</script>

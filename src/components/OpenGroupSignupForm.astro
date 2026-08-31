@@ -2,9 +2,11 @@
 interface Props {
   sessionDate: string;
   sessionLabel: string;
+  /** Distinguishes the field ids when the form appears more than once on a page. */
+  id?: string;
 }
 
-const { sessionDate, sessionLabel } = Astro.props;
+const { sessionDate, sessionLabel, id = "open-group-email" } = Astro.props;
 ---
 
 <form
@@ -14,9 +16,9 @@ const { sessionDate, sessionLabel } = Astro.props;
   class="flex flex-col gap-3"
 >
   <div class="flex flex-col md:flex-row gap-3">
-    <label class="sr-only" for="open-group-email">Email address</label>
+    <label class="sr-only" for={id}>Email address</label>
     <input
-      id="open-group-email"
+      id={id}
       name="email"
       type="email"
       required
@@ -32,8 +34,8 @@ const { sessionDate, sessionLabel } = Astro.props;
     </button>
   </div>
   <div class="hidden" aria-hidden="true">
-    <label for="open-group-company">Company</label>
-    <input id="open-group-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+    <label for={`${id}-company`}>Company</label>
+    <input id={`${id}-company`} name="company" type="text" tabindex="-1" autocomplete="off" />
   </div>
   <input type="hidden" name="formLoadedAt" value="" />
   <p data-signup-status role="status" aria-live="polite" class="empty:hidden flex items-center gap-1.5 text-sm text-solarized-textSecondary"></p>
@@ -62,7 +64,7 @@ const { sessionDate, sessionLabel } = Astro.props;
   document.querySelectorAll<HTMLFormElement>("[data-signup-form]").forEach((form) => {
     const sessionDate = form.dataset.sessionDate ?? "";
     const sessionLabel = form.dataset.sessionLabel ?? "the next session";
-    const emailInput = form.querySelector<HTMLInputElement>("#open-group-email");
+    const emailInput = form.querySelector<HTMLInputElement>('input[name="email"]');
     const submitButton = form.querySelector<HTMLButtonElement>('button[type="submit"]');
     const status = form.querySelector<HTMLElement>("[data-signup-status]");
     const cancelButton = form.querySelector<HTMLButtonElement>("[data-cancel-signup]");
@@ -167,7 +169,7 @@ const { sessionDate, sessionLabel } = Astro.props;
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             email: emailInput.value,
-            honeypot: (form.querySelector<HTMLInputElement>("#open-group-company")?.value ?? ""),
+            honeypot: form.querySelector<HTMLInputElement>('input[name="company"]')?.value ?? "",
             formLoadedAt: Number(formLoadedAtInput?.value ?? Date.now()),
           }),
         });
