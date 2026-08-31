@@ -58,6 +58,7 @@ const OPEN_GROUP_ADDITIONS: Record<
   string,
   Partial<Omit<OpenGroupSession, 'date' | 'oneOff'>>
 > = {
+  '2026-09-02': {}, // extra session between the August and September regulars
   // '2026-10-06': {},                  // extra session, rule's default time
   // '2026-11-20': { time: '18:00' },   // extra session, earlier start
   // '2026-12-02': { coHost: true },    // extra session with Rosa
