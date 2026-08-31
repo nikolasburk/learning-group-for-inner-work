@@ -10,11 +10,21 @@ import Button from "../Button.astro";
   <p class="text-xl md:text-2xl text-solarized-textSecondary max-w-2xl mx-auto mb-8">
     A space to slow down, be honest, and listen to each other.
   </p>
-  <div class="flex flex-wrap justify-center gap-3">
-    <Button href="#join">See how to join</Button>
-    <Button href="#newsletter" variant="secondary">Stay in the loop</Button>
+  <div class="flex flex-col sm:flex-row justify-center gap-5 max-w-2xl mx-auto">
+    <div class="sm:flex-1 sm:max-w-xs">
+      <Button href="#join" class="w-full">See how to join</Button>
+      <p class="mt-2 text-sm text-solarized-textSecondary text-balance">
+        Sessions take place on Wednesdays and are free to join.
+      </p>
+    </div>
+    <div class="sm:flex-1 sm:max-w-xs">
+      <Button href="#newsletter" variant="secondary" class="w-full">Stay in the loop</Button>
+      <p class="mt-2 text-sm text-solarized-textSecondary text-balance">
+        Subscribe to the newsletter for one-off events &amp; updates.
+      </p>
+    </div>
   </div>
-  <p class="mt-4">
+  <p class="mt-8">
     <a
       href="https://www.nikolasburk.com/blog/starting-a-practice-group-for-inner-work/"
       target="_blank"

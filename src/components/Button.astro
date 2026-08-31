@@ -2,9 +2,10 @@
 interface Props {
   href: string;
   variant?: "primary" | "secondary";
+  class?: string;
 }
 
-const { href, variant = "primary" } = Astro.props;
+const { href, variant = "primary", class: className } = Astro.props;
 
 const variantClass = {
   primary: "bg-solarized-violet text-white border border-solarized-violet",
@@ -16,8 +17,9 @@ const variantClass = {
 <a
   href={href}
   class:list={[
-    "inline-block mb-6 px-6 py-2 rounded-lg text-lg transition-all duration-200 no-underline hover:shadow-lg transform hover:-translate-y-0.5",
+    "inline-block px-6 py-2 rounded-lg text-lg text-center transition-all duration-200 no-underline hover:shadow-lg transform hover:-translate-y-0.5",
     variantClass,
+    className,
   ]}
   target={href.startsWith('http') ? '_blank' : undefined}
   rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}
