@@ -1,5 +1,42 @@
 ---
 import NavLink from "./NavLink.astro";
+
+type NavItem = { href: string; label: string; highlight?: boolean };
+
+const primaryLinks: NavItem[] = [
+  { href: "/#why", label: "Why" },
+  { href: "/#what-we-do", label: "What we do" },
+  { href: "/#join", label: "Join", highlight: true },
+];
+
+const infoLinks: NavItem[] = [
+  { href: "/#who-its-for", label: "Who it's for" },
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/#how-to-prepare", label: "How to prepare" },
+  { href: "/#what-this-isnt", label: "What this isn't" },
+];
+
+const secondaryLinks: NavItem[] = [
+  { href: "/#who-i-am", label: "Who I am" },
+  { href: "/#faq", label: "FAQ" },
+  { href: "/#newsletter", label: "Newsletter" },
+];
+
+// Shared by the "Info" dropdown and the mobile menu.
+const panel =
+  "absolute top-full mt-1 z-50 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden py-1";
+const panelItem =
+  "block px-4 py-2 text-sm md:text-base no-underline text-solarized-textBody hover:bg-solarized-sharpieViolet hover:text-solarized-base03 transition-colors";
+// Outlined call-to-action pill, mirroring Button.astro's "secondary" variant.
+// `ring` rather than `border` so the highlighted item stays the same height as
+// its neighbours.
+const highlightPill =
+  "ring-1 ring-solarized-violet/50 text-solarized-violet group-hover:ring-solarized-violet";
+// Matches the summary styling in NavLink.astro — keep the two in sync.
+const trigger =
+  "group/trigger inline-block px-3 py-2 md:px-4 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet";
+const triggerLabel =
+  "inline-block px-2 py-1 rounded text-sm md:text-base text-solarized-textBody group-hover/trigger:bg-solarized-sharpieViolet group-hover/trigger:text-solarized-base03 transition-colors";
 ---
 
 <header class="sticky top-0 z-50 bg-solarized-base3/90 backdrop-blur-sm border-b border-solarized-base2">
@@ -9,16 +46,19 @@ import NavLink from "./NavLink.astro";
         <path d="M 64.0 58.0 L 65.3 57.6 L 66.7 57.4 L 68.3 57.6 L 69.8 58.2 L 71.3 59.1 L 72.6 60.4 L 73.7 62.1 L 74.4 64.0 L 74.8 66.1 L 74.7 68.4 L 74.1 70.7 L 73.0 73.0 L 71.3 75.0 L 69.3 76.7 L 66.8 78.1 L 64.0 78.9 L 61.0 79.1 L 57.9 78.8 L 54.8 77.8 L 51.9 76.1 L 49.3 73.8 L 47.2 71.0 L 45.6 67.7 L 44.7 64.0 L 44.5 60.1 L 45.1 56.2 L 46.5 52.3 L 48.8 48.8 L 51.7 45.6 L 55.3 43.1 L 59.5 41.2 L 64.0 40.2 L 68.7 40.1 L 73.5 41.0 L 78.1 42.8 L 82.4 45.6 L 86.1 49.2 L 89.0 53.6 L 91.1 58.6 L 92.2 64.0 L 92.2 69.6 L 91.1 75.2 L 88.9 80.6 L 85.5 85.5 L 81.2 89.8 L 76.1 93.2 L 70.3 95.5 L 64.0 96.7 L 57.5 96.6 L 51.1 95.2 L 44.9 92.5 L 39.3 88.7 L 34.5 83.7 L 30.7 77.8 L 28.1 71.1 L 26.9 64.0 L 27.1 56.7 L 28.7 49.4 L 31.8 42.5 L 36.2 36.2 L 41.8 30.8 L 48.5 26.6 L 56.0 23.8 L 64.0 22.4 L 72.2 22.7 L 80.3 24.6 L 88.0 28.1 L 95.0 33.0 L 100.9 39.4 L 105.5 46.8 L 108.6 55.1 L 110.0 64.0"/>
       </svg>
     </a>
-    <div class="flex gap-1 overflow-x-auto whitespace-nowrap -mx-2 px-2 sm:overflow-visible sm:whitespace-normal sm:flex-wrap sm:mx-0 sm:px-0">
-      <NavLink href="/#why">Why</NavLink>
-      <NavLink href="/#what-we-do">What we do</NavLink>
-      <NavLink href="/#join">Join</NavLink>
+
+    {/* Full bar — only wide enough to hold every item from `lg` up. */}
+    <div class="hidden lg:flex lg:flex-wrap gap-1">
+      {
+        primaryLinks.map(({ href, label, highlight }) => (
+          <NavLink href={href} labelClass={highlight ? highlightPill : undefined}>
+            {label}
+          </NavLink>
+        ))
+      }
       <details class="group/dropdown relative" data-nav-dropdown>
-        {/* Trigger styling mirrors NavLink.astro — keep the two in sync. */}
-        <summary
-          class="group/trigger inline-block px-3 py-2 md:px-4 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet"
-        >
-          <span class="inline-block px-2 py-1 rounded text-sm md:text-base text-solarized-textBody group-hover/trigger:bg-solarized-sharpieViolet group-hover/trigger:text-solarized-base03 transition-colors">
+        <summary class={trigger}>
+          <span class={triggerLabel}>
             Info
             <span
               aria-hidden="true"
@@ -28,54 +68,51 @@ import NavLink from "./NavLink.astro";
             </span>
           </span>
         </summary>
-        <div
-          data-nav-dropdown-panel
-          class="fixed z-50 w-56 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden py-1"
-        >
-          {
-            [
-              { href: "/#who-its-for", label: "Who it's for" },
-              { href: "/#how-it-works", label: "How it works" },
-              { href: "/#how-to-prepare", label: "How to prepare" },
-              { href: "/#what-this-isnt", label: "What this isn't" },
-            ].map(({ href, label }) => (
-              <a
-                href={href}
-                class="block px-4 py-2 text-sm md:text-base no-underline text-solarized-textBody hover:bg-solarized-sharpieViolet hover:text-solarized-base03 transition-colors"
-              >
-                {label}
-              </a>
-            ))
-          }
+        <div data-nav-dropdown-panel class={`${panel} left-0 w-56`}>
+          {infoLinks.map(({ href, label }) => <a href={href} class={panelItem}>{label}</a>)}
         </div>
       </details>
-      <NavLink href="/#who-i-am">Who I am</NavLink>
-      <NavLink href="/#faq">FAQ</NavLink>
-      <NavLink href="/#newsletter">Newsletter</NavLink>
+      {secondaryLinks.map(({ href, label }) => <NavLink href={href}>{label}</NavLink>)}
     </div>
+
+    {/* Below `lg`, everything collapses into one menu. */}
+    <details class="group/dropdown relative lg:hidden" data-nav-dropdown>
+      <summary
+        aria-label="Menu"
+        class="inline-flex items-center px-2 py-3 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden rounded text-solarized-textBody hover:text-solarized-violet transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet"
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" class="group-open/dropdown:hidden">
+          <path d="M4 7h16M4 12h16M4 17h16"/>
+        </svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" class="hidden group-open/dropdown:block">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </summary>
+      <div data-nav-dropdown-panel class={`${panel} right-0 w-64`}>
+        {/* Flat list — the bar's "Info" grouping only exists to save width. */}
+        {
+          [...primaryLinks, ...infoLinks, ...secondaryLinks].map(({ href, label, highlight }) =>
+            highlight ? (
+              /* Same pill as the bar; px-2/py-1 so the pill's label lines up with the plain rows. */
+              <a href={href} class="group block px-2 py-1 no-underline">
+                <span
+                  class={`inline-block px-2 py-1 rounded text-sm md:text-base transition-colors group-hover:bg-solarized-sharpieViolet group-hover:text-solarized-base03 ${highlightPill}`}
+                >
+                  {label}
+                </span>
+              </a>
+            ) : (
+              <a href={href} class={panelItem}>{label}</a>
+            ),
+          )
+        }
+      </div>
+    </details>
   </nav>
 </header>
 
 <script>
   const dropdowns = document.querySelectorAll<HTMLDetailsElement>("[data-nav-dropdown]");
-
-  // The nav row is `overflow-x-auto` on mobile, so the panel is `fixed` rather
-  // than absolutely positioned inside it, and gets placed by hand.
-  function position(dropdown: HTMLDetailsElement) {
-    const trigger = dropdown.querySelector<HTMLElement>("summary");
-    const panel = dropdown.querySelector<HTMLElement>("[data-nav-dropdown-panel]");
-    if (!trigger || !panel) return;
-    const rect = trigger.getBoundingClientRect();
-    const left = Math.min(rect.left, window.innerWidth - panel.offsetWidth - 8);
-    panel.style.left = `${Math.max(8, left)}px`;
-    panel.style.top = `${rect.bottom + 4}px`;
-  }
-
-  function repositionOpen() {
-    dropdowns.forEach((dropdown) => {
-      if (dropdown.open) position(dropdown);
-    });
-  }
 
   function closeAll() {
     dropdowns.forEach((dropdown) => {
@@ -84,10 +121,6 @@ import NavLink from "./NavLink.astro";
   }
 
   dropdowns.forEach((dropdown) => {
-    dropdown.addEventListener("toggle", () => {
-      if (dropdown.open) position(dropdown);
-    });
-
     const panel = dropdown.querySelector<HTMLElement>("[data-nav-dropdown-panel]");
     panel?.addEventListener("click", (event) => {
       if (event.target instanceof Element && event.target.closest("a")) {
@@ -108,8 +141,11 @@ import NavLink from "./NavLink.astro";
     if (event.key === "Escape") closeAll();
   });
 
-  // Reposition rather than close: tapping a partly off-screen trigger makes the
-  // browser scroll the nav row, and that scroll lands after the panel opens.
-  document.addEventListener("scroll", repositionOpen, true);
-  window.addEventListener("resize", repositionOpen);
+  // The bar and the mobile menu swap at `lg`; whichever one just got hidden
+  // shouldn't still be open when it comes back.
+  window.addEventListener("resize", () => {
+    dropdowns.forEach((dropdown) => {
+      if (dropdown.open && dropdown.offsetParent === null) dropdown.open = false;
+    });
+  });
 </script>

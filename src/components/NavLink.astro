@@ -1,9 +1,12 @@
 ---
 import type { HTMLAttributes } from "astro/types";
 
-type Props = HTMLAttributes<"a">;
+type Props = HTMLAttributes<"a"> & {
+  /** Extra classes for the inner label pill, e.g. to highlight a call to action. */
+  labelClass?: string;
+};
 
-const { href, class: className, ...props } = Astro.props;
+const { href, class: className, labelClass, ...props } = Astro.props;
 ---
 
 <a
@@ -14,7 +17,12 @@ const { href, class: className, ...props } = Astro.props;
   ]}
   {...props}
 >
-  <span class="inline-block px-2 py-1 rounded text-sm md:text-base group-hover:bg-solarized-sharpieViolet group-hover:text-solarized-base03 transition-colors">
+  <span
+    class:list={[
+      "inline-block px-2 py-1 rounded text-sm md:text-base group-hover:bg-solarized-sharpieViolet group-hover:text-solarized-base03 transition-colors",
+      labelClass,
+    ]}
+  >
     <slot />
   </span>
 </a>
