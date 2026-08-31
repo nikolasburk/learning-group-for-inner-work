@@ -1,5 +1,5 @@
 import { defineCollection, z } from 'astro:content';
-import { qaLoader, rulesLoader, sectionsLoader } from './content/loaders';
+import { cardsLoader, qaLoader, rulesLoader, sectionsLoader } from './content/loaders';
 
 const copy = defineCollection({
   loader: sectionsLoader('./src/content/copy.md'),
@@ -22,4 +22,12 @@ const rules = defineCollection({
   }),
 });
 
-export const collections = { copy, faq, rules };
+const sessionElements = defineCollection({
+  loader: cardsLoader('./src/content/session-elements.md'),
+  schema: z.object({
+    title: z.string(),
+    order: z.number(),
+  }),
+});
+
+export const collections = { copy, faq, rules, sessionElements };

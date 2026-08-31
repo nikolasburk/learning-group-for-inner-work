@@ -145,3 +145,50 @@ export function rulesLoader(fileName: string): Loader {
     },
   };
 }
+
+/**
+ * Splits a markdown file into card entries separated by `## ` headings. The
+ * heading text becomes `data.title`; the text until the next heading becomes
+ * the rendered card body. `data.order` follows file position.
+ */
+export function cardsLoader(fileName: string): Loader {
+  return {
+    name: "cards-loader",
+    load: async ({ config, store, parseData, renderMarkdown, generateDigest, watcher, logger }) => {
+      const url = new URL(fileName, config.root);
+      const filePath = fileURLToPath(url);
+
+      async function sync() {
+        const raw = await readFile(filePath, "utf-8");
+        const blocks = raw
+          .split(/\n(?=## )/)
+          .map((block) => block.trim())
+          .filter(Boolean);
+        store.clear();
+        let order = 0;
+        for (const block of blocks) {
+          const match = block.match(/^## (.+)\n([\s\S]*)$/);
+          if (!match) {
+            logger.warn(`Skipping malformed card in ${fileName}`);
+            continue;
+          }
+          const title = match[1].trim();
+          const body = match[2].trim();
+          const id = slugify(title);
+          const data = await parseData({ id, data: { title, order: order++ } });
+          const rendered = await renderMarkdown(body);
+          store.set({ id, data, body, rendered, digest: generateDigest(body), filePath: fileName });
+        }
+      }
+
+      await sync();
+      watcher?.add(filePath);
+      watcher?.on("change", async (changedPath) => {
+        if (changedPath === filePath) {
+          logger.info(`Reloading ${fileName}`);
+          await sync();
+        }
+      });
+    },
+  };
+}

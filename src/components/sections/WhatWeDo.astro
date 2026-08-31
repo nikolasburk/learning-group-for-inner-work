@@ -1,15 +1,41 @@
 ---
-import { getEntry, render } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
+import SessionElementCard from "../SessionElementCard.astro";
 
 const entry = (await getEntry("copy", "what-we-do"))!;
 const { Content } = await render(entry);
+
+const elements = (await getCollection("sessionElements")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const cards = await Promise.all(
+  elements.map(async (element) => {
+    const { Content } = await render(element);
+    return { title: element.data.title, Content };
+  }),
+);
 ---
 
 <Container background="tint">
   <SectionHeading title="What we do" id="what-we-do" />
   <div class="prose max-w-none mt-6">
     <Content />
+  </div>
+  <div class="grid sm:grid-cols-2 gap-6 mt-8">
+    {
+      cards.map(({ title, Content }, i) => (
+        <div
+          class:list={[
+            i === cards.length - 1 && cards.length % 2 === 1 && "sm:col-span-2",
+          ]}
+        >
+          <SessionElementCard title={title}>
+            <Content />
+          </SessionElementCard>
+        </div>
+      ))
+    }
   </div>
 </Container>
