@@ -27,11 +27,12 @@ const panel =
   "absolute top-full mt-1 z-50 rounded-xl border border-solarized-base2 bg-solarized-base3 shadow-lg overflow-hidden py-1";
 const panelItem =
   "block px-4 py-2 text-sm md:text-base no-underline text-solarized-textBody hover:bg-solarized-sharpieViolet hover:text-solarized-base03 transition-colors";
-// Outlined call-to-action pill, mirroring Button.astro's "secondary" variant.
-// `ring` rather than `border` so the highlighted item stays the same height as
-// its neighbours.
+// Mirrors NavLink.astro's label pill — keep the two in sync.
+const labelBase = "inline-block px-2 py-1 rounded text-sm md:text-base transition-colors";
+// Call-to-action tint — the section-stripe violet, deepening into the nav's
+// standard hover fill on hover.
 const highlightPill =
-  "ring-1 ring-solarized-violet/50 text-solarized-violet group-hover:ring-solarized-violet";
+  "bg-solarized-tintViolet group-hover:bg-solarized-sharpieViolet group-hover:text-solarized-base03";
 // Matches the summary styling in NavLink.astro — keep the two in sync.
 const trigger =
   "group/trigger inline-block px-3 py-2 md:px-4 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-solarized-violet";
@@ -95,9 +96,7 @@ const triggerLabel =
             highlight ? (
               /* Same pill as the bar; px-2/py-1 so the pill's label lines up with the plain rows. */
               <a href={href} class="group block px-2 py-1 no-underline">
-                <span
-                  class={`inline-block px-2 py-1 rounded text-sm md:text-base transition-colors group-hover:bg-solarized-sharpieViolet group-hover:text-solarized-base03 ${highlightPill}`}
-                >
+                <span class={`${labelBase} ${highlightPill}`}>
                   {label}
                 </span>
               </a>
