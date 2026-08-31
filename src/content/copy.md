@@ -20,9 +20,9 @@ We meet online, a session takes roughly 2 hours. It looks like this:
 
 1. **Sitting in silence** — slow down for a few minutes and arrive
 2. **Check-in** — everyone says how they're doing and what's on their mind
-3. **Triad** — we split into groups of three and work with a prompt
+3. **Triad** — we split into groups of three in breakout rooms and work with a prompt
 4. **Break**
-5. **Triad** — new groups, new prompt
+5. **Triad** — new groups sent into breakout rooms, new prompt
 6. **Check-out** — everyone shares where they are now
 7. **Sitting in silence** — slow down and digest
 

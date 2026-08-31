@@ -2,6 +2,10 @@
 
 If you're curious and want to try it, take the open group. If you already know you want this to be a regular part of your life for a while, apply for the closed one. You can also do both — they meet on alternating weeks.
 
+## What should I talk about during check-in and triads?
+
+Whenever you're sharing, try to describe your experience in terms of current emotions ("I feel happy", "There is anxiety", ...), thoughts ("My thoughts are drifting in a lot of directoins", "I keep thinking about an important email I need to send", ...) and physical sensations ("I feel a tightness in my chest", "There's pressure in the back of my head", ...). This is the core part of the practice: not sharing anything from an intellectual place, but rather from a place where you look inward and describe what's going on inside you.
+
 ## Do I have to share personal things?
 
 No. Share what feels right in the moment, and nothing beyond that. Openness and vulnerability usually happen on their own once a group feels safe, and it doesn't need to be pushed.
