@@ -11,14 +11,22 @@ interface BrevoEnv {
   FROM_NAME: string;
 }
 
-interface BrevoListEnv {
+// The newsletter list is marketing consent — only explicit opt-ins reach it.
+interface BrevoNewsletterListEnv {
   BREVO_API_KEY: string;
-  // One or more Brevo list IDs, comma-separated — a new contact is added to
-  // every list named here.
-  BREVO_LIST_ID: string;
+  BREVO_NEWSLETTER_LIST_ID: string;
 }
 
-function parseListIds(value: string): number[] {
+// The contacts list is the catch-all: every email anyone leaves us, whatever
+// form it came through.
+interface BrevoContactsListEnv {
+  BREVO_API_KEY: string;
+  BREVO_CONTACTS_LIST_ID: string;
+}
+
+// Each list var holds one or more numeric IDs, comma-separated.
+function parseListIds(value: string | undefined): number[] {
+  if (!value) return [];
   return value
     .split(',')
     .map((id) => Number(id.trim()))
@@ -166,16 +174,15 @@ export async function sendApplicationReceivedEmail(
   });
 }
 
-export async function addContactToNewsletterList(env: BrevoListEnv, options: { email: string }): Promise<void> {
-  const listIds = env.BREVO_LIST_ID ? parseListIds(env.BREVO_LIST_ID) : [];
-
+async function addBrevoContact(
+  env: { BREVO_API_KEY: string },
+  options: { email: string; listIds: number[]; label: string },
+): Promise<void> {
   // No API key/list configured (e.g. local dev, or before a Brevo list has
   // been created) — log instead of calling the API, same fallback as
   // sendBrevoEmail above.
-  if (!env.BREVO_API_KEY || listIds.length === 0) {
-    console.log(
-      `[dev newsletter signup — not sent to Brevo, BREVO_API_KEY/BREVO_LIST_ID not set] ${options.email}`,
-    );
+  if (!env.BREVO_API_KEY || options.listIds.length === 0) {
+    console.log(`[dev ${options.label} — not sent to Brevo, API key or list ID not set] ${options.email}`);
     return;
   }
 
@@ -186,9 +193,11 @@ export async function addContactToNewsletterList(env: BrevoListEnv, options: { e
       'content-type': 'application/json',
       accept: 'application/json',
     },
+    // updateEnabled: an existing contact gets added to these lists rather
+    // than the call failing — which is what makes every caller idempotent.
     body: JSON.stringify({
       email: options.email,
-      listIds,
+      listIds: options.listIds,
       updateEnabled: true,
     }),
   });
@@ -197,6 +206,28 @@ export async function addContactToNewsletterList(env: BrevoListEnv, options: { e
     const body = await response.text();
     throw new Error(`Brevo add-contact failed (${response.status}): ${body}`);
   }
+}
+
+export async function addContactToNewsletterList(
+  env: BrevoNewsletterListEnv,
+  options: { email: string },
+): Promise<void> {
+  await addBrevoContact(env, {
+    email: options.email,
+    listIds: parseListIds(env.BREVO_NEWSLETTER_LIST_ID),
+    label: 'newsletter signup',
+  });
+}
+
+export async function addContactToContactsList(
+  env: BrevoContactsListEnv,
+  options: { email: string },
+): Promise<void> {
+  await addBrevoContact(env, {
+    email: options.email,
+    listIds: parseListIds(env.BREVO_CONTACTS_LIST_ID),
+    label: 'contact',
+  });
 }
 
 export async function sendTimezoneInterestNotificationEmail(

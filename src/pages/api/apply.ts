@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getNextClosedCycle } from '../../data/closed-cycles';
 import { sendApplicationNotificationEmail, sendApplicationReceivedEmail } from '../../lib/brevo';
+import { addToContactsList } from '../../lib/contacts';
 import { subscribeToNewsletter } from '../../lib/newsletter';
 
 export const prerender = false;
@@ -73,6 +74,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const db = locals.runtime.env.DB;
+
+  await addToContactsList(locals.runtime.env, { email });
 
   try {
     await db

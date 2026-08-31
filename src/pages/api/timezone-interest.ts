@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { sendTimezoneInterestNotificationEmail } from '../../lib/brevo';
+import { addToContactsList } from '../../lib/contacts';
 
 export const prerender = false;
 
@@ -36,6 +37,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const db = locals.runtime.env.DB;
+
+  await addToContactsList(locals.runtime.env, { email });
 
   try {
     await db.prepare(`INSERT INTO timezone_interest_signups (email) VALUES (?)`).bind(email).run();

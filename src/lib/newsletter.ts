@@ -1,9 +1,9 @@
 import { addContactToNewsletterList } from './brevo';
+import { addToContactsList, type ContactsEnv } from './contacts';
 
-interface NewsletterEnv {
+interface NewsletterEnv extends ContactsEnv {
   DB: D1Database;
-  BREVO_API_KEY: string;
-  BREVO_LIST_ID: string;
+  BREVO_NEWSLETTER_LIST_ID: string;
 }
 
 export type SubscribeToNewsletterResult =
@@ -15,6 +15,8 @@ export async function subscribeToNewsletter(
   options: { email: string },
 ): Promise<SubscribeToNewsletterResult> {
   const email = options.email.trim().toLowerCase();
+
+  await addToContactsList(env, { email });
 
   try {
     await env.DB.prepare(`INSERT INTO newsletter_signups (email) VALUES (?)`).bind(email).run();

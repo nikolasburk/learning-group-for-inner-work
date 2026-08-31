@@ -13,7 +13,10 @@
     "FROM_NAME": "Nikolas — Practice group for inner work",
     "ZOOM_LINK": "https://zoom.us/j/73412743879?pwd=WuxartnGIjWgZxFl7BFQfQW16PMYJ7.1", // hostname-free form on purpose: routes to whatever cluster the account is on (a usNNweb. host breaks when the account tier changes)
     "NOTIFY_EMAIL": "nikolas.burk@gmail.com", // where closed-group application notifications are sent
-    "BREVO_LIST_ID": "7,8" // Brevo contact lists a newsletter signup is added to, comma-separated: 7 = "Newsletter | Inner Work Practice Group", 8 = https://app.brevo.com/contact/list-listing/id/8
+    // Brevo list for explicit newsletter opt-ins only: "Newsletter | Inner Work Practice Group"
+    "BREVO_NEWSLETTER_LIST_ID": "7",
+    // Brevo catch-all list — every email anyone leaves, through any form
+    "BREVO_CONTACTS_LIST_ID": "8"
   },
   "d1_databases": [
     {

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { getNextOpenSession } from '../../data/sessions';
 import { formatSessionLabel } from '../../lib/berlin-time';
 import { sendConfirmationRequestEmail } from '../../lib/brevo';
+import { addToContactsList } from '../../lib/contacts';
 import { setSignupCookie } from '../../lib/signup-cookie';
 
 export const prerender = false;
@@ -43,6 +44,8 @@ export const POST: APIRoute = async ({ request, locals, cookies }) => {
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return jsonResponse({ error: 'Please enter a valid email address.' }, 400);
   }
+
+  await addToContactsList(locals.runtime.env, { email });
 
   const nextSession = getNextOpenSession();
   if (!nextSession) {
