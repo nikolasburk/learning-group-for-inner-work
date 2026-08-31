@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { getNextClosedCycle } from '../../data/closed-cycles';
+import { getClosedSessionsForCycle, getNextClosedCycle } from '../../data/closed-cycles';
+import { formatSessionLabel } from '../../lib/berlin-time';
 import { sendApplicationNotificationEmail, sendApplicationReceivedEmail } from '../../lib/brevo';
 import { addToContactsList } from '../../lib/contacts';
 import { subscribeToNewsletter } from '../../lib/newsletter';
@@ -91,12 +92,27 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const env = locals.runtime.env;
   try {
-    await sendApplicationNotificationEmail(env, { to: env.NOTIFY_EMAIL, name, email, whyNow, commitment, anythingElse });
+    await sendApplicationNotificationEmail(env, {
+      to: env.NOTIFY_EMAIL,
+      name,
+      email,
+      whyNow,
+      commitment,
+      anythingElse,
+      openToContribution,
+    });
   } catch (error) {
     console.error('Failed to send application notification email', error);
   }
   try {
-    await sendApplicationReceivedEmail(env, { to: email, name });
+    // Same two helpers the Join section uses, so the email and the site card
+    // can't advertise different dates.
+    await sendApplicationReceivedEmail(env, {
+      to: email,
+      name,
+      deadlineLabel: formatSessionLabel(cycle.applicationDeadline),
+      sessionLabels: getClosedSessionsForCycle(cycle).map((session) => formatSessionLabel(session.date)),
+    });
   } catch (error) {
     console.error('Failed to send application received email', error);
   }

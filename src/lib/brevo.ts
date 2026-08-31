@@ -85,12 +85,50 @@ function button(href: string, label: string): string {
             </table>`;
 }
 
+/** The site's sharpie highlight, pre-composited — email clients drop alpha. */
+function highlight(html: string): string {
+  return `<span style="background-color:#e0dcec;padding:0.15em 0.2em 0.1em;margin:0 0.05em;border-radius:2px 3px 2px 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;">${html}</span>`;
+}
+
+/** A bulleted list. Outlook drops the inherited font inside lists, hence the repeat. */
+function list(items: string[]): string {
+  const li = items
+    .map(
+      (item, index) =>
+        `<li style="margin:${index === items.length - 1 ? '0' : '0 0 10px 0'};padding:0 0 0 4px;">${item}</li>`,
+    )
+    .join('\n              ');
+  return `<ul style="margin:0 0 20px 0;padding:0 0 0 24px;font-family:${BODY_FONT};font-size:17px;line-height:1.65;color:${TEXT_BODY};">
+              ${li}
+            </ul>`;
+}
+
+/** A labelled value, for the notification emails that are really a form dump. */
+function field(label: string, valueHtml: string): string {
+  return `<p style="margin:0 0 2px 0;font-size:13px;line-height:1.6;color:${TEXT_SECONDARY};">${label}</p>
+            <p style="margin:0 0 20px 0;">${valueHtml}</p>`;
+}
+
+/** Free-text answers arrive with newlines; without this they collapse into one run-on line. */
+function multiline(text: string): string {
+  return escapeHtml(text).replace(/\r?\n/g, '<br>');
+}
+
+/** The rule and context line every attendee-facing email ends on. */
+function footerBlock(text: string): string {
+  return `<hr style="border:0;border-top:1px solid ${RULE};margin:0 0 20px 0;height:1px;line-height:1px;">
+
+            <p style="margin:0;font-size:13px;line-height:1.6;color:${TEXT_SECONDARY};">
+              ${text}
+            </p>`;
+}
+
 /**
  * Wraps body content in the shared scaffold. `preheader` is the grey preview
  * line inbox clients show next to the subject — it is read without the
  * greeting in front of it, so it has to stand alone.
  */
-function renderEmail(options: { preheader: string; heading: string; body: string; footer: string }): string {
+function renderEmail(options: { preheader: string; heading: string; body: string; footer?: string }): string {
   return `
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:${PAGE_BG};margin:0;padding:0;width:100%;">
   <tr>
@@ -109,11 +147,7 @@ function renderEmail(options: { preheader: string; heading: string; body: string
 
             ${options.body.trim()}
 
-            <hr style="border:0;border-top:1px solid ${RULE};margin:0 0 20px 0;height:1px;line-height:1px;">
-
-            <p style="margin:0;font-size:13px;line-height:1.6;color:${TEXT_SECONDARY};">
-              ${options.footer}
-            </p>
+            ${options.footer ? footerBlock(options.footer) : ''}
 
           </td>
         </tr>
@@ -246,35 +280,59 @@ export async function sendCalendarInviteEmail(
 
 export async function sendApplicationNotificationEmail(
   env: BrevoEnv,
-  options: { to: string; name: string; email: string; whyNow: string; commitment: string; anythingElse: string },
+  options: {
+    to: string;
+    name: string;
+    email: string;
+    whyNow: string;
+    commitment: string;
+    anythingElse: string;
+    openToContribution: boolean;
+  },
 ): Promise<void> {
+  const name = escapeHtml(options.name);
+  const email = escapeHtml(options.email);
   await sendBrevoEmail(env, {
     to: options.to,
-    subject: `New closed-group application — ${options.name}`,
-    htmlContent: `
-      <p><strong>Name:</strong> ${escapeHtml(options.name)}</p>
-      <p><strong>Email:</strong> ${escapeHtml(options.email)}</p>
-      <p><strong>Why now:</strong><br>${escapeHtml(options.whyNow)}</p>
-      <p><strong>Commitment:</strong><br>${escapeHtml(options.commitment)}</p>
-      ${options.anythingElse ? `<p><strong>Anything else:</strong><br>${escapeHtml(options.anythingElse)}</p>` : ''}
-    `.trim(),
+    subject: `New closed-group application \u2014 ${name}`,
+    htmlContent: renderEmail({
+      preheader: `${name} applied for the closed group.`,
+      heading: 'New closed-group application',
+      body: [
+        field('Name', name),
+        field('Email', link(`mailto:${email}`, email)),
+        field('Why now', multiline(options.whyNow)),
+        field('Commitment', multiline(options.commitment)),
+        options.anythingElse ? field('Anything else', multiline(options.anythingElse)) : '',
+        field('Open to contributing', options.openToContribution ? 'Yes' : 'No'),
+      ]
+        .filter(Boolean)
+        .join('\n\n            '),
+    }),
   });
 }
 
 export async function sendApplicationReceivedEmail(
   env: BrevoEnv,
-  options: { to: string; name: string },
+  options: { to: string; name: string; deadlineLabel: string; sessionLabels: string[] },
 ): Promise<void> {
+  const name = escapeHtml(options.name);
+  const deadlineLabel = escapeHtml(options.deadlineLabel);
   await sendBrevoEmail(env, {
     to: options.to,
     subject: `Got your application \u2014 Practice group for inner work`,
     htmlContent: renderEmail({
-      preheader: "I've got your application for the closed group, and I'll get back to you either way once applications close.",
+      preheader: "I've got your application for the closed group \u2014 here's what happens next.",
       heading: 'Got your application',
       body: [
-        p(`Hi ${escapeHtml(options.name)},`),
-        p("I've got your application for the closed group. I'll get back to you either way, once applications close."),
-        p('Thanks for taking the time.', { last: true }),
+        p(`Hi ${name},`),
+        p(
+          `I've got your application for the closed group. Applications close <strong style="font-weight:700;color:${TEXT_HEADING};">${deadlineLabel}</strong>, and ${highlight("I'll get back to you either way")} once they do.`,
+        ),
+        p('If you\u2019re in, the cycle runs six sessions \u2014 first and third Wednesday, 19:00\u201321:00 Berlin time:'),
+        list(options.sessionLabels.map((label) => escapeHtml(label))),
+        p('Nothing to do until then. If something changes on your side, or you have a question, just reply to this email.'),
+        p('Thanks for taking the time,<br>Nikolas', { last: true }),
       ].join('\n\n            '),
       footer: "You're getting this because you applied to the closed group of the Practice Group for Inner Work.",
     }),
@@ -341,12 +399,17 @@ export async function sendTimezoneInterestNotificationEmail(
   env: BrevoEnv,
   options: { to: string; email: string },
 ): Promise<void> {
+  const email = escapeHtml(options.email);
   await sendBrevoEmail(env, {
     to: options.to,
-    subject: `New Asia-timezone interest signup — ${options.email}`,
-    htmlContent: `
-      <p>Someone registered interest in an Asian-friendly time zone group.</p>
-      <p><strong>Email:</strong> ${escapeHtml(options.email)}</p>
-    `.trim(),
+    subject: `New Asia-timezone interest signup \u2014 ${email}`,
+    htmlContent: renderEmail({
+      preheader: `${email} registered interest in an Asian-friendly time zone group.`,
+      heading: 'New Asia-timezone interest',
+      body: [
+        p('Someone registered interest in an Asian-friendly time zone group.'),
+        field('Email', link(`mailto:${email}`, email)),
+      ].join('\n\n            '),
+    }),
   });
 }
