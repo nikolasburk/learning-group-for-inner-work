@@ -53,6 +53,19 @@ and `transform`, neither of which survives an email client. What's left is the
 flat swatch plus `box-decoration-break:clone`, which keeps the highlight looking
 continuous when it wraps across lines.
 
+## Transactional emails
+
+The automated emails — confirm-your-spot, you're-confirmed, got-your-application
+— are not in this folder; they're built in `src/lib/brevo.ts` from a shared
+`renderEmail()` scaffold that uses the same tokens, fonts and table layout as
+the campaigns here. Change a token in one place, change it in the other. The
+primary action in those emails is a table-based `button()` in `#6c71c4` with
+white text, matching the site's violet button; secondary actions (cancelling a
+spot, adding to Google Calendar) stay underlined links.
+
+Their footer is the context line only — no `{{ unsubscribe }}`, since Brevo
+substitutes that tag for campaigns, not for transactional sends.
+
 ## Converting a markdown file to HTML
 
 Start from the most recent `.html` in this folder and replace the content —
