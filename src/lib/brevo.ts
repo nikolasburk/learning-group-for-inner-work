@@ -13,7 +13,16 @@ interface BrevoEnv {
 
 interface BrevoListEnv {
   BREVO_API_KEY: string;
+  // One or more Brevo list IDs, comma-separated — a new contact is added to
+  // every list named here.
   BREVO_LIST_ID: string;
+}
+
+function parseListIds(value: string): number[] {
+  return value
+    .split(',')
+    .map((id) => Number(id.trim()))
+    .filter((id) => Number.isInteger(id) && id > 0);
 }
 
 function escapeHtml(text: string): string {
@@ -158,10 +167,12 @@ export async function sendApplicationReceivedEmail(
 }
 
 export async function addContactToNewsletterList(env: BrevoListEnv, options: { email: string }): Promise<void> {
+  const listIds = env.BREVO_LIST_ID ? parseListIds(env.BREVO_LIST_ID) : [];
+
   // No API key/list configured (e.g. local dev, or before a Brevo list has
   // been created) — log instead of calling the API, same fallback as
   // sendBrevoEmail above.
-  if (!env.BREVO_API_KEY || !env.BREVO_LIST_ID) {
+  if (!env.BREVO_API_KEY || listIds.length === 0) {
     console.log(
       `[dev newsletter signup — not sent to Brevo, BREVO_API_KEY/BREVO_LIST_ID not set] ${options.email}`,
     );
@@ -177,7 +188,7 @@ export async function addContactToNewsletterList(env: BrevoListEnv, options: { e
     },
     body: JSON.stringify({
       email: options.email,
-      listIds: [Number(env.BREVO_LIST_ID)],
+      listIds,
       updateEnabled: true,
     }),
   });
