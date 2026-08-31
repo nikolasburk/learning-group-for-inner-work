@@ -6,7 +6,7 @@ I think most people intuitively know this. Yet, <span class="sharpie-highlight s
 
 Inner work is the practice of paying attention to what's happening inside you. It's how that connection gets rebuilt—first with yourself, then with everyone else. It sounds simple, and it is.
 
-It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to bring my experience to a broader set of people from various backgrounds.
+It also turns out to be one of the most useful things I've done with my time recently. This group is an attempt to share my experience with a broader set of people from various backgrounds.
 
 <!-- Most of us spend our days moving quickly, and we don't get many chances to be honest — with other people, or with ourselves. Most conversations are about <span class="italic">something</span>: work, plans, news, a problem that needs solving. It's rarer to sit with someone and say what's actually going on. <span class="sharpie-highlight sharpie-rotate-1">It's rarer still to be listened to without being advised, reassured, or fixed.</span>
 
