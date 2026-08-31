@@ -1,4 +1,4 @@
-# Join our next one-off session on Wednesday
+# Join our next open session on Wednesday
 
 Hey friend,
 
