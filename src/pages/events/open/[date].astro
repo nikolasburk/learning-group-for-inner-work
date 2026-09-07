@@ -81,13 +81,7 @@ const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
             {confirmedHere ? (
               <>
                 <p class="mb-0 text-base leading-normal font-semibold text-solarized-textHeading">
-                  {finished ? (
-                    "You were confirmed for this session."
-                  ) : (
-                    <>
-                      <span class="sharpie-highlight sharpie-rotate-2">You're confirmed</span> — see you there.
-                    </>
-                  )}
+                  {finished ? "You were confirmed for this session." : "You're confirmed — see you there."}
                 </p>
                 {zoomLink && (
                   <div class="mt-4 border-t border-solarized-base2 pt-4">
@@ -105,16 +99,13 @@ const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
                 )}
               </>
             ) : pendingHere ? (
-              <p class="mb-0">
-                <span class="sharpie-highlight sharpie-rotate-1">You're signed up</span> — check your email to
-                confirm and get the Zoom link.
-              </p>
+              <p class="mb-0">You're signed up — check your email to confirm and get the Zoom link.</p>
             ) : finished ? (
               <p class="mb-0">This session has already taken place.</p>
             ) : isNextSession ? (
               <>
-                <p class="mb-3 text-lg font-medium text-solarized-textHeading">
-                  <span class="sharpie-highlight sharpie-rotate-3">Reserve your spot</span>
+                <p class="mb-4 text-center font-heading text-2xl font-semibold text-solarized-textHeading">
+                  Reserve your spot
                 </p>
                 <OpenGroupSignupForm
                   sessionDate={session.date}
