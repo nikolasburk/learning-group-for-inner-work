@@ -38,7 +38,7 @@ If you think our work is valuable, you can always [support us](/support)—we're
 
 ## Is inner work effective when it's done online?
 
-It definitely can be! I've experienced online sessions with groups several times and have found that it's equally possible to create deep connection with others even though we're only seeing each other through screens. There's more on setting yourself up for it in [How to prepare](/#how-to-prepare).
+It definitely can be! I've experienced online sessions with groups several times and have found that it's equally possible to create deep connection with others even though we're only seeing each other through screens. Each session's page (linked from the [calendar](/#join)) has a "How to prepare" section with more on setting yourself up for it.
 
 ## How long is a triad?
 

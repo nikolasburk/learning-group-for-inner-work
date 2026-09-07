@@ -32,6 +32,14 @@ export function confirmedHistory(value: SignupCookieValue | null): string[] {
   return dates.filter((date): date is string => typeof date === 'string');
 }
 
+/** Whether the cookie shows this visitor confirmed for `date` — live or historical. */
+export function isConfirmedForDate(value: SignupCookieValue | null, date: string): boolean {
+  return (
+    (value?.sessionDate === date && value.status === 'confirmed') ||
+    confirmedHistory(value).includes(date)
+  );
+}
+
 /**
  * The calendar only draws the current Berlin month and the months after it, so a
  * date earlier than that can never be rendered — drop it rather than carry it on

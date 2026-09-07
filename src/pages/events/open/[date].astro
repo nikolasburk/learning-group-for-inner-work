@@ -1,0 +1,162 @@
+---
+// Rendered per request: needs the signup cookie and the current "next session"
+// to decide what to show, so this can't be baked at build time.
+export const prerender = false;
+
+import { getEntry, render } from "astro:content";
+import Layout from "../../../layouts/Layout.astro";
+import Container from "../../../components/Container.astro";
+import SectionHeading from "../../../components/SectionHeading.astro";
+import Button from "../../../components/Button.astro";
+import CopyButton from "../../../components/CopyButton.astro";
+import OpenGroupSignupForm from "../../../components/OpenGroupSignupForm.astro";
+import HowToPrepare from "../../../components/sections/HowToPrepare.astro";
+import {
+  HOST_NAME,
+  CO_HOST_NAME,
+  HOST_IMAGE,
+  CO_HOST_IMAGE,
+  getNextOpenSession,
+  getSessionByDate,
+} from "../../../data/sessions";
+import { formatSessionLabel, formatSessionLabelWithYear, hasSessionEnded } from "../../../lib/berlin-time";
+import { buildGoogleCalendarLink } from "../../../lib/ics";
+import { isConfirmedForDate, readSignupCookieValue } from "../../../lib/signup-cookie";
+
+const session = getSessionByDate(Astro.params.date ?? "");
+if (!session) Astro.response.status = 404;
+
+const whyEntry = (await getEntry("copy", "why"))!;
+const { Content: Why } = await render(whyEntry);
+
+const dateTimeLabel = session ? `${formatSessionLabel(session.date)}, ${session.time} Berlin` : null;
+
+const cookie = readSignupCookieValue(Astro.cookies);
+const confirmedHere = session ? isConfirmedForDate(cookie, session.date) : false;
+const pendingHere = session ? cookie?.sessionDate === session.date && cookie.status === "pending" : false;
+const finished = session ? hasSessionEnded(session.date, session.time, session.durationMinutes) : false;
+const isNextSession = session ? session.date === getNextOpenSession()?.date : false;
+// Only the visitor's currently-active signup carries a token — a purely historical
+// confirmation (in `confirmed`) has none, so it can't drive an .ics re-download.
+const liveToken = session && cookie?.sessionDate === session.date ? cookie.token : undefined;
+
+const zoomLink = confirmedHere ? Astro.locals.runtime.env.ZOOM_LINK : null;
+const googleCalendarLink =
+  confirmedHere && session && zoomLink ? buildGoogleCalendarLink(session, zoomLink) : null;
+const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
+---
+
+<Layout
+  title={session ? `${formatSessionLabelWithYear(session.date)} — Inner Work` : "Session not found — Inner Work"}
+  description="Details for an Inner Work open group session, including how to join."
+>
+  {session && (
+    <Container background="tint">
+      <SectionHeading title="What this is" id="what-this-is" />
+      <div class="prose max-w-none mt-6">
+        <Why />
+      </div>
+    </Container>
+  )}
+
+  <Container class="prose">
+    <SectionHeading title="Open group session" />
+    {
+      !session ? (
+        <p>
+          That session date isn't part of the schedule. Head back to the <a href="/#join">Join</a> section
+          to see upcoming sessions.
+        </p>
+      ) : (
+        <>
+          <p
+            id="session-datetime"
+            class="mb-0 mt-4 text-2xl leading-normal font-bold text-solarized-textHeading"
+            data-session-date={session.date}
+            data-session-time={session.time}
+          >
+            {dateTimeLabel}
+          </p>
+          <span
+            class:list={[
+              "inline-block mt-2 px-2 py-0.5 rounded-full text-xs",
+              session.oneOff
+                ? "bg-solarized-violet/10 text-solarized-violet"
+                : "bg-solarized-base2 text-solarized-textSecondary",
+            ]}
+          >
+            {session.oneOff ? "One-off session" : "Regular session"}
+          </span>
+
+          <div class="mt-4 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <img src={HOST_IMAGE} alt={HOST_NAME} class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+              <span class="text-solarized-textSecondary">Hosted by {HOST_NAME}</span>
+            </div>
+            {session.coHost && (
+              <div class="flex items-center gap-2">
+                <img
+                  src={CO_HOST_IMAGE}
+                  alt={CO_HOST_NAME}
+                  class="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                />
+                <span class="text-solarized-textSecondary">Joined by co-host {CO_HOST_NAME}</span>
+              </div>
+            )}
+          </div>
+
+          <div class="mt-6 rounded-xl border border-solarized-base2 p-6 md:p-8">
+            {confirmedHere ? (
+              <>
+                <p class="mb-0 text-base leading-normal font-semibold text-solarized-textHeading">
+                  {finished ? "You were confirmed for this session." : "You're confirmed — see you there."}
+                </p>
+                {zoomLink && (
+                  <div class="mt-4 border-t border-solarized-base2 pt-4">
+                    <p class="mb-0 flex flex-wrap items-center gap-2 text-base leading-normal text-solarized-textBody">
+                      Join on Zoom: <a href={zoomLink}>{zoomLink}</a>
+                      <CopyButton value={zoomLink} label="Copy Zoom link" />
+                    </p>
+                  </div>
+                )}
+                {(googleCalendarLink || icsUrl) && (
+                  <div class="mt-4 flex flex-wrap gap-3 border-t border-solarized-base2 pt-4">
+                    {googleCalendarLink && <Button href={googleCalendarLink}>Add to Google Calendar</Button>}
+                    {icsUrl && <Button href={icsUrl}>Download calendar file (.ics)</Button>}
+                  </div>
+                )}
+              </>
+            ) : pendingHere ? (
+              <p class="mb-0">You're signed up — check your email to confirm and get the Zoom link.</p>
+            ) : finished ? (
+              <p class="mb-0">This session has already taken place.</p>
+            ) : isNextSession ? (
+              <OpenGroupSignupForm sessionDate={session.date} sessionLabel={formatSessionLabel(session.date)} />
+            ) : (
+              <p class="mb-0">
+                Sign-up opens once this becomes the next session — see the <a href="/#join">Join</a> section.
+              </p>
+            )}
+          </div>
+        </>
+      )
+    }
+  </Container>
+
+  {session && <HowToPrepare />}
+</Layout>
+
+<script>
+  import { formatSessionTimeInZone } from "../../../lib/berlin-time";
+
+  const el = document.getElementById("session-datetime");
+  const date = el?.dataset.sessionDate;
+  const time = el?.dataset.sessionTime;
+
+  if (el && date && time) {
+    const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (viewerTimeZone !== "Europe/Berlin") {
+      el.textContent = `${el.textContent?.trim()} (${formatSessionTimeInZone(date, time, viewerTimeZone)} your time)`;
+    }
+  }
+</script>

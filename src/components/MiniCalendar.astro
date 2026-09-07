@@ -37,6 +37,8 @@ interface Props {
   coHostImage?: string;
   /** Whether the popover shows a sign-up/confirmation status line. Default true. */
   signupEnabled?: boolean;
+  /** Which details-page namespace a session's popover link points at. */
+  eventType?: "open" | "closed";
 }
 
 const {
@@ -47,6 +49,7 @@ const {
   hostImage,
   coHostImage,
   signupEnabled = true,
+  eventType,
 } = Astro.props;
 const weekdayLabels = ["M", "T", "W", "T", "F", "S", "S"];
 const hasSessions = months.some((month) => month.sessions && month.sessions.length > 0);
@@ -60,6 +63,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
   data-host-image={hostImage}
   data-cohost-image={coHostImage}
   data-signup-enabled={signupEnabled ? "true" : "false"}
+  data-event-type={eventType}
 >
   <div class="flex items-center justify-between mb-2">
     <button
@@ -161,6 +165,9 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
         </div>
         <div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
         <p class="cal-popover-status flex items-center gap-1.5 text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
+        <a class="cal-popover-details hidden block text-solarized-violet underline px-4 py-3 border-t border-solarized-base2">
+          Event details →
+        </a>
       </div>
     )
   }
@@ -168,7 +175,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
 
 <script>
   import { formatSessionLabel, formatSessionTimeInZone, hasSessionEnded } from "../lib/berlin-time";
-  import { confirmedHistory, readSignupCookie } from "../lib/signup-cookie";
+  import { isConfirmedForDate, readSignupCookie } from "../lib/signup-cookie";
 
   const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -247,6 +254,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
     const coHostImage = cal.dataset.cohostImage ?? "";
     const signupEnabled = cal.dataset.signupEnabled !== "false";
     const cookie = signupEnabled ? readSignupCookie() : null;
+    const eventType = cal.dataset.eventType;
 
     const popover = cal.querySelector<HTMLElement>(".cal-popover");
     if (popover) document.body.appendChild(popover);
@@ -254,6 +262,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
     const kindEl = popover?.querySelector<HTMLElement>(".cal-popover-kind");
     const hostsEl = popover?.querySelector<HTMLElement>(".cal-popover-hosts");
     const statusEl = popover?.querySelector<HTMLElement>(".cal-popover-status");
+    const detailsEl = popover?.querySelector<HTMLAnchorElement>(".cal-popover-details");
 
     function buildHostRow(name: string, imageSrc: string, label: string) {
       const row = document.createElement("div");
@@ -337,13 +346,16 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
         hostsEl.appendChild(buildHostRow(coHostName, coHostImage, `Joined by co-host ${coHostName}`));
       }
 
+      if (detailsEl && eventType) {
+        detailsEl.href = `/events/${eventType}/${date}`;
+        detailsEl.classList.remove("hidden");
+      }
+
       if (!signupEnabled) {
         statusEl.classList.add("hidden");
       } else {
         statusEl.classList.remove("hidden");
-        const confirmedHere =
-          (cookie?.sessionDate === date && cookie.status === "confirmed") ||
-          confirmedHistory(cookie).includes(date);
+        const confirmedHere = isConfirmedForDate(cookie, date);
 
         if (confirmedHere) {
           const suffix = cookie?.email ? ` (${cookie.email}).` : ".";
@@ -380,13 +392,9 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
       }, 150);
     }
 
-    const history = confirmedHistory(cookie);
-
     dayCells.forEach((cell) => {
       const date = cell.dataset.sessionDate;
-      const confirmedHere =
-        !!date &&
-        ((cookie?.sessionDate === date && cookie.status === "confirmed") || history.includes(date));
+      const confirmedHere = !!date && isConfirmedForDate(cookie, date);
       if (confirmedHere) {
         const dot = cell.querySelector(".cal-signed-up-dot");
         dot?.classList.remove("hidden");

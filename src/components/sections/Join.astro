@@ -167,6 +167,7 @@ const closedStartIndex = monthIndexOf(nextClosedSession?.date ?? closedCycle?.st
         hostImage={HOST_IMAGE}
         coHostImage={CO_HOST_IMAGE}
         months={openMonths}
+        eventType="open"
       />
       <OpenOutro />
     </JoinCard>
@@ -187,6 +188,7 @@ const closedStartIndex = monthIndexOf(nextClosedSession?.date ?? closedCycle?.st
         hostImage={HOST_IMAGE}
         signupEnabled={false}
         months={closedMonths}
+        eventType="closed"
       />
       <ClosedOutro />
     </JoinCard>

@@ -64,3 +64,18 @@ export function getNextClosedCycle(now: Date = new Date()): ClosedGroupCycle | n
     CLOSED_GROUP_CYCLES.find((cycle) => berlinLocalToUtc(cycle.applicationDeadline, '23:59') > now) ?? null
   );
 }
+
+/**
+ * Resolves an arbitrary Closed Group date back to its session and cycle. Unlike the
+ * Open Group, cycles are a short, hand-maintained list rather than an open-ended rule,
+ * so this just scans every cycle's derived sessions for a match.
+ */
+export function getClosedSessionByDate(
+  dateISO: string,
+): { session: ClosedGroupSession; cycle: ClosedGroupCycle } | null {
+  for (const cycle of CLOSED_GROUP_CYCLES) {
+    const session = getClosedSessionsForCycle(cycle).find((s) => s.date === dateISO);
+    if (session) return { session, cycle };
+  }
+  return null;
+}
