@@ -1,0 +1,71 @@
+---
+import { formatSessionLabel } from "../lib/berlin-time";
+
+interface Props {
+  /** e.g. "Open group session" — read as a plain sentence, not a status label. */
+  kind: string;
+  dateISO: string;
+  /** '19:00', 24h Berlin-local. */
+  time: string;
+  hostName: string;
+  hostImage: string;
+  coHostName?: string;
+  coHostImage?: string;
+}
+
+const { kind, dateISO, time, hostName, hostImage, coHostName, coHostImage } = Astro.props;
+const dateLabel = formatSessionLabel(dateISO);
+---
+
+<div class="lg:flex lg:items-center lg:gap-10">
+  <div class="lg:flex-1">
+    <p class="text-lg font-medium text-solarized-violet">{kind}</p>
+    <h1
+      class="mt-1 text-4xl sm:text-6xl md:text-7xl font-heading font-semibold leading-[0.95] tracking-tight text-solarized-textHeading"
+    >
+      {dateLabel}
+    </h1>
+    <p
+      id="session-time"
+      class="mt-5 text-xl text-solarized-textSecondary"
+      data-session-date={dateISO}
+      data-session-time={time}
+    >
+      {time} Berlin
+    </p>
+
+    <div class="mt-8 flex flex-col gap-2">
+      <div class="flex items-center gap-2">
+        <img src={hostImage} alt={hostName} class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+        <span class="text-solarized-textSecondary">Hosted by {hostName}</span>
+      </div>
+      {coHostName && coHostImage && (
+        <div class="flex items-center gap-2">
+          <img src={coHostImage} alt={coHostName} class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
+          <span class="text-solarized-textSecondary">Joined by co-host {coHostName}</span>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <div
+    class="mt-8 lg:mt-0 w-full lg:w-[380px] lg:flex-shrink-0 rounded-2xl border border-solarized-base2 bg-solarized-base3 p-6 md:p-8 shadow-[0_20px_45px_-28px_rgba(30,41,59,0.35)]"
+  >
+    <slot />
+  </div>
+</div>
+
+<script>
+  import { formatSessionTimeInZone } from "../lib/berlin-time";
+
+  const el = document.getElementById("session-time");
+  const date = el?.dataset.sessionDate;
+  const time = el?.dataset.sessionTime;
+
+  if (el && date && time) {
+    const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (viewerTimeZone !== "Europe/Berlin") {
+      el.textContent = `${el.textContent?.trim()} (${formatSessionTimeInZone(date, time, viewerTimeZone)} your time)`;
+    }
+  }
+</script>

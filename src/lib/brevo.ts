@@ -264,6 +264,14 @@ export async function sendCalendarInviteEmail(
         p(
           `A calendar invite is attached. Or ${link(options.googleCalendarLink, 'add it to Google Calendar \u2192')}`,
         ),
+        p('A couple of things that help you land:'),
+        list([
+          '<strong>Change the place</strong> \u2014 don\u2019t take the session where you already work.',
+          '<strong>It\u2019s not a business meeting</strong> \u2014 comfortable clothes, no lighting setup.',
+          '<strong>Somewhere you won\u2019t be overheard</strong> \u2014 close the door, headphones in.',
+          '<strong>Leave a buffer</strong> \u2014 a few quiet minutes before and after.',
+        ]),
+        p(link('https://innerwork.nikolasburk.com/#how-to-prepare', 'More on how to prepare \u2192')),
         p('See you there.'),
         p(`Can't make it anymore? ${link(options.cancelUrl, 'Cancel my spot \u2192')}`, { last: true }),
       ].join('\n\n            '),

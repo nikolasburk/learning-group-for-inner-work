@@ -4,9 +4,11 @@ interface Props {
   sessionLabel: string;
   /** Distinguishes the field ids when the form appears more than once on a page. */
   id?: string;
+  /** Hide the pre-signup guidance line, e.g. when it's covered by copy shown alongside the form. */
+  showHint?: boolean;
 }
 
-const { sessionDate, sessionLabel, id = "open-group-email" } = Astro.props;
+const { sessionDate, sessionLabel, id = "open-group-email", showHint = true } = Astro.props;
 ---
 
 <form
@@ -46,10 +48,14 @@ const { sessionDate, sessionLabel, id = "open-group-email" } = Astro.props;
   >
     Cancel my spot
   </button>
-  <p data-signup-hint class="-mt-1 text-sm text-solarized-textSecondary">
-    Signing up for {sessionLabel}. You'll get an email to confirm you're coming — confirm it, and
-    you'll receive the link and a calendar invite. You can cancel your attendance at any time.
-  </p>
+  {
+    showHint && (
+      <p data-signup-hint class="-mt-1 text-sm text-solarized-textSecondary">
+        Signing up for {sessionLabel}. You'll get an email to confirm you're coming — confirm it, and
+        you'll receive the link and a calendar invite. You can cancel your attendance at any time.
+      </p>
+    )
+  }
 </form>
 
 <script>

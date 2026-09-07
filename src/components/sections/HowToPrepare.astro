@@ -4,6 +4,12 @@ import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
 import SessionElementCard from "../SessionElementCard.astro";
 
+interface Props {
+  collapsible?: boolean;
+}
+
+const { collapsible = false } = Astro.props;
+
 const entry = (await getEntry("copy", "how-to-prepare"))!;
 const { Content } = await render(entry);
 
@@ -23,13 +29,34 @@ const cards = await Promise.all(
   <div class="prose max-w-none mt-6">
     <Content />
   </div>
-  <div class="grid gap-6 lg:grid-cols-3 mt-8">
-    {
-      cards.map(({ title, Content }) => (
-        <SessionElementCard title={title}>
-          <Content />
-        </SessionElementCard>
-      ))
-    }
-  </div>
+  {
+    collapsible ? (
+      <details class="group mt-6">
+        <summary class="cursor-pointer select-none list-none flex items-center gap-2 font-semibold text-solarized-violet [&::-webkit-details-marker]:hidden">
+          <span
+            aria-hidden="true"
+            class="inline-block text-sm transition-transform group-open:rotate-90"
+          >
+            &#9654;
+          </span>
+          Show preparation tips
+        </summary>
+        <div class="grid gap-6 lg:grid-cols-3 mt-6">
+          {cards.map(({ title, Content }) => (
+            <SessionElementCard title={title}>
+              <Content />
+            </SessionElementCard>
+          ))}
+        </div>
+      </details>
+    ) : (
+      <div class="grid gap-6 lg:grid-cols-3 mt-8">
+        {cards.map(({ title, Content }) => (
+          <SessionElementCard title={title}>
+            <Content />
+          </SessionElementCard>
+        ))}
+      </div>
+    )
+  }
 </Container>

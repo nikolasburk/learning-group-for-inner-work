@@ -38,4 +38,12 @@ const preparation = defineCollection({
   }),
 });
 
-export const collections = { copy, faq, rules, sessionElements, preparation };
+const howItWorks = defineCollection({
+  loader: cardsLoader('./src/content/how-it-works.md'),
+  schema: z.object({
+    title: z.string(),
+    order: z.number(),
+  }),
+});
+
+export const collections = { copy, faq, rules, sessionElements, preparation, howItWorks };

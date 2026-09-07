@@ -5,6 +5,7 @@ import { getEntry, render } from "astro:content";
 import Layout from "../../../layouts/Layout.astro";
 import Container from "../../../components/Container.astro";
 import SectionHeading from "../../../components/SectionHeading.astro";
+import EventHero from "../../../components/EventHero.astro";
 import Button from "../../../components/Button.astro";
 import HowToPrepare from "../../../components/sections/HowToPrepare.astro";
 import { HOST_NAME, HOST_IMAGE } from "../../../data/sessions";
@@ -19,7 +20,6 @@ const cycle = found?.cycle ?? null;
 const whyEntry = (await getEntry("copy", "why"))!;
 const { Content: Why } = await render(whyEntry);
 
-const dateTimeLabel = session ? `${formatSessionLabel(session.date)}, ${session.time} Berlin` : null;
 const deadlineLabel = cycle ? formatSessionLabel(cycle.applicationDeadline) : null;
 const applicationsOpen = cycle ? berlinLocalToUtc(cycle.applicationDeadline, "23:59") > new Date() : false;
 ---
@@ -28,8 +28,43 @@ const applicationsOpen = cycle ? berlinLocalToUtc(cycle.applicationDeadline, "23
   title={session ? `${formatSessionLabelWithYear(session.date)} — Inner Work` : "Session not found — Inner Work"}
   description="Details for an Inner Work closed group session, including how to apply."
 >
+  <Container background="hero" class="py-12 md:py-20">
+    {
+      !session ? (
+        <p class="text-lg text-solarized-textSecondary">
+          That session date isn't part of the schedule. Head back to the <a href="/#join">Join</a> section
+          to see upcoming cycles.
+        </p>
+      ) : (
+        <EventHero
+          kind="Closed group session"
+          dateISO={session.date}
+          time={session.time}
+          hostName={HOST_NAME}
+          hostImage={HOST_IMAGE}
+        >
+          {applicationsOpen ? (
+            <>
+              <p class="mb-3 text-lg font-medium text-solarized-textHeading">
+                <span class="sharpie-highlight sharpie-rotate-1">Apply to join</span>
+              </p>
+              <Button href="/apply">Apply for the next cycle →</Button>
+              {deadlineLabel && (
+                <p class="mt-3 mb-0 text-sm text-solarized-textSecondary">
+                  Applications close {deadlineLabel}. I'll get back to everyone either way.
+                </p>
+              )}
+            </>
+          ) : (
+            <p class="mb-0">Applications for this cycle are closed.</p>
+          )}
+        </EventHero>
+      )
+    }
+  </Container>
+
   {session && (
-    <Container background="tint">
+    <Container>
       <SectionHeading title="What this is" id="what-this-is" />
       <div class="prose max-w-none mt-6">
         <Why />
@@ -37,63 +72,5 @@ const applicationsOpen = cycle ? berlinLocalToUtc(cycle.applicationDeadline, "23
     </Container>
   )}
 
-  <Container class="prose">
-    <SectionHeading title="Closed group session" />
-    {
-      !session ? (
-        <p>
-          That session date isn't part of the schedule. Head back to the <a href="/#join">Join</a> section
-          to see upcoming cycles.
-        </p>
-      ) : (
-        <>
-          <p
-            id="session-datetime"
-            class="mb-0 mt-4 text-2xl leading-normal font-bold text-solarized-textHeading"
-            data-session-date={session.date}
-            data-session-time={session.time}
-          >
-            {dateTimeLabel}
-          </p>
-
-          <div class="mt-4 flex items-center gap-2">
-            <img src={HOST_IMAGE} alt={HOST_NAME} class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-            <span class="text-solarized-textSecondary">Hosted by {HOST_NAME}</span>
-          </div>
-
-          <div class="mt-6 rounded-xl border border-solarized-base2 p-6 md:p-8">
-            {applicationsOpen ? (
-              <>
-                <Button href="/apply">Apply for the next cycle →</Button>
-                {deadlineLabel && (
-                  <p class="mt-3 mb-0 text-sm text-solarized-textSecondary">
-                    Applications close {deadlineLabel}. I'll get back to everyone either way.
-                  </p>
-                )}
-              </>
-            ) : (
-              <p class="mb-0">Applications for this cycle are closed.</p>
-            )}
-          </div>
-        </>
-      )
-    }
-  </Container>
-
   {session && <HowToPrepare />}
 </Layout>
-
-<script>
-  import { formatSessionTimeInZone } from "../../../lib/berlin-time";
-
-  const el = document.getElementById("session-datetime");
-  const date = el?.dataset.sessionDate;
-  const time = el?.dataset.sessionTime;
-
-  if (el && date && time) {
-    const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (viewerTimeZone !== "Europe/Berlin") {
-      el.textContent = `${el.textContent?.trim()} (${formatSessionTimeInZone(date, time, viewerTimeZone)} your time)`;
-    }
-  }
-</script>

@@ -3,13 +3,15 @@
 // to decide what to show, so this can't be baked at build time.
 export const prerender = false;
 
-import { getEntry, render } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
 import Layout from "../../../layouts/Layout.astro";
 import Container from "../../../components/Container.astro";
 import SectionHeading from "../../../components/SectionHeading.astro";
+import EventHero from "../../../components/EventHero.astro";
 import Button from "../../../components/Button.astro";
 import CopyButton from "../../../components/CopyButton.astro";
 import OpenGroupSignupForm from "../../../components/OpenGroupSignupForm.astro";
+import SessionElementCard from "../../../components/SessionElementCard.astro";
 import HowToPrepare from "../../../components/sections/HowToPrepare.astro";
 import {
   HOST_NAME,
@@ -29,7 +31,15 @@ if (!session) Astro.response.status = 404;
 const whyEntry = (await getEntry("copy", "why"))!;
 const { Content: Why } = await render(whyEntry);
 
-const dateTimeLabel = session ? `${formatSessionLabel(session.date)}, ${session.time} Berlin` : null;
+// Reuses the homepage's "how it works" steps rather than re-explaining the
+// sign-up flow in fresh copy here.
+const steps = (await getCollection("howItWorks")).sort((a, b) => a.data.order - b.data.order);
+const stepCards = await Promise.all(
+  steps.map(async (step, index) => {
+    const { Content } = await render(step);
+    return { title: step.data.title, number: index + 1, Content };
+  }),
+);
 
 const cookie = readSignupCookieValue(Astro.cookies);
 const confirmedHere = session ? isConfirmedForDate(cookie, session.date) : false;
@@ -50,66 +60,34 @@ const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
   title={session ? `${formatSessionLabelWithYear(session.date)} — Inner Work` : "Session not found — Inner Work"}
   description="Details for an Inner Work open group session, including how to join."
 >
-  {session && (
-    <Container background="tint">
-      <SectionHeading title="What this is" id="what-this-is" />
-      <div class="prose max-w-none mt-6">
-        <Why />
-      </div>
-    </Container>
-  )}
-
-  <Container class="prose">
-    <SectionHeading title="Open group session" />
+  <Container background="hero" class="py-12 md:py-20">
     {
       !session ? (
-        <p>
+        <p class="text-lg text-solarized-textSecondary">
           That session date isn't part of the schedule. Head back to the <a href="/#join">Join</a> section
           to see upcoming sessions.
         </p>
       ) : (
         <>
-          <p
-            id="session-datetime"
-            class="mb-0 mt-4 text-2xl leading-normal font-bold text-solarized-textHeading"
-            data-session-date={session.date}
-            data-session-time={session.time}
+          <EventHero
+            kind="Open group session"
+            dateISO={session.date}
+            time={session.time}
+            hostName={HOST_NAME}
+            hostImage={HOST_IMAGE}
+            coHostName={session.coHost ? CO_HOST_NAME : undefined}
+            coHostImage={session.coHost ? CO_HOST_IMAGE : undefined}
           >
-            {dateTimeLabel}
-          </p>
-          <span
-            class:list={[
-              "inline-block mt-2 px-2 py-0.5 rounded-full text-xs",
-              session.oneOff
-                ? "bg-solarized-violet/10 text-solarized-violet"
-                : "bg-solarized-base2 text-solarized-textSecondary",
-            ]}
-          >
-            {session.oneOff ? "One-off session" : "Regular session"}
-          </span>
-
-          <div class="mt-4 flex flex-col gap-2">
-            <div class="flex items-center gap-2">
-              <img src={HOST_IMAGE} alt={HOST_NAME} class="w-8 h-8 rounded-full object-cover flex-shrink-0" />
-              <span class="text-solarized-textSecondary">Hosted by {HOST_NAME}</span>
-            </div>
-            {session.coHost && (
-              <div class="flex items-center gap-2">
-                <img
-                  src={CO_HOST_IMAGE}
-                  alt={CO_HOST_NAME}
-                  class="w-8 h-8 rounded-full object-cover flex-shrink-0"
-                />
-                <span class="text-solarized-textSecondary">Joined by co-host {CO_HOST_NAME}</span>
-              </div>
-            )}
-          </div>
-
-          <div class="mt-6 rounded-xl border border-solarized-base2 p-6 md:p-8">
             {confirmedHere ? (
               <>
                 <p class="mb-0 text-base leading-normal font-semibold text-solarized-textHeading">
-                  {finished ? "You were confirmed for this session." : "You're confirmed — see you there."}
+                  {finished ? (
+                    "You were confirmed for this session."
+                  ) : (
+                    <>
+                      <span class="sharpie-highlight sharpie-rotate-2">You're confirmed</span> — see you there.
+                    </>
+                  )}
                 </p>
                 {zoomLink && (
                   <div class="mt-4 border-t border-solarized-base2 pt-4">
@@ -127,36 +105,50 @@ const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
                 )}
               </>
             ) : pendingHere ? (
-              <p class="mb-0">You're signed up — check your email to confirm and get the Zoom link.</p>
+              <p class="mb-0">
+                <span class="sharpie-highlight sharpie-rotate-1">You're signed up</span> — check your email to
+                confirm and get the Zoom link.
+              </p>
             ) : finished ? (
               <p class="mb-0">This session has already taken place.</p>
             ) : isNextSession ? (
-              <OpenGroupSignupForm sessionDate={session.date} sessionLabel={formatSessionLabel(session.date)} />
+              <>
+                <p class="mb-3 text-lg font-medium text-solarized-textHeading">
+                  <span class="sharpie-highlight sharpie-rotate-3">Reserve your spot</span>
+                </p>
+                <OpenGroupSignupForm
+                  sessionDate={session.date}
+                  sessionLabel={formatSessionLabel(session.date)}
+                  showHint={false}
+                />
+              </>
             ) : (
               <p class="mb-0">
                 Sign-up opens once this becomes the next session — see the <a href="/#join">Join</a> section.
               </p>
             )}
+          </EventHero>
+
+          <div class="mt-14 grid gap-6 sm:grid-cols-3">
+            {stepCards.map(({ title, number, Content }) => (
+              <SessionElementCard title={title} number={number} background="tint">
+                <Content />
+              </SessionElementCard>
+            ))}
           </div>
         </>
       )
     }
   </Container>
 
+  {session && (
+    <Container>
+      <SectionHeading title="What this is" id="what-this-is" />
+      <div class="prose max-w-none mt-6">
+        <Why />
+      </div>
+    </Container>
+  )}
+
   {session && <HowToPrepare />}
 </Layout>
-
-<script>
-  import { formatSessionTimeInZone } from "../../../lib/berlin-time";
-
-  const el = document.getElementById("session-datetime");
-  const date = el?.dataset.sessionDate;
-  const time = el?.dataset.sessionTime;
-
-  if (el && date && time) {
-    const viewerTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (viewerTimeZone !== "Europe/Berlin") {
-      el.textContent = `${el.textContent?.trim()} (${formatSessionTimeInZone(date, time, viewerTimeZone)} your time)`;
-    }
-  }
-</script>

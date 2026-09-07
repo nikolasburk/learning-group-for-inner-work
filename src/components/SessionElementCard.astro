@@ -1,14 +1,26 @@
 ---
 interface Props {
   title: string;
+  number?: number;
+  background?: "none" | "tint";
 }
 
-const { title } = Astro.props;
+const { title, number, background = "none" } = Astro.props;
 ---
 
 <div
-  class="rounded-xl border border-solarized-base2 p-6 flex flex-col h-full hover:shadow-md transition-shadow"
+  class:list={[
+    "rounded-xl border border-solarized-base2 p-6 flex flex-col h-full hover:shadow-md transition-shadow",
+    background === "tint" && "bg-solarized-tintViolet",
+  ]}
 >
+  {
+    number && (
+      <div class="w-8 h-8 rounded-full bg-solarized-sharpieViolet text-solarized-violet font-bold flex items-center justify-center mb-3 mx-auto">
+        {number}
+      </div>
+    )
+  }
   <h3 class="text-lg font-bold mb-2 text-solarized-textHeading">{title}</h3>
   <div class="prose [&_p]:text-base [&>p:last-child]:mb-0">
     <slot />

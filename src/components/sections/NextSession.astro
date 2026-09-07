@@ -1,12 +1,21 @@
 ---
-import { getEntry } from "astro:content";
+import { getCollection, getEntry, render } from "astro:content";
 import Container from "../Container.astro";
 import SectionHeading from "../SectionHeading.astro";
+import SessionElementCard from "../SessionElementCard.astro";
 import OpenGroupSignupForm from "../OpenGroupSignupForm.astro";
 import { getNextOpenSession } from "../../data/sessions";
 import { formatSessionLabel } from "../../lib/berlin-time";
 
 const entry = (await getEntry("copy", "closing-cta"))!;
+
+const steps = (await getCollection("howItWorks")).sort((a, b) => a.data.order - b.data.order);
+const stepCards = await Promise.all(
+  steps.map(async (step, index) => {
+    const { Content } = await render(step);
+    return { title: step.data.title, number: index + 1, Content };
+  }),
+);
 
 const nextSession = getNextOpenSession();
 const nextSessionLabel = nextSession ? formatSessionLabel(nextSession.date) : null;
@@ -37,11 +46,23 @@ const html = (entry.rendered?.html ?? "").replace(PLACEHOLDER, dateTimeHtml);
             id="next-session-email"
             sessionDate={nextSession.date}
             sessionLabel={nextSessionLabel}
+            showHint={false}
           />
         </div>
       )
     }
   </div>
+  {
+    nextSession && nextSessionLabel && (
+      <div class="grid gap-6 sm:grid-cols-3 mt-8 max-w-3xl mx-auto">
+        {stepCards.map(({ title, number, Content }) => (
+          <SessionElementCard title={title} number={number} background="tint">
+            <Content />
+          </SessionElementCard>
+        ))}
+      </div>
+    )
+  }
 </Container>
 
 <script>
