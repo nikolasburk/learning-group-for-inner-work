@@ -14,7 +14,7 @@ export interface ClosedGroupCycle {
  * This list is the hand-maintained part; the sessions within a cycle are derived.
  */
 export const CLOSED_GROUP_CYCLES: ClosedGroupCycle[] = [
-  { startDate: '2026-09-16', applicationDeadline: '2026-09-09' },
+  { startDate: '2026-09-30', applicationDeadline: '2026-09-23' },
 ];
 
 export interface ClosedGroupSession {

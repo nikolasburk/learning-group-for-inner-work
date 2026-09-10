@@ -53,8 +53,8 @@ await sendCalendarInviteEmail(env, {
 await sendApplicationReceivedEmail(env, {
   to: 'you@example.com',
   name: 'Alex',
-  deadlineLabel: 'September 9',
-  sessionLabels: ['September 16', 'October 7', 'October 21', 'November 4', 'November 18', 'December 2'],
+  deadlineLabel: 'September 23',
+  sessionLabels: ['September 30', 'October 7', 'October 21', 'November 4', 'November 18', 'December 2'],
 });
 // Multi-paragraph answers: the case that proves line breaks survive.
 await sendApplicationNotificationEmail(env, {
