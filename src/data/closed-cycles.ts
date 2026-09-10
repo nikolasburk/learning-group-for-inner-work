@@ -36,23 +36,33 @@ const CLOSED_GROUP_RULE = {
   sessionsPerCycle: 6,
 } as const;
 
+/** Every session runs at the rule's time and length; only the date varies. */
+function sessionOn(date: string): ClosedGroupSession {
+  return {
+    date,
+    time: CLOSED_GROUP_RULE.time,
+    durationMinutes: CLOSED_GROUP_RULE.durationMinutes,
+  };
+}
+
 /**
- * The cycle's sessions, derived from its start date by walking the rule forward.
- * A cycle can start on the third Wednesday rather than the first (the 2026-09 one
- * does), so generation starts at `startDate` rather than at the top of its month.
+ * The cycle's sessions: its start date, then the rule walked forward from there.
+ *
+ * The start date is the first session by definition, whether or not it happens to land
+ * on the rule — the 2026-09 cycle kicks off on a fifth Wednesday. Seeding it rather
+ * than generating it keeps `startDate` honest as "first session of the cycle" and
+ * leaves the 1st/3rd-Wednesday rule intact for the rest, which is what the open group
+ * alternates against. Rule dates up to and including the start are skipped, so an
+ * on-rule start date isn't emitted twice.
  */
 export function getClosedSessionsForCycle(cycle: ClosedGroupCycle): ClosedGroupSession[] {
   const [year, month] = cycle.startDate.split('-').map(Number);
-  const sessions: ClosedGroupSession[] = [];
+  const sessions: ClosedGroupSession[] = [sessionOn(cycle.startDate)];
   for (const period of monthsFrom(year, month, 12)) {
     for (const ordinal of CLOSED_GROUP_RULE.ordinals) {
       const date = nthWeekdayOfMonth(period.year, period.month, CLOSED_GROUP_RULE.weekday, ordinal);
-      if (!date || date < cycle.startDate) continue;
-      sessions.push({
-        date,
-        time: CLOSED_GROUP_RULE.time,
-        durationMinutes: CLOSED_GROUP_RULE.durationMinutes,
-      });
+      if (!date || date <= cycle.startDate) continue;
+      sessions.push(sessionOn(date));
       if (sessions.length >= CLOSED_GROUP_RULE.sessionsPerCycle) return sessions;
     }
   }
