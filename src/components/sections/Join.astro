@@ -13,7 +13,11 @@ import {
   getNextOpenSession,
   getSessionsInMonth,
 } from "../../data/sessions";
-import { getClosedSessionsForCycle, getNextClosedCycle } from "../../data/closed-cycles";
+import {
+  applicationDeadlinePhrase,
+  getClosedSessionsForCycle,
+  getNextClosedCycle,
+} from "../../data/closed-cycles";
 import { formatSessionLabel, hasSessionEnded } from "../../lib/berlin-time";
 import {
   berlinMonthOf,
@@ -40,9 +44,6 @@ const nextSessionLabel = nextSession
   : null;
 const closedCycle = getNextClosedCycle();
 const closedSessions = closedCycle ? getClosedSessionsForCycle(closedCycle) : [];
-const closedDeadlineLabel = closedCycle
-  ? formatSessionLabel(closedCycle.applicationDeadline)
-  : null;
 // Derived from the cycle so the card can't advertise a month or a deadline the
 // schedule has already moved past.
 const closedNote = closedCycle
@@ -51,8 +52,8 @@ const closedNote = closedCycle
       Number(closedCycle.startDate.slice(5, 7)),
     )} (${closedSessions.length} sessions in total)`
   : "Applications are closed for now.";
-const closedFootnote = closedDeadlineLabel
-  ? `Applications close ${closedDeadlineLabel}. I'll get back to everyone either way.`
+const closedFootnote = closedCycle
+  ? `Applications are open until ${applicationDeadlinePhrase(closedCycle)}. I'll get back to everyone either way.`
   : undefined;
 
 // How many months the calendar lets you page through.

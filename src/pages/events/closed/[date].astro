@@ -9,8 +9,8 @@ import EventHero from "../../../components/EventHero.astro";
 import Button from "../../../components/Button.astro";
 import HowToPrepare from "../../../components/sections/HowToPrepare.astro";
 import { HOST_NAME, HOST_IMAGE } from "../../../data/sessions";
-import { getClosedSessionByDate } from "../../../data/closed-cycles";
-import { berlinLocalToUtc, formatSessionLabel, formatSessionLabelWithYear } from "../../../lib/berlin-time";
+import { applicationDeadlinePhrase, getClosedSessionByDate } from "../../../data/closed-cycles";
+import { berlinLocalToUtc, formatSessionLabelWithYear } from "../../../lib/berlin-time";
 
 const found = getClosedSessionByDate(Astro.params.date ?? "");
 if (!found) Astro.response.status = 404;
@@ -20,7 +20,9 @@ const cycle = found?.cycle ?? null;
 const whyEntry = (await getEntry("copy", "why"))!;
 const { Content: Why } = await render(whyEntry);
 
-const deadlineLabel = cycle ? formatSessionLabel(cycle.applicationDeadline) : null;
+const deadlineNote = cycle
+  ? `Applications are open until ${applicationDeadlinePhrase(cycle)}. I'll get back to everyone either way.`
+  : null;
 const applicationsOpen = cycle ? berlinLocalToUtc(cycle.applicationDeadline, "23:59") > new Date() : false;
 ---
 
@@ -49,10 +51,8 @@ const applicationsOpen = cycle ? berlinLocalToUtc(cycle.applicationDeadline, "23
                 Apply to join
               </p>
               <Button href="/apply">Apply for the next cycle →</Button>
-              {deadlineLabel && (
-                <p class="mt-3 mb-0 text-sm text-solarized-textSecondary">
-                  Applications close {deadlineLabel}. I'll get back to everyone either way.
-                </p>
+              {deadlineNote && (
+                <p class="mt-3 mb-0 text-sm text-solarized-textSecondary">{deadlineNote}</p>
               )}
             </>
           ) : (

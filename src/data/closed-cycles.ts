@@ -1,5 +1,5 @@
-import { berlinLocalToUtc } from '../lib/berlin-time';
-import { monthsFrom, nthWeekdayOfMonth } from '../lib/recurrence';
+import { berlinLocalToUtc, formatSessionLabel } from '../lib/berlin-time';
+import { daysInMonth, monthLabel, monthsFrom, nthWeekdayOfMonth } from '../lib/recurrence';
 
 export interface ClosedGroupCycle {
   /** 'YYYY-MM-DD', Berlin-local — first session of the cycle */
@@ -14,8 +14,20 @@ export interface ClosedGroupCycle {
  * This list is the hand-maintained part; the sessions within a cycle are derived.
  */
 export const CLOSED_GROUP_CYCLES: ClosedGroupCycle[] = [
-  { startDate: '2026-09-30', applicationDeadline: '2026-09-23' },
+  { startDate: '2026-10-07', applicationDeadline: '2026-09-30' },
 ];
+
+/**
+ * How the site says the deadline out loud. A deadline on the last day of its month reads
+ * as "the end of September" rather than a date nobody needs to remember; anything
+ * mid-month keeps the exact day, so this can't overstate the window.
+ */
+export function applicationDeadlinePhrase(cycle: ClosedGroupCycle): string {
+  const [year, month, day] = cycle.applicationDeadline.split('-').map(Number);
+  return day === daysInMonth(year, month)
+    ? `the end of ${monthLabel(year, month)}`
+    : formatSessionLabel(cycle.applicationDeadline);
+}
 
 export interface ClosedGroupSession {
   /** 'YYYY-MM-DD', Berlin-local */
