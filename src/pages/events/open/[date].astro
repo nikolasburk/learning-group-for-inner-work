@@ -21,6 +21,7 @@ import {
   getNextOpenSession,
   getSessionByDate,
 } from "../../../data/sessions";
+import { getNextClosedCycle } from "../../../data/closed-cycles";
 import { formatSessionLabel, formatSessionLabelWithYear, hasSessionEnded } from "../../../lib/berlin-time";
 import { buildGoogleCalendarLink } from "../../../lib/ics";
 import { isConfirmedForDate, readSignupCookieValue } from "../../../lib/signup-cookie";
@@ -54,6 +55,7 @@ const zoomLink = confirmedHere ? Astro.locals.runtime.env.ZOOM_LINK : null;
 const googleCalendarLink =
   confirmedHere && session && zoomLink ? buildGoogleCalendarLink(session, zoomLink) : null;
 const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
+const closedCycle = getNextClosedCycle();
 ---
 
 <Layout
@@ -78,6 +80,16 @@ const icsUrl = liveToken ? `/api/ics?token=${liveToken}` : null;
             coHostName={session.coHost ? CO_HOST_NAME : undefined}
             coHostImage={session.coHost ? CO_HOST_IMAGE : undefined}
           >
+            {session.pitch && !finished && (
+              <Fragment slot="intro">
+                <p class="mb-0">{session.pitch.long}</p>
+                {closedCycle && (
+                  <p class="mt-2 mb-0">
+                    <a href={`/events/closed/${closedCycle.startDate}`}>More about the closed group →</a>
+                  </p>
+                )}
+              </Fragment>
+            )}
             {confirmedHere ? (
               <>
                 <p class="mb-0 text-base leading-normal font-semibold text-solarized-textHeading">

@@ -15,6 +15,8 @@ interface SessionDetail {
   /** Off-rule session. Omit entirely when the schedule has no notion of one-offs —
    *  the popover then shows no kind badge at all. */
   oneOff?: boolean;
+  /** One-line framing for this session, shown in the popover until it has finished. */
+  note?: string;
 }
 
 interface MonthSpec {
@@ -124,6 +126,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
                       : session.oneOff
                         ? "true"
                         : "false"}
+                    data-note={session.note}
                     aria-haspopup="true"
                   >
                     {day}
@@ -162,6 +165,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
         <div class="px-4 py-3">
           <p class="cal-popover-datetime font-semibold text-solarized-textHeading" />
           <span class="cal-popover-kind" />
+          <p class="cal-popover-note hidden mt-2 mb-0 text-solarized-textSecondary" />
         </div>
         <div class="cal-popover-hosts flex flex-col gap-2 px-4 py-3 border-t border-solarized-base2" />
         <p class="cal-popover-status flex items-center gap-1.5 text-solarized-textSecondary px-4 py-3 border-t border-solarized-base2" />
@@ -260,6 +264,7 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
     if (popover) document.body.appendChild(popover);
     const datetimeEl = popover?.querySelector<HTMLElement>(".cal-popover-datetime");
     const kindEl = popover?.querySelector<HTMLElement>(".cal-popover-kind");
+    const noteEl = popover?.querySelector<HTMLElement>(".cal-popover-note");
     const hostsEl = popover?.querySelector<HTMLElement>(".cal-popover-hosts");
     const statusEl = popover?.querySelector<HTMLElement>(".cal-popover-status");
     const detailsEl = popover?.querySelector<HTMLAnchorElement>(".cal-popover-details");
@@ -338,6 +343,13 @@ const hasSessions = months.some((month) => month.sessions && month.sessions.leng
           kindEl.className = `${KIND_BASE} ${isOneOff ? KIND_ONE_OFF_CLASS : KIND_REGULAR_CLASS}`;
           kindEl.textContent = isOneOff ? "One-off session" : "Regular session";
         }
+      }
+
+      if (noteEl) {
+        // A pitch for a session that already happened would read as an invitation.
+        const note = finished ? undefined : cell.dataset.note;
+        noteEl.textContent = note ?? "";
+        noteEl.classList.toggle("hidden", !note);
       }
 
       hostsEl.textContent = "";

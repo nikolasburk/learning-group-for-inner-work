@@ -33,6 +33,11 @@ const dateLabel = formatSessionLabel(dateISO);
     >
       {time} Berlin
     </p>
+    {Astro.slots.has("intro") && (
+      <div class="mt-6 max-w-prose text-lg text-solarized-textBody">
+        <slot name="intro" />
+      </div>
+    )}
 
     <div class="mt-8 flex flex-col gap-2">
       <div class="flex items-center gap-2">

@@ -11,6 +11,11 @@ export interface OpenGroupSession {
   coHost: boolean;
   /** True for a session held outside OPEN_GROUP_RULE — see OPEN_GROUP_ADDITIONS. */
   oneOff: boolean;
+  /**
+   * Optional framing for one specific session: `short` is a single phrase for the
+   * calendar popover, `long` a sentence or two for the event page.
+   */
+  pitch?: { short: string; long: string };
 }
 
 export const HOST_NAME = 'Nikolas Burk';
@@ -59,7 +64,13 @@ const OPEN_GROUP_ADDITIONS: Record<
   Partial<Omit<OpenGroupSession, 'date' | 'oneOff'>>
 > = {
   '2026-09-02': { coHost: true }, // extra session between the August and September regulars, with Rosa
-  '2026-09-30': {}, // extra session on the Wednesday the closed cycle vacated
+  // extra session on the Wednesday the closed cycle vacated
+  '2026-09-30': {
+    pitch: {
+      short: 'A good way to try the group before the closed cycle starts.',
+      long: "This one-off is a good way to try the group out. If you're weighing up the closed group, come along and see whether the format and the people feel right before you apply.",
+    },
+  },
   // '2026-10-06': {},                  // extra session, rule's default time
   // '2026-11-20': { time: '18:00' },   // extra session, earlier start
   // '2026-12-02': { coHost: true },    // extra session with Rosa
@@ -82,6 +93,7 @@ function buildSession(dateISO: string): OpenGroupSession | null {
     durationMinutes: spec?.durationMinutes ?? OPEN_GROUP_RULE.durationMinutes,
     coHost: spec?.coHost ?? false,
     oneOff: !onRule,
+    pitch: spec?.pitch,
   };
 }
 
